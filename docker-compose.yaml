@@ -1,0 +1,30 @@
+version: "3.11"
+services:
+  db:
+    image: postgres:12
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      PGUSER: ${DATABASE_USERNAME}
+      PGDATABASE: ${DATABASE_NAME}
+      PGPASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - 127.0.0.1:${DATABASE_LOCAL_PORT:-5432}:5432
+    restart: always
+
+  app:
+    build: .
+    restart: always
+    environment:
+      - DB_URI=postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@db/${DATABASE_NAME}
+    command: bash ./start_server.sh
+    ports:
+      - 127.0.0.1:8009:80
+    depends_on:
+      - db
+
+volumes:
+  db_data:
