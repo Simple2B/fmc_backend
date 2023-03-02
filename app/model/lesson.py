@@ -9,7 +9,7 @@ class Lesson(Base):
     __tablename__ = "lessons"
 
     id = Column(Integer, primary_key=True)
-    uuid = Column(String(64), nullable=False, default=generate_uuid)
+    uuid = Column(String(36), nullable=False, default=generate_uuid)
 
     coach_id = Column(Integer, ForeignKey("coaches.id"))
     location_id = Column(Integer, ForeignKey("locations.id"))
@@ -20,4 +20,4 @@ class Lesson(Base):
     created_at = Column(DateTime(), default=datetime.now)
 
     def __repr__(self):
-        return f"<Lesson {self.id}>"
+        return f"<{self.id}:{self.date}>"

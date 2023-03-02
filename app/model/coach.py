@@ -1,6 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, func, or_
-
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, func
 from app.hash_utils import make_hash, hash_verify
 from app.database import Base, Session
 from app.utils import generate_uuid
@@ -10,22 +9,22 @@ class Coach(Base):
     __tablename__ = "coaches"
 
     id = Column(Integer, primary_key=True)
-    uuid = Column(String(64), nullable=False, default=generate_uuid)
+    uuid = Column(String(36), nullable=False, default=generate_uuid)
 
     first_name = Column(String(64), nullable=False, default="")
     last_name = Column(String(64), nullable=False, default="")
     email = Column(String(128), nullable=False, unique=True)
 
-    google_open_id = Column(String(), nullable=True)
+    google_open_id = Column(String(128), nullable=True)
 
     verification_token = Column(
-        String(64), nullable=True, default=generate_uuid
+        String(36), nullable=True, default=generate_uuid
     )  # for email confirmation
 
     password_hash = Column(String(128), nullable=False)
     is_verified = Column(Boolean, default=False)
 
-    created_at = Column(DateTime(), default=datetime.now)
+    created_at = Column(DateTime, default=datetime.now)
 
     @property
     def password(self):
@@ -40,9 +39,7 @@ class Coach(Base):
         user = (
             db.query(cls)
             .filter(
-                or_(
-                    func.lower(cls.email) == func.lower(user_id),
-                )
+                func.lower(cls.email) == func.lower(user_id),
             )
             .first()
         )
@@ -50,4 +47,4 @@ class Coach(Base):
             return user
 
     def __repr__(self):
-        return f"<Coach {self.id}: {self.email}>"
+        return f"<{self.id}: {self.email}>"

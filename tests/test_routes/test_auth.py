@@ -12,7 +12,7 @@ from tests.fixture import TestData
 settings: Settings = get_test_settings()
 
 
-def test_signup(
+def test_signup_student(
     client: TestClient,
     test_data: TestData,
     db: Session,
@@ -23,6 +23,19 @@ def test_signup(
     response = client.post("api/students/sign-up", json=request_data)
     assert response
     assert db.query(m.Student).filter_by(email=test_data.test_student.email).first()
+
+
+def test_signup_coach(
+    client: TestClient,
+    test_data: TestData,
+    db: Session,
+):
+    request_data = s.UserSignUp(
+        email=test_data.test_coach.email, password=test_data.test_coach.password
+    ).dict()
+    response = client.post("api/coaches/sign-up", json=request_data)
+    assert response
+    assert db.query(m.Coach).filter_by(email=test_data.test_coach.email).first()
 
 
 def test_login(client: TestClient, db: Session, test_data: TestData):

@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, func, or_
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, func
 
 from app.hash_utils import make_hash, hash_verify
 from app.database import Base, Session
@@ -10,13 +10,13 @@ class Student(Base):
     __tablename__ = "students"
 
     id = Column(Integer, primary_key=True)
-    uuid = Column(String(64), nullable=False, default=generate_uuid)
+    uuid = Column(String(36), nullable=False, default=generate_uuid)
 
     first_name = Column(String(64), nullable=False, default="")
     last_name = Column(String(64), nullable=False, default="")
     email = Column(String(128), nullable=False, unique=True)
 
-    google_open_id = Column(String(), nullable=True)
+    google_open_id = Column(String(128), nullable=True)
 
     verification_token = Column(
         String(64), nullable=True, default=generate_uuid
@@ -25,7 +25,7 @@ class Student(Base):
     password_hash = Column(String(128), nullable=False)
     is_verified = Column(Boolean, default=False)
 
-    created_at = Column(DateTime(), default=datetime.now)
+    created_at = Column(DateTime, default=datetime.now)
 
     @property
     def password(self):
@@ -38,13 +38,7 @@ class Student(Base):
     @classmethod
     def authenticate(cls, db: Session, user_id: str, password: str):
         user = (
-            db.query(cls)
-            .filter(
-                or_(
-                    func.lower(cls.email) == func.lower(user_id),
-                )
-            )
-            .first()
+            db.query(cls).filter(func.lower(cls.email) == func.lower(user_id)).first()
         )
         if user is not None and hash_verify(password, user.password):
             return user

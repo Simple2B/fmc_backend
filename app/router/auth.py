@@ -9,8 +9,6 @@ from app.oauth2 import create_access_token
 from app.database import get_db
 import app.schema as s
 from app.model import Coach, Student
-from app.dependency import get_mail_client
-from app.controller import MailClient
 
 
 auth_router = APIRouter(tags=["Authentication"])
@@ -32,7 +30,7 @@ def coach_login(
 
     access_token = create_access_token(data={"user_id": coach.id})
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return s.Token(access_token=access_token, token_type="bearer")
 
 
 @auth_router.post("/student/login", response_model=s.Token)
@@ -51,24 +49,42 @@ def student_login(
 
     access_token = create_access_token(data={"user_id": student.id})
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return s.Token(access_token=access_token, token_type="bearer")
 
 
 @auth_router.post("/students/sign-up", status_code=status.HTTP_200_OK)
-async def sign_up(
-    user_data: s.UserSignUp,
+async def students_sign_up(
+    student_data: s.UserSignUp,
     db: Session = Depends(get_db),
-    mail_client: MailClient = Depends(get_mail_client),
 ):
-    student: Student | None = Student(**user_data.dict())
+    student: Student | None = Student(**student_data.dict())
     db.add(student)
     try:
         log(log.INFO, "Creating a new student - [%s]", student.email)
         db.commit()
     except SQLAlchemyError as e:
-        log(log.INFO, "Error while singin up a new user - [%s]", e)
+        log(log.INFO, "Error while singin up a new student - [%s]", e)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Error while creating a student account",
+        )
+    return status.HTTP_200_OK
+
+
+@auth_router.post("/coaches/sign-up", status_code=status.HTTP_200_OK)
+async def coaches_sign_up(
+    coach_data: s.UserSignUp,
+    db: Session = Depends(get_db),
+):
+    coach: Coach | None = Coach(**coach_data.dict())
+    db.add(coach)
+    try:
+        log(log.INFO, "Creating a new coach - [%s]", coach.email)
+        db.commit()
+    except SQLAlchemyError as e:
+        log(log.INFO, "Error while singin up a new coach - [%s]", e)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Error while creating a coach account",
         )
     return status.HTTP_200_OK

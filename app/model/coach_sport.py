@@ -1,5 +1,4 @@
-from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, ForeignKey, Float
 
 from app.database import Base
 from app.utils import generate_uuid
@@ -14,10 +13,9 @@ class CoachSport(Base):
     coach_id = Column(Integer, ForeignKey("coaches.id"))
     sport_id = Column(Integer, ForeignKey("sport_types.id"))
 
-    amount = Column(
+    price = Column(
         Float, default=9.99
     )  # hypotheticall the price of a coach lesson for the sport he teaches may differ
-    created_at = Column(DateTime(), default=datetime.now)
 
     def __repr__(self):
         return f"<CoachSport {self.id}>"
