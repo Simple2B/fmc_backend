@@ -4,18 +4,25 @@ import pytest
 from pydantic import BaseModel, EmailStr
 
 
-class TestUser(BaseModel):
+class TestCoach(BaseModel):
     __test__ = False
-    username: str
     email: EmailStr
     password: str
+    is_verified: bool | None
+
+
+class TestStudent(BaseModel):
+    __test__ = False
+    email: EmailStr
+    password: str
+    is_verified: bool | None
 
 
 class TestData(BaseModel):
     __test__ = False
-    test_users: list[TestUser]
-    test_user: TestUser
-    test_user1: TestUser
+    test_coaches: list[TestCoach] | None
+    test_coach: TestCoach | None
+    test_student: TestStudent | None
 
 
 @pytest.fixture

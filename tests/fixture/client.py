@@ -66,7 +66,7 @@ def authorized_tokens(
         response = client.post(
             "api/login",
             data={
-                "username": user.email,
+                "email": user.email,
                 "password": user.password,
             },
         )

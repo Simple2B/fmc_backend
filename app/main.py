@@ -19,7 +19,7 @@ engine: Engine = get_engine()
 
 # admin
 sql_admin = Admin(app, engine)
-sql_admin.add_view(admin.user.UserAdmin)
+sql_admin.add_view(admin.coach.CoachAdmin)
 
 # middleware
 app.add_middleware(

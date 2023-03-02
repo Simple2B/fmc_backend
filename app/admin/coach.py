@@ -1,9 +1,9 @@
 from sqladmin import ModelView
 
-from app.model import User
+from app.model import Coach
 
 
-class UserAdmin(ModelView, model=User):
+class CoachAdmin(ModelView, model=Coach):
     """Class for setting up the Admin panel for the User model"""
 
     # Permission
@@ -13,16 +13,16 @@ class UserAdmin(ModelView, model=User):
     can_view_details = True
 
     # Metadata
-    name = "User Model"
-    name_plural = "Users"
+    name = "Coach"
+    name_plural = "Coaches"
     icon = "fa-solid fa-user"
 
-    column_list = [User.id, User.email, User.username]
-    column_searchable_list = [User.email]
-    column_sortable_list = [User.id, User.email, User.username]
+    column_list = [Coach.id, Coach.email]
+    column_searchable_list = [Coach.email]
+    column_sortable_list = [Coach.id, Coach.email]
 
     # Details
-    column_details_list = [User.id, User.username]
+    column_details_list = [Coach.id, Coach.email]
 
     # Pagination
     page_size = 50
