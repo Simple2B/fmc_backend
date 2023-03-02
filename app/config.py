@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     TEST_SEND_EMAIL: bool = False
     TEST_TARGET_EMAIL: str | None
 
+    # STRIPE
+    STRIPE_SECRET_KEY: str = ""
+
     class Config:
         env_file = ".env"
 

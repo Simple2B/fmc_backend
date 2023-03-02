@@ -27,6 +27,7 @@ sqladmin = "^0.9.0"
 typer = "^0.7.0"
 typer-cli = "^0.0.13"
 fastapi-mail = "^1.2.6"
+stripe = "^5.2.0"
 
 
 [tool.poetry.group.dev.dependencies]
