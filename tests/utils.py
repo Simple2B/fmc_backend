@@ -6,7 +6,7 @@ from tests.fixture import TestData
 
 def fill_db_by_test_data(db: Session, test_data: TestData):
     print("Filling up db with fake data")
-    for u in test_data.test_users:
-        if not db.query(m.User).filter_by(email=u.email).first():
-            db.add(m.User(**u.dict()))
+    for c in test_data.test_coaches:
+        if not db.query(m.Coach).filter_by(email=c.email).first():
+            db.add(m.Coach(**c.dict()))
     db.commit()

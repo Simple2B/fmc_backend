@@ -1,3 +1,3 @@
 # flake8: noqa F401
 
-from .user import UserAdmin
+from .coach import CoachAdmin
