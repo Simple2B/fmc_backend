@@ -27,4 +27,4 @@ def login(
 
     access_token = create_access_token(data={"user_id": coach.id})
 
-    return {"access_token": access_token, "token_type": "bearer"}
+    return Token(access_token=access_token, token_type="bearer")

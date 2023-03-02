@@ -13,7 +13,7 @@ class CoachAdmin(ModelView, model=Coach):
     can_view_details = True
 
     # Metadata
-    name = "Coaches"
+    name = "Coach"
     name_plural = "Coaches"
     icon = "fa-solid fa-user"
 

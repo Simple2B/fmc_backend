@@ -7,13 +7,13 @@ from app.utils import generate_uuid
 
 
 class WeekDay(enum.Enum):
-    monday = 1
-    tuesday = 2
-    wednesday = 3
-    thursday = 4
-    friday = 5
-    saturday = 6
-    sunday = 7
+    monday = "Monday"
+    tuesday = "Tuesday"
+    wednesday = "Wednesday"
+    thursday = "Thursday"
+    friday = "Friday"
+    saturday = "Saturday"
+    sunday = "Sunday"
 
 
 class CoachSchedule(Base):
