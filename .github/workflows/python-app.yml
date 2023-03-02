@@ -39,3 +39,6 @@ jobs:
       - name: Run pytest
         run: |
           poetry run pytest
+      - name: Run migrations tests
+        run: |
+          poetry run pytest --test-alembic

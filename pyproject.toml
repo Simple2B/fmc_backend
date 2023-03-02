@@ -32,6 +32,7 @@ typer-cli = "^0.0.13"
 flake8 = "^6.0.0"
 black = "^23.1.0"
 pytest = "^7.2.1"
+pytest-alembic = "^0.10.0"
 
 [build-system]
 requires = ["poetry-core"]
