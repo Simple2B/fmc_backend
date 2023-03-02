@@ -20,7 +20,7 @@ def test_signup_student(
     request_data = s.UserSignUp(
         email=test_data.test_student.email, password=test_data.test_student.password
     ).dict()
-    response = client.post("api/students/sign-up", json=request_data)
+    response = client.post("api/auth/student/sign-up", json=request_data)
     assert response
     assert db.query(m.Student).filter_by(email=test_data.test_student.email).first()
 
@@ -33,7 +33,7 @@ def test_signup_coach(
     request_data = s.UserSignUp(
         email=test_data.test_coach.email, password=test_data.test_coach.password
     ).dict()
-    response = client.post("api/coaches/sign-up", json=request_data)
+    response = client.post("api/auth/coach/sign-up", json=request_data)
     assert response
     assert db.query(m.Coach).filter_by(email=test_data.test_coach.email).first()
 

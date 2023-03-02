@@ -22,7 +22,7 @@ class Coach(Base):
     )  # for email confirmation
 
     password_hash = Column(String(128), nullable=False)
-    is_verified = Column(Boolean, default=False)
+    is_verified = Column(Boolean, default=True)
 
     created_at = Column(DateTime, default=datetime.now)
 
