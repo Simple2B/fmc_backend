@@ -20,7 +20,8 @@ class TestStudent(BaseModel):
 
 class TestData(BaseModel):
     __test__ = False
-    test_coaches: list[TestCoach] | None
+    test_coaches: list[TestCoach]
+    test_students: list[TestStudent]
     test_coach: TestCoach | None
     test_student: TestStudent | None
 
