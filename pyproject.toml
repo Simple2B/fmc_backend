@@ -26,6 +26,7 @@ ipython = "^8.11.0"
 sqladmin = "^0.9.0"
 typer = "^0.7.0"
 typer-cli = "^0.0.13"
+fastapi-mail = "^1.2.6"
 
 
 [tool.poetry.group.dev.dependencies]
