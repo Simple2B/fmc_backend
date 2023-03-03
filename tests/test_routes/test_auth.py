@@ -108,3 +108,49 @@ def test_forgot_password_coach(
     )
     assert coach
     assert coach.verification_token != old_token
+
+
+def test_forgot_password_student(
+    client: TestClient,
+    db: Session,
+    test_data: TestData,
+    mail_client: MailClient,
+):
+    student: m.Student | None = (
+        db.query(m.Student).filter_by(email=test_data.test_students[0].email).first()
+    )
+
+    assert student
+
+    old_password = student.password
+    assert student
+    with mail_client.mail.record_messages() as outbox:
+        request_data = s.UserEmail(email=student.email).dict()
+        response = client.post("api/auth/student/forgot-password", json=request_data)
+        assert response
+        assert len(outbox) == 1
+        student: m.Student | None = (
+            db.query(m.Student)
+            .filter_by(email=test_data.test_students[0].email)
+            .first()
+        )
+        assert student
+        assert student.password != old_password
+
+    old_token = student.verification_token
+    TEST_NEW_PASSWORD = "test_new_password"
+
+    # confirm the new password
+    request_data = s.UserResetPassword(
+        password=TEST_NEW_PASSWORD, password1=TEST_NEW_PASSWORD
+    ).dict()
+    response = client.post(
+        f"api/auth/student/reset-password/{student.verification_token}",
+        json=request_data,
+    )
+    assert response
+    student: m.Student | None = (
+        db.query(m.Student).filter_by(email=test_data.test_students[0].email).first()
+    )
+    assert student
+    assert student.verification_token != old_token

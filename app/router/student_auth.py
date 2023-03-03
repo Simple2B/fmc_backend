@@ -92,6 +92,64 @@ def student_account_confirmation(
         )
 
 
+@student_auth_router.post("/forgot-password", status_code=status.HTTP_200_OK)
+async def forgot_password_student(
+    data: s.UserEmail,
+    db: Session = Depends(get_db),
+    mail_client: MailClient = Depends(get_mail_client),
+):
+    student: Student | None = db.query(Student).filter_by(email=data.email).first()
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You haven`t been signed up before",
+        )
+    try:
+        await mail_client.send_email(
+            student.email,
+            "Reseting password",
+            "forgot_password_mail.html",
+            {
+                "user_email": student.email,
+                "verification_token": student.verification_token,
+            },
+        )
+    except ConnectionErrors as e:
+        db.rollback()
+        log(log.ERROR, "Error while sending message - [%s]", e)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+    student.password = "*"
+    db.commit()
+    return status.HTTP_200_OK
+
+
+@student_auth_router.post(
+    "/reset-password/{verification_token}", status_code=status.HTTP_200_OK
+)
+def coach_reset_password(
+    verification_token: str,
+    data: s.UserResetPassword,
+    db: Session = Depends(get_db),
+):
+    if data.password != data.password1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Passwords are not the same",
+        )
+    student: Student | None = (
+        db.query(Student).filter_by(verification_token=verification_token).first()
+    )
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Bad token",
+        )
+    student.verification_token = generate_uuid()
+    student.password = data.password
+    db.commit()
+    return status.HTTP_200_OK
+
+
 @student_auth_router.post("/google-oauth", status_code=status.HTTP_200_OK)
 async def student_google_auth(
     coach_data: s.UserGoogleLogin,
