@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class UserLogin(BaseModel):
@@ -12,3 +12,12 @@ class UserGoogleLogin(BaseModel):
     email: str
     username: str
     google_openid_key: str
+
+
+class UserResetPassword(BaseModel):
+    password: str
+    password1: str
+
+
+class UserEmail(BaseModel):
+    email: EmailStr

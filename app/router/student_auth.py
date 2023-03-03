@@ -2,10 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from fastapi_mail.errors import ConnectionErrors
 
+from app.utils import generate_uuid
+from app.controller import MailClient
 from app.logger import log
 from app.oauth2 import create_access_token
 from app.database import get_db
+from app.dependency import get_mail_client
 import app.schema as s
 from app.model import Student
 
@@ -33,12 +37,27 @@ def student_login(
 
 
 @student_auth_router.post("/sign-up", status_code=status.HTTP_200_OK)
-async def students_sign_up(
+async def student_sign_up(
     student_data: s.UserSignUp,
     db: Session = Depends(get_db),
+    mail_client: MailClient = Depends(get_mail_client),
 ):
-    student: Student | None = Student(**student_data.dict())
+    student: Student | None = Student(**student_data.dict(), is_verified=False)
     db.add(student)
+    try:
+        await mail_client.send_email(
+            student.email,
+            "Account activation",
+            "email_verification.html",
+            {
+                "user_email": student.email,
+                "verification_token": student.verification_token,
+            },
+        )
+    except ConnectionErrors as e:
+        db.rollback()
+        log(log.ERROR, "Error while sending message - [%s]", e)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     try:
         log(log.INFO, "Creating a new student - [%s]", student.email)
         db.commit()
@@ -51,9 +70,31 @@ async def students_sign_up(
     return status.HTTP_200_OK
 
 
+@student_auth_router.get("/account-confirmation", status_code=status.HTTP_200_OK)
+def student_account_confirmation(
+    token: str,
+    db: Session = Depends(get_db),
+):
+    student: Student | None = (
+        db.query(Student).filter_by(verification_token=token).first()
+    )
+    if not student:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Bad token")
+    student.is_verified = True
+    student.verification_token = generate_uuid()
+    try:
+        db.commit()
+    except SQLAlchemyError as e:
+        log(log.INFO, "Error - [%s]", e)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Error while approving an account",
+        )
+
+
 @student_auth_router.post("/google-oauth", status_code=status.HTTP_200_OK)
 async def student_google_auth(
     coach_data: s.UserGoogleLogin,
     db: Session = Depends(get_db),
 ):
-    ...
+    return {}

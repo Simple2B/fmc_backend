@@ -15,11 +15,11 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: EmailStr = "admin@admin.com"
 
     # Mail settings
-    MAIL_USERNAME: str | None
-    MAIL_PASSWORD: str | None
+    MAIL_USERNAME: str = "test_mail_username"
+    MAIL_PASSWORD: str = "test_mail_password"
     MAIL_FROM: EmailStr = EmailStr("chairlift@simple2b.com")
     MAIL_PORT: int = 465
-    MAIL_SERVER: str = ""
+    MAIL_SERVER: str = "test_mail_server"
     MAIL_FROM_NAME: str = "Chairlift"
     # Testing
     TEST_SEND_EMAIL: bool = False
