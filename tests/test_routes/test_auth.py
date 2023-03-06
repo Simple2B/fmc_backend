@@ -158,3 +158,21 @@ def test_forgot_password_student(
     )
     assert student
     assert student.verification_token != old_token
+
+
+def test_whoami_routes(
+    client: TestClient,
+    authorized_coach_tokens: list,
+    authorized_student_tokens: list,
+):
+    client.headers[
+        "Authorization"
+    ] = f"Bearer {authorized_coach_tokens[0].access_token}"
+    response = client.get("api/whoami/student")
+    assert response.status_code == 200
+
+    client.headers[
+        "Authorization"
+    ] = f"Bearer {authorized_coach_tokens[0].access_token}"
+    response = client.get("api/whoami/coach")
+    assert response.status_code == 200

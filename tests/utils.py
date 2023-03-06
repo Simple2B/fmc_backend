@@ -14,3 +14,11 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
         if not db.query(m.Student).filter_by(email=s.email).first():
             db.add(m.Student(**s.dict()))
             db.commit()
+    for auth_coach in test_data.test_authorized_coaches:
+        if not db.query(m.Coach).filter_by(email=auth_coach.email).first():
+            db.add(m.Coach(**auth_coach.dict()))
+            db.commit()
+    for auth_student in test_data.test_authorized_students:
+        if not db.query(m.Student).filter_by(email=auth_student.email).first():
+            db.add(m.Student(**auth_student.dict()))
+            db.commit()

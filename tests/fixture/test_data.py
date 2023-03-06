@@ -26,6 +26,9 @@ class TestData(BaseModel):
     test_students: list[TestStudent]
     test_coach: TestCoach | None
     test_student: TestStudent | None
+    # authorized
+    test_authorized_students: list[TestStudent]
+    test_authorized_coaches: list[TestCoach]
 
 
 @pytest.fixture

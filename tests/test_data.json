@@ -48,5 +48,33 @@
         "email": "test_new_student@gmail.com",
         "password": "1234",
         "username": "test_new_student"
-    }
+    },
+    "test_authorized_coaches": [
+        {
+            "email": "test_authorized_coach1@gmail.com",
+            "password": "1234",
+            "username": "test_authorized_coach1",
+            "is_verified": true
+        },
+        {
+            "email": "test_authorized_coach2@gmail.com",
+            "password": "1234",
+            "username": "test_authorized_coach2",
+            "is_verified": true
+        }
+    ],
+    "test_authorized_students": [
+        {
+            "email": "test_authorized_student1@gmail.com",
+            "password": "1234",
+            "username": "test_authorized_student1",
+            "is_verified": true
+        },
+        {
+            "email": "test_authorized_student2@gmail.com",
+            "password": "1234",
+            "username": "test_authorized_student",
+            "is_verified": true
+        }
+    ]
 }

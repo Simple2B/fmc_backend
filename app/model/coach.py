@@ -15,7 +15,7 @@ class Coach(Base):
     last_name = Column(String(64), nullable=False, default="")
     email = Column(String(128), nullable=False, unique=True)
     username = Column(String(64), nullable=False, unique=False)
-
+    profile_picture = Column(String(256), nullable=True)
     google_open_id = Column(String(128), nullable=True)
 
     verification_token = Column(
