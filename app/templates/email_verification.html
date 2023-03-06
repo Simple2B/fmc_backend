@@ -1,35 +1,27 @@
-<!doctype html>
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+        /* Add custom classes and styles that you want inlined here */
+    </style>
 </head>
 
 <body class="bg-light">
     <div class="container">
-        <img class="ax-center my-10 w-24" src="https://assets.bootstrapemail.com/logos/light/square.png" />
-        <div class="card p-6 p-lg-10 space-y-4">
-            <h1 class="h3 fw-700">
-                Hello {{user_email}}
-            </h1>
-            <p>
-                Activate your account here:
-                Here is a very simple card. It has responsive padding so it gets less padding on mobile to fill the
-                screen more.
-                Hopefully it can be useful to you. It is very simple and basic but can be used for a lot of simple
-                emails.
-            </p>
-            <a class="btn btn-primary p-3 fw-700" href="https://app.bootstrapemail.com/templates">Verification
-                token:{{verification_token}}</a>
-        </div>
-        <img class="ax-center mt-10 w-40" src="https://assets.bootstrapemail.com/logos/light/text.png" />
-        <div class="text-muted text-center my-6">
-            Sent with <3 from Hip Corp. <br>
-                Hip Corp. 1 Hip Street<br>
-                Gnarly State, 01234 USA <br>
+        <div class="card my-10">
+            <div class="card-body">
+                <h1 class="h3 mb-2">Account confirmation</h1>
+                <h5 class="text-teal-700">Hello,{{user_email}}</h5>
+                <hr>
+                <div class="space-y-3">
+                    <p class="text-gray-700">
+                        You can confirm your account by clicking the button below:
+                    </p>
+                </div>
+                <hr>
+                <a class="btn btn-primary" href="https://app.bootstrapemail.com/templates" target="_blank">Confirm</a>
+            </div>
         </div>
     </div>
 </body>
-
-</html>
