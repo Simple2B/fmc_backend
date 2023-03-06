@@ -8,12 +8,14 @@ class TestCoach(BaseModel):
     __test__ = False
     email: EmailStr
     password: str
+    username: str
     is_verified: bool | None
 
 
 class TestStudent(BaseModel):
     __test__ = False
     email: EmailStr
+    username: str
     password: str
     is_verified: bool | None
 

@@ -3,16 +3,19 @@
         {
             "email": "testcoach1@gmail.com",
             "password": "1234",
+            "username": "testcoach1",
             "is_verified": true
         },
         {
             "email": "testcoach2@gmail.com",
             "password": "1234",
+            "username": "testcoach2",
             "is_verified": true
         },
         {
             "email": "testcoach3@gmail.com",
             "password": "1234",
+            "username": "testcoach3",
             "is_verified": true
         }
     ],
@@ -20,25 +23,30 @@
         {
             "email": "test_student1@gmail.com",
             "password": "1234",
+            "username": "test_student1",
             "is_verified": true
         },
         {
             "email": "test_student2@gmail.com",
             "password": "1234",
+            "username": "test_student2",
             "is_verified": true
         },
         {
             "email": "test_student3@gmail.com",
             "password": "1234",
+            "username": "test_student3",
             "is_verified": true
         }
     ],
     "test_coach": {
         "email": "test_new_coach@gmail.com",
-        "password": "1234"
+        "password": "1234",
+        "username": "test_new_coach"
     },
     "test_student": {
         "email": "test_new_student@gmail.com",
-        "password": "1234"
+        "password": "1234",
+        "username": "test_new_student"
     }
 }

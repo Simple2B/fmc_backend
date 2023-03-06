@@ -20,7 +20,9 @@ def test_signup_and_confirm_account_student(
 ):
     with mail_client.mail.record_messages() as outbox:
         request_data = s.UserSignUp(
-            email=test_data.test_student.email, password=test_data.test_student.password
+            email=test_data.test_student.email,
+            password=test_data.test_student.password,
+            username=test_data.test_student.username,
         ).dict()
         response = client.post("api/auth/student/sign-up", json=request_data)
         assert response
@@ -47,7 +49,9 @@ def test_signup_and_confirm_account_coach(
 ):
     with mail_client.mail.record_messages() as outbox:
         request_data = s.UserSignUp(
-            email=test_data.test_coach.email, password=test_data.test_coach.password
+            email=test_data.test_coach.email,
+            password=test_data.test_coach.password,
+            username=test_data.test_coach.username,
         ).dict()
         response = client.post("api/auth/coach/sign-up", json=request_data)
         assert response
