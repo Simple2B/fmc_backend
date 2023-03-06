@@ -1,8 +1,8 @@
 """init migration
 
-Revision ID: cd99b599dbd9
+Revision ID: 9906bae2af23
 Revises: 
-Create Date: 2023-03-06 11:55:30.580708
+Create Date: 2023-03-06 18:24:11.793098
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'cd99b599dbd9'
+revision = '9906bae2af23'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,6 +25,7 @@ def upgrade():
     sa.Column('last_name', sa.String(length=64), nullable=False),
     sa.Column('email', sa.String(length=128), nullable=False),
     sa.Column('username', sa.String(length=64), nullable=False),
+    sa.Column('profile_picture', sa.String(length=256), nullable=True),
     sa.Column('google_open_id', sa.String(length=128), nullable=True),
     sa.Column('verification_token', sa.String(length=36), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=False),
@@ -66,6 +67,7 @@ def upgrade():
     sa.Column('verification_token', sa.String(length=64), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=False),
     sa.Column('is_verified', sa.Boolean(), nullable=True),
+    sa.Column('profile_picture', sa.String(length=256), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
