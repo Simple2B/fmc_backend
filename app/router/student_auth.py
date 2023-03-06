@@ -104,6 +104,11 @@ async def forgot_password_student(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You haven`t been signed up before",
         )
+    if not student.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Coach hasn`t been verified before",
+        )
     try:
         await mail_client.send_email(
             student.email,
@@ -126,7 +131,7 @@ async def forgot_password_student(
 @student_auth_router.post(
     "/reset-password/{verification_token}", status_code=status.HTTP_200_OK
 )
-def coach_reset_password(
+def student_reset_password(
     verification_token: str,
     data: s.UserResetPassword,
     db: Session = Depends(get_db),
@@ -152,7 +157,7 @@ def coach_reset_password(
 
 @student_auth_router.post("/google-oauth", status_code=status.HTTP_200_OK)
 async def student_google_auth(
-    coach_data: s.UserGoogleLogin,
+    student_data: s.UserGoogleLogin,
     db: Session = Depends(get_db),
 ):
     return {}

@@ -1,2 +1,3 @@
 # flake8: noqa F401
-from .test_task import hello, app
+from .shell import shell
+from .example import time

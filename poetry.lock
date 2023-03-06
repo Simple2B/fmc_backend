@@ -735,6 +735,18 @@ files = [
 ]
 
 [[package]]
+name = "invoke"
+version = "2.0.0"
+description = "Pythonic task execution"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "invoke-2.0.0-py3-none-any.whl", hash = "sha256:a860582bcf7a4b336fe18ef53937f0f28cec1c0053ffa767c2fcf7ba0b850f59"},
+    {file = "invoke-2.0.0.tar.gz", hash = "sha256:7ab5dd9cd76b787d560a78b1a9810d252367ab595985c50612702be21d671dd7"},
+]
+
+[[package]]
 name = "ipython"
 version = "8.11.0"
 description = "IPython: Productive Interactive Computing"
@@ -1806,4 +1818,4 @@ email = ["email-validator"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "ea646377430cf9e46abc23b42749cad9c39ed65773676a070cb075d32674f8d7"
+content-hash = "bc919ff55b0a4af139253bb445da4bcf5e618f0dbf78f86ab70a181913dcb23b"

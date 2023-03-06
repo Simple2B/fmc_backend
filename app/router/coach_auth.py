@@ -103,6 +103,11 @@ async def forgot_password(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="You haven`t been signed up before",
         )
+    if not coach.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Coach hasn`t been verified before",
+        )
     try:
         await mail_client.send_email(
             coach.email,
@@ -117,6 +122,7 @@ async def forgot_password(
         db.rollback()
         log(log.ERROR, "Error while sending message - [%s]", e)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
+
     coach.password = "*"
     db.commit()
     return status.HTTP_200_OK
@@ -157,5 +163,4 @@ async def coach_google_auth(
     return {}
 
 
-# TODO mail client
-# google account
+# todo migrate back to invoke cli tool
