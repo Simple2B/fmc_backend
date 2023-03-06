@@ -6,6 +6,10 @@ class Settings(BaseSettings):
     # token
     JWT_SECRET: str = "<None>"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 4320
+    BASE_URL: str = "http://localhost:3000"
+
+    CONFIRMATION_URL_COACH: str
+    CONFIRMATION_URL_STUDENT: str
     # db
     DB_URI: str = ""
 

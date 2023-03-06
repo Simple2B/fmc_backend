@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from fastapi_mail.errors import ConnectionErrors
 
+from app.config import get_settings, Settings
 from app.utils import generate_uuid
 from app.logger import log
 from app.controller import MailClient
@@ -39,6 +40,7 @@ def coach_login(
 @coach_auth_router.post("/sign-up", status_code=status.HTTP_200_OK)
 async def coach_sign_up(
     coach_data: s.UserSignUp,
+    settings: Settings = Depends(get_settings),
     db: Session = Depends(get_db),
     mail_client: MailClient = Depends(get_mail_client),
 ):
@@ -51,7 +53,8 @@ async def coach_sign_up(
             "email_verification.html",
             {
                 "user_email": coach.email,
-                "verification_token": coach.verification_token,
+                "verification_url": f"{settings.BASE_URL}{settings.CONFIRMATION_URL_COACH}?token= \
+                {coach.verification_token}",
             },
         )
     except ConnectionErrors as e:
