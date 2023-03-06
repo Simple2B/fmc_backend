@@ -53,7 +53,7 @@ async def student_sign_up(
             "email_verification.html",
             {
                 "user_email": student.email,
-                "verification_url": f"{settings.BASE_URL}{settings.CONFIRMATION_URL_COACH}?token= \
+                "verification_url": f"{settings.BASE_URL}{settings.CONFIRMATION_URL_STUDENT}?token= \
                 {student.verification_token}",
             },
         )
