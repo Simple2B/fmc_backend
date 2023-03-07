@@ -47,14 +47,22 @@ async def coach_sign_up(
     coach: Coach | None = Coach(**coach_data.dict(), is_verified=False)
     db.add(coach)
     try:
+        log(log.INFO, "New Coach is created: [%s]", coach.email)
+        db.commit()
+    except SQLAlchemyError as e:
+        log(log.ERROR, "Failed to create a new coach: [%s]\n[%s]", coach.email, e)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Coach with such email address already exists",
+        )
+    try:
         await mail_client.send_email(
             coach.email,
             "Account activation",
             "email_verification.html",
             {
                 "user_email": coach.email,
-                "verification_url": f"{settings.BASE_URL}{settings.CONFIRMATION_URL_COACH}?token= \
-                {coach.verification_token}",
+                "verification_url": f"{settings.BASE_URL}{settings.CONFIRMATION_URL_COACH}?token={coach.verification_token}",  # noqa E501
             },
         )
     except ConnectionErrors as e:
@@ -62,15 +70,6 @@ async def coach_sign_up(
         log(log.ERROR, "Error while sending message - [%s]", e)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
-    try:
-        log(log.INFO, "Creating a new coach - [%s]", coach.email)
-        db.commit()
-    except SQLAlchemyError as e:
-        log(log.INFO, "Error while singin up a new coach - [%s]", e)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Error while creating a coach account",
-        )
     return status.HTTP_200_OK
 
 
@@ -92,6 +91,7 @@ def coach_account_confirmation(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Error while approving an account",
         )
+    return status.HTTP_200_OK
 
 
 @coach_auth_router.post("/forgot-password", status_code=status.HTTP_200_OK)
