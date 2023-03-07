@@ -46,7 +46,15 @@ async def student_sign_up(
 ):
     student: Student | None = Student(**student_data.dict(), is_verified=False)
     db.add(student)
-    db.commit()
+    try:
+        log(log.INFO, "New student is created: [%s]", student.email)
+        db.commit()
+    except SQLAlchemyError as e:
+        log(log.ERROR, "Failed to create a new student: [%s]\n[%s]", student.email, e)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Student with such email address already exists",
+        )
     try:
         await mail_client.send_email(
             student.email,

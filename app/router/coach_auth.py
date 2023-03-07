@@ -46,7 +46,15 @@ async def coach_sign_up(
 ):
     coach: Coach | None = Coach(**coach_data.dict(), is_verified=False)
     db.add(coach)
-    db.commit()
+    try:
+        log(log.INFO, "New Coach is created: [%s]", coach.email)
+        db.commit()
+    except SQLAlchemyError as e:
+        log(log.ERROR, "Failed to create a new coach: [%s]\n[%s]", coach.email, e)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Coach with such email address already exists",
+        )
     try:
         await mail_client.send_email(
             coach.email,
