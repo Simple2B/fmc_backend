@@ -33,6 +33,12 @@ class Settings(BaseSettings):
     STRIPE_SECRET_KEY: str = ""
     STRIPE_PUBLIC_KEY: str = ""
 
+    # AWS
+    AWS_SECRET_KEY: str
+    AWS_ACCESS_KEY: str
+    AWS_S3_BUCKET_NAME: str = "find-my-coach"
+    AWS_S3_BUCKET_URL: str
+
     class Config:
         env_file = ".env"
 
