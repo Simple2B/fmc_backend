@@ -46,6 +46,7 @@ async def student_sign_up(
 ):
     student: Student | None = Student(**student_data.dict(), is_verified=False)
     db.add(student)
+    db.commit()
     try:
         await mail_client.send_email(
             student.email,
@@ -53,23 +54,14 @@ async def student_sign_up(
             "email_verification.html",
             {
                 "user_email": student.email,
-                "verification_url": f"{settings.BASE_URL}{settings.CONFIRMATION_URL_STUDENT}?token= \
-                {student.verification_token}",
+                "verification_url": f"{settings.BASE_URL}{settings.CONFIRMATION_URL_STUDENT}?token={student.verification_token}",  # noqa E501
             },
         )
     except ConnectionErrors as e:
         db.rollback()
         log(log.ERROR, "Error while sending message - [%s]", e)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-    try:
-        log(log.INFO, "Creating a new student - [%s]", student.email)
-        db.commit()
-    except SQLAlchemyError as e:
-        log(log.INFO, "Error while singin up a new student - [%s]", e)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Error while creating a student account",
-        )
+
     return status.HTTP_200_OK
 
 
@@ -93,6 +85,7 @@ def student_account_confirmation(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Error while approving an account",
         )
+    return status.HTTP_200_OK
 
 
 @student_auth_router.post("/forgot-password", status_code=status.HTTP_200_OK)
