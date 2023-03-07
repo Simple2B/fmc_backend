@@ -17,7 +17,7 @@ class Lesson(Base):
 
     date = Column(DateTime, nullable=False, default=datetime.now)
 
-    created_at = Column(DateTime(), default=datetime.now)
+    created_at = Column(DateTime, default=datetime.now)
 
     def __repr__(self):
         return f"<{self.id}:{self.date}>"

@@ -10,4 +10,6 @@ from .coach_sport import CoachSport
 from .student_lesson import StudentLesson
 from .student_lesson_payment import StudentLessonPayment
 
+from .contact import Contact
+
 from app.database import Base

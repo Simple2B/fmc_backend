@@ -6,6 +6,7 @@ from .user import router as user_router
 from .whoami import whoami_router
 from .profile import profile_router
 from .sport import sport_router
+from .contact import contact_router
 
 router = APIRouter(prefix="/api")
 router.include_router(student_auth_router)
@@ -14,3 +15,4 @@ router.include_router(user_router)
 router.include_router(whoami_router)
 router.include_router(profile_router)
 router.include_router(sport_router)
+router.include_router(contact_router)
