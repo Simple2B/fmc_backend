@@ -12,8 +12,6 @@ services:
       PGUSER: ${DATABASE_USERNAME}
       PGDATABASE: ${DATABASE_NAME}
       PGPASSWORD: ${DATABASE_PASSWORD}
-    ports:
-      - 127.0.0.1:${DATABASE_LOCAL_PORT:-5432}:5432
     restart: always
     networks:
       - network
@@ -32,15 +30,13 @@ services:
       - network
 
   app:
-    build: .
+    build: # path to sources
     restart: always
     env_file:
       - .env
     environment:
       - DB_URI=postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@db/${DATABASE_NAME}
-    command: bash ./start_server.sh
-    ports:
-      - 127.0.0.1:8000:8000
+    command: bash start_server.sh # or custom command
     depends_on:
       - db
     networks:
