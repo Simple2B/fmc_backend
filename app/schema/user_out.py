@@ -9,3 +9,15 @@ class UserOut(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UserProfile(BaseModel):
+    first_name: str | None
+    last_name: str | None
+    email: str
+    username: str
+    is_verified: bool
+    profile_picture: str | None
+
+    class Config:
+        orm_mode = True

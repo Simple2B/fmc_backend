@@ -15,6 +15,7 @@ class Student(Base):
     first_name = Column(String(64), nullable=False, default="")
     last_name = Column(String(64), nullable=False, default="")
     email = Column(String(128), nullable=False, unique=True)
+    username = Column(String(64), nullable=False, unique=False)
 
     google_open_id = Column(String(128), nullable=True)
 
@@ -23,7 +24,8 @@ class Student(Base):
     )  # for email confirmation
 
     password_hash = Column(String(128), nullable=False)
-    is_verified = Column(Boolean, default=False)
+    is_verified = Column(Boolean, default=True)
+    profile_picture = Column(String(256), nullable=True)
 
     created_at = Column(DateTime, default=datetime.now)
 

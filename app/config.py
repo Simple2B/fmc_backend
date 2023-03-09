@@ -6,6 +6,10 @@ class Settings(BaseSettings):
     # token
     JWT_SECRET: str = "<None>"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 4320
+    BASE_URL: str = "http://localhost:3000"
+
+    CONFIRMATION_URL_COACH: str
+    CONFIRMATION_URL_STUDENT: str
     # db
     DB_URI: str = ""
 
@@ -15,11 +19,11 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: EmailStr = "admin@admin.com"
 
     # Mail settings
-    MAIL_USERNAME: str | None
-    MAIL_PASSWORD: str | None
+    MAIL_USERNAME: str = "test_mail_username"
+    MAIL_PASSWORD: str = "test_mail_password"
     MAIL_FROM: EmailStr = EmailStr("chairlift@simple2b.com")
     MAIL_PORT: int = 465
-    MAIL_SERVER: str = ""
+    MAIL_SERVER: str = "test_mail_server"
     MAIL_FROM_NAME: str = "Chairlift"
     # Testing
     TEST_SEND_EMAIL: bool = False
@@ -27,6 +31,13 @@ class Settings(BaseSettings):
 
     # STRIPE
     STRIPE_SECRET_KEY: str = ""
+    STRIPE_PUBLIC_KEY: str = ""
+
+    # AWS
+    AWS_SECRET_KEY: str
+    AWS_ACCESS_KEY: str
+    AWS_S3_BUCKET_NAME: str = "find-my-coach"
+    AWS_S3_BUCKET_URL: str
 
     class Config:
         env_file = ".env"

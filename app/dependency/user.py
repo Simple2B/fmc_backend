@@ -5,7 +5,7 @@ from jose import jwt
 
 from app.schema import TokenData
 from app.database import get_db
-from app.model import Coach
+from app.model import Coach, Student
 from app.config import Settings, get_settings
 
 settings: Settings = get_settings()
@@ -17,7 +17,7 @@ def get_current_coach(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> Coach:
-    payload = jwt.decode(token, settings.SECRET_KEY)
+    payload = jwt.decode(token, settings.JWT_SECRET)
     id: str = payload.get("user_id")
     if not id:
         raise HTTPException(
@@ -34,3 +34,26 @@ def get_current_coach(
             headers={"WWW-Authenticate": "Bearer"},
         )
     return coach
+
+
+def get_current_student(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db),
+) -> Student:
+    payload = jwt.decode(token, settings.JWT_SECRET)
+    id: str = payload.get("user_id")
+    if not id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    token_data = TokenData(id=id)
+    student: Student | None = db.query(Student).filter_by(id=token_data.id).first()
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return student

@@ -3,7 +3,7 @@ from .coach import Coach
 from .student import Student
 from .lesson import Lesson
 from .location import Location
-from .sport_type import SportType, SportTypes
+from .sport_type import SportType
 
 from .coach_schedule import CoachSchedule
 from .coach_sport import CoachSport
