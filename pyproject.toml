@@ -29,6 +29,7 @@ typer-cli = "^0.0.13"
 fastapi-mail = "^1.2.6"
 stripe = "^5.2.0"
 invoke = "^2.0.0"
+boto3 = "^1.26.87"
 
 
 [tool.poetry.group.dev.dependencies]
