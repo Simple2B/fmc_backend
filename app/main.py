@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqladmin import Admin
 
+from app.admin import authentication_backend
 from app.router import router
 from app import admin
 from app.database import Engine, get_engine
@@ -18,8 +19,16 @@ app = FastAPI()
 engine: Engine = get_engine()
 
 # admin
-sql_admin = Admin(app, engine)
-sql_admin.add_view(admin.coach.CoachAdmin)
+sql_admin = Admin(
+    app=app,
+    engine=engine,
+    authentication_backend=authentication_backend,
+    templates_dir="app/templates/admin",
+)
+admin_views = (admin.CoachAdmin, admin.StudentAdmin)
+for view in admin_views:
+    sql_admin.add_view(view)
+
 
 # middleware
 app.add_middleware(

@@ -11,5 +11,7 @@ from .student_lesson import StudentLesson
 from .student_lesson_payment import StudentLessonPayment
 
 from .contact import Contact
+from .superuser import SuperUser
+
 
 from app.database import Base
