@@ -3,11 +3,10 @@ from sqlalchemy.orm import Session
 from botocore.exceptions import ClientError
 
 from app.logger import log
-from app.dependency import get_current_coach, get_current_student
+from app.dependency import get_current_coach, get_current_student, get_s3_conn
 from app.database import get_db
 import app.schema as s
 import app.model as m
-from app.controller import create_s3_conn
 from app.config import Settings, get_settings
 
 profile_router = APIRouter(prefix="/profile", tags=["Profiles"])
@@ -55,8 +54,8 @@ def upload_coach_image(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
     settings: Settings = Depends(get_settings),
+    s3=Depends(get_s3_conn),
 ):
-    s3 = create_s3_conn(settings)
     try:
         file.file.seek(0)
         # Upload the file to to your S3 service

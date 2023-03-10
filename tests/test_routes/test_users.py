@@ -4,7 +4,7 @@ from moto import mock_s3
 
 
 from app.config import Settings
-from app.controller import create_s3_conn
+from app.dependency import get_s3_conn
 import app.model as m
 import app.schema as s
 from tests.conftest import get_test_settings
@@ -56,7 +56,7 @@ def test_save_image_to_profile(
     db: Session,
     authorized_coach_tokens: list,
 ):
-    s3 = create_s3_conn(settings)
+    s3 = get_s3_conn(settings)
     s3.create_bucket(Bucket=settings.AWS_S3_BUCKET_NAME)
     client.headers[
         "Authorization"
