@@ -6,7 +6,8 @@ from app.logger import log
 from app.dependency import get_current_coach, get_current_student
 from app.database import get_db
 import app.schema as s
-from app.controller import s3
+import app.model as m
+from app.controller import create_s3_conn
 from app.config import Settings, get_settings
 
 profile_router = APIRouter(prefix="/profile", tags=["Profiles"])
@@ -52,19 +53,24 @@ def get_student_profile(
 def upload_coach_image(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    # coach=Depends(get_current_coach),
+    coach: m.Coach = Depends(get_current_coach),
     settings: Settings = Depends(get_settings),
 ):
+    s3 = create_s3_conn(settings)
     try:
-        contents = file.file.read()
         file.file.seek(0)
         # Upload the file to to your S3 service
-        s3.upload_fileobj(file.file, settings.AWS_S3_BUCKET_NAME, "myfile.txt")
+        s3.upload_fileobj(
+            file.file,
+            settings.AWS_S3_BUCKET_NAME,
+            f"user_profiles/pictures/{coach.uuid}/{file.filename}",
+        )
     except ClientError as e:
         log(log.ERROR, "Error uploading file to S3 - [%s]", e)
         raise HTTPException(status_code=500, detail="Something went wrong")
     finally:
         file.file.close()
     # save to db
-
-    return {"filename": contents.filename}
+    coach.profile_picture = f"{settings.AWS_S3_BUCKET_URL}user_profiles/pictures/{coach.uuid}/{file.filename}"
+    db.commit()
+    return status.HTTP_200_OK
