@@ -55,9 +55,13 @@ def test_save_image_to_profile(
     test_data: TestData,
     db: Session,
     authorized_coach_tokens: list,
+    authorized_student_tokens: list,
 ):
+    # creating a bucket
     s3 = get_s3_conn(settings)
     s3.create_bucket(Bucket=settings.AWS_S3_BUCKET_NAME)
+
+    # upload image for coach
     client.headers[
         "Authorization"
     ] = f"Bearer {authorized_coach_tokens[0].access_token}"
@@ -83,3 +87,30 @@ def test_save_image_to_profile(
     ]
     # checking if path to profile image is correct
     assert coach.profile_picture == f"{settings.AWS_S3_BUCKET_URL}{file_path}"
+
+    # upload image for student
+    client.headers[
+        "Authorization"
+    ] = f"Bearer {authorized_student_tokens[0].access_token}"
+    response = client.post(
+        "api/profile/student/upload-image",
+        files={
+            "file": (
+                "avatar_test.jpg",
+                open("tests/avatar_test.jpg", "rb"),
+                "image/jpeg",
+            )
+        },
+    )
+    assert response
+    student = (
+        db.query(m.Student)
+        .filter_by(email=test_data.test_authorized_students[0].email)
+        .first()
+    )
+    assert student
+    file_path = s3.list_objects_v2(Bucket=settings.AWS_S3_BUCKET_NAME)["Contents"][1][
+        "Key"
+    ]
+    # checking if path to profile image is correct
+    assert student.profile_picture == f"{settings.AWS_S3_BUCKET_URL}{file_path}"

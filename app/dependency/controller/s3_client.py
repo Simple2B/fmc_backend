@@ -1,9 +1,12 @@
+from functools import lru_cache
+
 from fastapi import Depends
 import boto3
 
 from app.config import get_settings, Settings
 
 
+@lru_cache
 def get_s3_conn(settings: Settings = Depends(get_settings)):
     session = boto3.Session(
         aws_access_key_id=settings.AWS_ACCESS_KEY,
