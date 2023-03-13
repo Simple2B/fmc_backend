@@ -1,5 +1,19 @@
 version: "3.11"
 services:
+
+  app:
+    build: .
+    image: 270968290167.dkr.ecr.us-east-1.amazonaws.com/fmc-backend:latest
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - DB_URI=postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@db/${DATABASE_NAME}
+    command: bash ./start_server.sh
+    ports:
+      - 127.0.0.1:8000:80
+    depends_on:
+      - db
   db:
     image: postgres:12
     volumes:
@@ -14,17 +28,6 @@ services:
     ports:
       - 127.0.0.1:${DATABASE_LOCAL_PORT:-5432}:5432
     restart: always
-
-  app:
-    build: .
-    restart: always
-    environment:
-      - DB_URI=postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@db/${DATABASE_NAME}
-    command: bash ./start_server.sh
-    ports:
-      - 127.0.0.1:8009:80
-    depends_on:
-      - db
 
 volumes:
   db_data:
