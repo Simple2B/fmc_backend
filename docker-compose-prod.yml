@@ -1,0 +1,52 @@
+version: '3.8'
+services:
+
+  db:
+    image: postgres:12
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      PGUSER: ${DATABASE_USERNAME}
+      PGDATABASE: ${DATABASE_NAME}
+      PGPASSWORD: ${DATABASE_PASSWORD}
+    restart: always
+    networks:
+      - network
+
+  nextjs_app:
+    image: simple2b/fmc-frontend:v1
+    build: .
+    command: node server.js
+    restart: always
+    ports:
+      - 127.0.0.1:3000:3000
+    environment:
+      NODE_ENV: production
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    networks:
+      - network
+
+  app:
+    build: # path to sources
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - DB_URI=postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@db/${DATABASE_NAME}
+    command: bash start_server.sh # or custom command
+    depends_on:
+      - db
+    networks:
+      - network
+
+volumes:
+  db_data:
+
+
+networks:
+  network:
+    driver: bridge
+    name: fmc_network
