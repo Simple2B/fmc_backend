@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     JWT_SECRET: str = "<None>"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 4320
     BASE_URL: str = "http://localhost:3000"
+    COACH_DEFAULT_LESSON_PRICE: float = 999
 
     CONFIRMATION_URL_COACH: str
     CONFIRMATION_URL_STUDENT: str
