@@ -12,4 +12,5 @@ def get_api_keys(
 ):
     return s.APIKeysSchema(
         GOOGLE_CLIENT_ID=settings.GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_SECRET=settings.GOOGLE_CLIENT_SECRET,
     )
