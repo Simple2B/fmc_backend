@@ -44,3 +44,10 @@ def test_get_profile(
     )
     assert student
     assert student.email == resp_obj.email
+
+
+def test_get_api_keys(
+    client: TestClient,
+):
+    response = client.get("/api/keys/")
+    assert response.status_code == 200
