@@ -17,6 +17,11 @@ def get_current_coach(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> Coach:
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+        )
     payload = jwt.decode(token, settings.JWT_SECRET)
     id: str = payload.get("user_id")
     if not id:
@@ -40,6 +45,11 @@ def get_current_student(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> Student:
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+        )
     payload = jwt.decode(token, settings.JWT_SECRET)
     id: str = payload.get("user_id")
     if not id:

@@ -8,3 +8,4 @@ echo Applying migrations
 alembic upgrade head &&
 
 invoke create-sports
+invoke dummy-data
