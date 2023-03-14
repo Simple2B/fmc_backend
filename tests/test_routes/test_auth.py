@@ -176,3 +176,65 @@ def test_whoami_routes(
     ] = f"Bearer {authorized_coach_tokens[0].access_token}"
     response = client.get("api/whoami/coach")
     assert response.status_code == 200
+
+
+def test_google_auth(
+    client: TestClient,
+    db: Session,
+    test_data: TestData,
+):
+    # existing student
+    student = (
+        db.query(m.Student).filter_by(email=test_data.test_students[0].email).first()
+    )
+    assert student
+    request_data = s.UserGoogleLogin(
+        email=student.email,
+        username=student.email,
+        google_openid_key=student.google_open_id,
+        picture=student.profile_picture,
+    ).dict()
+    response = client.post("api/auth/student/google-oauth", json=request_data)
+    assert response
+
+    # non existing student
+    student = db.query(m.Student).filter_by(email=test_data.test_student.email).first()
+    assert not student
+    request_data = s.UserGoogleLogin(
+        email=test_data.test_student.email,
+        username=test_data.test_student.email,
+        google_openid_key=test_data.test_student.google_open_id,
+        picture=test_data.test_student.profile_picture,
+    ).dict()
+    response = client.post("api/auth/student/google-oauth", json=request_data)
+    assert response
+    student = db.query(m.Student).filter_by(email=test_data.test_student.email).first()
+    assert student
+    assert student.is_verified
+
+    # existing coach
+    coach = db.query(m.Coach).filter_by(email=test_data.test_coaches[0].email).first()
+    assert coach
+    request_data = s.UserGoogleLogin(
+        email=coach.email,
+        username=coach.email,
+        google_openid_key=coach.google_open_id,
+        picture=coach.profile_picture,
+    ).dict()
+    response = client.post("api/auth/coach/google-oauth", json=request_data)
+    assert response
+
+    # non existing coach
+    coach = db.query(m.Coach).filter_by(email=test_data.test_coach.email).first()
+    assert not coach
+    request_data = s.UserGoogleLogin(
+        email=test_data.test_coach.email,
+        username=test_data.test_coach.email,
+        google_openid_key=test_data.test_coach.google_open_id,
+        picture=test_data.test_coach.profile_picture,
+    ).dict()
+    response = client.post("api/auth/coach/google-oauth", json=request_data)
+    assert response
+    coach = db.query(m.Coach).filter_by(email=test_data.test_coach.email).first()
+    assert coach
+    assert coach.is_verified

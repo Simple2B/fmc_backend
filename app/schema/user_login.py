@@ -12,6 +12,7 @@ class UserGoogleLogin(BaseModel):
     email: str
     username: str
     google_openid_key: str
+    picture: str | None
 
 
 class UserResetPassword(BaseModel):

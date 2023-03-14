@@ -11,5 +11,5 @@ def get_api_keys(
     settings: Settings = Depends(get_settings),
 ):
     return s.APIKeysSchema(
-        google_client_id=settings.GOOGLE_CLIENT_ID,
+        GOOGLE_CLIENT_ID=settings.GOOGLE_CLIENT_ID,
     )

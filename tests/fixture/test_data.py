@@ -12,6 +12,8 @@ class TestCoach(BaseModel):
     first_name: str | None
     last_name: str | None
     is_verified: bool | None
+    profile_picture: str | None
+    google_open_id: str | None
 
 
 class TestStudent(BaseModel):
@@ -22,6 +24,8 @@ class TestStudent(BaseModel):
     is_verified: bool | None
     first_name: str | None
     last_name: str | None
+    profile_picture: str | None
+    google_open_id: str | None
 
 
 class TestData(BaseModel):

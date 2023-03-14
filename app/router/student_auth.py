@@ -160,8 +160,44 @@ def student_reset_password(
 
 
 @student_auth_router.post("/google-oauth", status_code=status.HTTP_200_OK)
-async def student_google_auth(
+def student_google_auth(
     student_data: s.UserGoogleLogin,
     db: Session = Depends(get_db),
 ):
-    return {}
+    # finish
+    student: Student | None = (
+        db.query(Student).filter_by(email=student_data.email).first()
+    )
+    if not student:
+        student = Student(
+            email=student_data.email,
+            username=student_data.email,
+            password="*",
+            google_open_id=student_data.google_openid_key,
+            is_verified=True,
+            verification_token=generate_uuid(),
+        )
+        db.add(student)
+        try:
+            db.commit()
+        except SQLAlchemyError as e:
+            log(log.INFO, "Error - [%s]", e)
+            raise HTTPException(
+                status=status.HTTP_409_CONFLICT,
+                detail="Error while saving creating a student",
+            )
+        log(
+            log.INFO,
+            "Student [%s] has been created (via Google account))",
+            student.email,
+        )
+    if student_data.picture:
+        student.picture = student_data.picture
+        db.commit()
+    student.authenticate(db, student.username, student.password)
+    log(log.INFO, "Authenticating user - [%s]", student.email)
+    access_token = create_access_token(data={"user_id": student.id})
+    return s.Token(
+        access_token=access_token,
+        token_type="bearer",
+    )
