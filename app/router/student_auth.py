@@ -111,7 +111,7 @@ async def forgot_password_student(
     if not student.is_verified:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Coach hasn`t been verified before",
+            detail="You haven`t been verified before",
         )
     try:
         await mail_client.send_email(
