@@ -101,6 +101,7 @@ async def forgot_password_student(
     data: s.UserEmail,
     db: Session = Depends(get_db),
     mail_client: MailClient = Depends(get_mail_client),
+    settings: Settings = Depends(get_settings),
 ):
     student: Student | None = db.query(Student).filter_by(email=data.email).first()
     if not student:
@@ -120,7 +121,7 @@ async def forgot_password_student(
             "forgot_password_mail.html",
             {
                 "user_email": student.email,
-                "verification_token": student.verification_token,
+                "verification_link": f"{settings.BASE_URL}{settings.RESET_PASSWORD_URL_STUDENT}?token={student.verification_token}",  # noqa E501
             },
         )
     except ConnectionErrors as e:

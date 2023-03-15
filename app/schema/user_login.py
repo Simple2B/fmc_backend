@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 
 class UserLogin(BaseModel):
@@ -21,4 +21,4 @@ class UserResetPassword(BaseModel):
 
 
 class UserEmail(BaseModel):
-    email: EmailStr
+    email: str

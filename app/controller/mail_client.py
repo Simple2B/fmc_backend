@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from starlette.responses import JSONResponse
-from pydantic import EmailStr
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 
 from app.config import Settings
@@ -31,7 +30,7 @@ class MailClient:
 
     async def send_email(
         self,
-        email: EmailStr,
+        email: str,
         subject: str,
         template: str,
         template_body: dict,

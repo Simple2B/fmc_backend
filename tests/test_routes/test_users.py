@@ -49,5 +49,5 @@ def test_get_profile(
 def test_get_api_keys(
     client: TestClient,
 ):
-    response = client.get("/api/keys/")
+    response = client.get("/api/keys/google")
     assert response.status_code == 200

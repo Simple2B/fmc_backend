@@ -1,5 +1,5 @@
 from functools import lru_cache
-from pydantic import BaseSettings, EmailStr
+from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -11,18 +11,21 @@ class Settings(BaseSettings):
 
     CONFIRMATION_URL_COACH: str
     CONFIRMATION_URL_STUDENT: str
+
+    RESET_PASSWORD_URL_STUDENT: str
+    RESET_PASSWORD_URL_COACH: str
     # db
     DB_URI: str = ""
 
     # admin
     ADMIN_USER: str = "admin"
     ADMIN_PASS: str = "admin"
-    ADMIN_EMAIL: EmailStr = "admin@admin.com"
+    ADMIN_EMAIL: str = "admin@admin.com"
 
     # Mail settings
     MAIL_USERNAME: str = "test_mail_username"
     MAIL_PASSWORD: str = "test_mail_password"
-    MAIL_FROM: EmailStr = EmailStr("chairlift@simple2b.com")
+    MAIL_FROM: str = "chairlift@simple2b.com"
     MAIL_PORT: int = 465
     MAIL_SERVER: str = "test_mail_server"
     MAIL_FROM_NAME: str = "Chairlift"
