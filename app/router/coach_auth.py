@@ -73,7 +73,7 @@ async def coach_sign_up(
     return status.HTTP_200_OK
 
 
-@coach_auth_router.get("/account-confirmation", status_code=status.HTTP_200_OK)
+@coach_auth_router.get("/account-confirmation/{token}", status_code=status.HTTP_200_OK)
 def coach_account_confirmation(
     token: str,
     db: Session = Depends(get_db),

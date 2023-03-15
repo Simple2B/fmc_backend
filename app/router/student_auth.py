@@ -73,7 +73,7 @@ async def student_sign_up(
     return status.HTTP_200_OK
 
 
-@student_auth_router.get("/account-confirmation", status_code=status.HTTP_200_OK)
+@student_auth_router.get("/account-confirmation/{token}", status_code=status.HTTP_200_OK)
 def student_account_confirmation(
     token: str,
     db: Session = Depends(get_db),
@@ -93,6 +93,7 @@ def student_account_confirmation(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Error while approving an account",
         )
+    log(log.INFO, "Student has been verified - [%s]", student.email)
     return status.HTTP_200_OK
 
 
