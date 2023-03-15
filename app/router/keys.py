@@ -6,8 +6,8 @@ from app.config import get_settings, Settings
 keys_router = APIRouter(prefix="/keys", tags=["Keys"])
 
 
-@keys_router.get("/", response_model=s.APIKeysSchema)
-def get_api_keys(
+@keys_router.get("/google", response_model=s.APIKeysSchema)
+def get_gapi_keys(
     settings: Settings = Depends(get_settings),
 ):
     return s.APIKeysSchema(

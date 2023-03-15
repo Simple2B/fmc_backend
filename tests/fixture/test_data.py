@@ -1,12 +1,12 @@
 from typing import Generator
 
 import pytest
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 
 class TestCoach(BaseModel):
     __test__ = False
-    email: EmailStr
+    email: str
     password: str
     username: str
     first_name: str | None
@@ -18,7 +18,7 @@ class TestCoach(BaseModel):
 
 class TestStudent(BaseModel):
     __test__ = False
-    email: EmailStr
+    email: str
     username: str
     password: str
     is_verified: bool | None
