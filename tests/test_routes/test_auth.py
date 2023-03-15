@@ -32,7 +32,7 @@ def test_signup_and_confirm_account_student(
     assert not student.is_verified
     old_token = student.verification_token
     response = client.get(
-        f"api/auth/student/account-confirmation?token={student.verification_token}"
+        f"api/auth/student/account-confirmation/{student.verification_token}"
     )
     assert response
     student = db.query(m.Student).filter_by(email=test_data.test_student.email).first()
@@ -62,7 +62,7 @@ def test_signup_and_confirm_account_coach(
     old_token = coach.verification_token
 
     response = client.get(
-        f"api/auth/coach/account-confirmation?token={coach.verification_token}"
+        f"api/auth/coach/account-confirmation/{coach.verification_token}"
     )
     assert response
     coach = db.query(m.Coach).filter_by(email=test_data.test_coach.email).first()
