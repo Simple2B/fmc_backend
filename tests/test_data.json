@@ -98,5 +98,21 @@
             "first_name": "Jane",
             "last_name": "Doe"
         }
+    ],
+    "test_locations": [
+        {
+            "name": "test_location1",
+            "street": "test_address1",
+            "city": "test_city1",
+            "state": "test_state1",
+            "postal_code": "test_zipcode1"
+        },
+        {
+            "name": "test_location2",
+            "street": "test_address2",
+            "city": "test_city2",
+            "state": "test_state2",
+            "postal_code": "test_zipcode2"
+        }
     ]
 }

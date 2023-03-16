@@ -37,3 +37,18 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
         if not db.query(m.SportType).filter_by(name=sport_type).first():
             db.add(m.SportType(name=sport_type))
             db.commit()
+    for location in test_data.test_locations:
+        if (
+            not db.query(m.Location)
+            .filter_by(city=location.city, street=location.street)
+            .first()
+        ):
+            db.add(
+                m.Location(
+                    name=location.name,
+                    city=location.city,
+                    street=location.street,
+                    postal_code=location.postal_code,
+                )
+            )
+            db.commit()

@@ -20,12 +20,17 @@ class Coach(Base):
     profile_picture = Column(String(256), nullable=True)
     google_open_id = Column(String(128), nullable=True)
 
+    about = Column(String(1024), nullable=True)
+    certificate_url = Column(String(256), nullable=True)
+
     verification_token = Column(
         String(36), nullable=True, default=generate_uuid
     )  # for email confirmation
 
     password_hash = Column(String(128), nullable=False)
     is_verified = Column(Boolean, default=True)
+    is_for_adults = Column(Boolean, default=True)
+    is_for_children = Column(Boolean, default=False)
 
     created_at = Column(DateTime, default=datetime.now)
 

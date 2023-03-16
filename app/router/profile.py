@@ -37,6 +37,7 @@ def get_coach_profile(
         profile_picture=coach.profile_picture,
         is_verified=coach.is_verified,
     )
+    # TODO return locations and other stuff
 
 
 @profile_router.get(
@@ -131,5 +132,96 @@ def update_student_personal_info(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Error while uploading profile picture url",
+        )
+    return status.HTTP_200_OK
+
+
+@profile_router.post("/coach/", status_code=status.HTTP_201_CREATED)
+def update_coach_profile(
+    sport_category: str = Form(None),
+    about: str | None = Form(None),
+    certificate: UploadFile = File(None),
+    is_for_adult: bool | None = Form(None),
+    is_for_children: bool | None = Form(None),
+    city: str | None = Form(None),
+    street: str | None = Form(None),
+    postal_code: str | None = Form(None),
+    db: Session = Depends(get_db),
+    coach: m.Coach = Depends(get_current_coach),
+    settings: Settings = Depends(get_settings),
+    s3=Depends(get_s3_conn),
+):
+    if about:
+        coach.about = about
+    if is_for_adult:
+        coach.is_for_adult = is_for_adult
+
+    if is_for_children:
+        coach.is_for_children = is_for_children
+
+    if sport_category:
+        sport = db.query(m.SportType).filter_by(name=sport_category).first()
+        if not sport:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Sport Category was not found",
+            )
+        coach_sport = (
+            db.query(m.CoachSport)
+            .filter_by(coach_id=coach.id, sport_id=sport.id)
+            .first()
+        )
+        if not coach_sport:
+            db.add(m.CoachSport(coach_id=coach.id, sport_id=sport.id))
+            db.flush()
+    if certificate:
+        try:
+            certificate.file.seek(0)
+            # Upload the file to to your S3 service
+            s3.upload_fileobj(
+                certificate.file,
+                settings.AWS_S3_BUCKET_NAME,
+                f"user_profiles/certificates/coaches/{coach.uuid}/{certificate.filename}",
+            )
+        except ClientError as e:
+            log(log.ERROR, "Error uploading certificate to S3 - [%s]", e)
+            raise HTTPException(status_code=500, detail="Something went wrong")
+        finally:
+            certificate.file.close()
+        # save to db
+        coach.certificate_url = f"{settings.AWS_S3_BUCKET_URL}user_profiles/certificates/coaches/{coach.uuid}/{certificate.filename}"  # noqa:E501
+    if city and street and postal_code:
+        location = (
+            db.query(m.Location)
+            .filter_by(city=city, street=street, postal_code=postal_code)
+            .first()
+        )
+        if not location:
+            db.add(m.Location(city=city, street=street, postal_code=postal_code))
+            db.flush()
+            location = (
+                db.query(m.Location)
+                .filter_by(
+                    city=city,
+                    street=street,
+                    postal_code=postal_code,
+                )
+                .first()
+            )
+        db.add(m.CoachLocation(coach_id=coach.id, location_id=location.id))
+    try:
+        log(log.INFO, "Updating profile for coach - [%s]", coach.email)
+        db.commit()
+    except SQLAlchemyError as e:
+        log(
+            log.ERROR,
+            "Error occured while uploading coach`s profile - [%s]\n[%s]",
+            coach.email,
+            e,
+        )
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Error while updating profile",
         )
     return status.HTTP_200_OK

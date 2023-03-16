@@ -121,7 +121,7 @@ def create_dummy_students():
 def dummy_data(_):
     create_footbal_coach()
     create_boxing_coach()
-    create_dummy_locations()
+    # create_dummy_locations()
     create_dummy_students()
 
     # todo create lessons
