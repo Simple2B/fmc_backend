@@ -8,4 +8,4 @@ echo Applying migrations
 alembic upgrade head &&
 
 invoke create-sports
-invoke create-super-user
+invoke dummy-data

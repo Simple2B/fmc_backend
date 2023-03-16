@@ -114,3 +114,10 @@ def test_save_image_to_profile(
     ]
     # checking if path to profile image is correct
     assert student.profile_picture == f"{settings.AWS_S3_BUCKET_URL}{file_path}"
+
+
+def test_get_api_keys(
+    client: TestClient,
+):
+    response = client.get("/api/keys/google")
+    assert response.status_code == 200

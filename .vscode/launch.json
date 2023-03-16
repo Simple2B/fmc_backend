@@ -23,6 +23,16 @@
             "module": "pytest",
             "console": "integratedTerminal",
             "justMyCode": false
-        }
+        },
+        {
+            "name": "Dummy Data",
+            "type": "python",
+            "request": "launch",
+            "module": "invoke",
+            "args": [
+                "dummy-data"
+            ],
+            "justMyCode": true
+        },
     ]
 }

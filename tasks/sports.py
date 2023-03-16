@@ -12,6 +12,7 @@ SPORTS_TYPES = [
     "Fitness",
     "Golf",
     "Swimming",
+    "Boxing",
 ]
 
 db = get_db().__next__()

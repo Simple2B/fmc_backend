@@ -4,19 +4,23 @@
             "email": "testcoach1@gmail.com",
             "password": "1234",
             "username": "testcoach1",
-            "is_verified": true
+            "is_verified": true,
+            "profile_picture": "http://path.to.picture",
+            "google_open_id": "3e45yrtherggrefv"
         },
         {
             "email": "testcoach2@gmail.com",
             "password": "1234",
             "username": "testcoach2",
-            "is_verified": true
+            "is_verified": true,
+            "google_open_id": "6t45yrthr23rwfe"
         },
         {
             "email": "testcoach3@gmail.com",
             "password": "1234",
             "username": "testcoach3",
-            "is_verified": true
+            "is_verified": true,
+            "google_open_id": "3e67ujywefdswfcasv"
         }
     ],
     "test_students": [
@@ -24,30 +28,38 @@
             "email": "test_student1@gmail.com",
             "password": "1234",
             "username": "test_student1",
-            "is_verified": true
+            "is_verified": true,
+            "profile_picture": "http://path.to.picture",
+            "google_open_id": "3e2rwfr23wef43erfv"
         },
         {
             "email": "test_student2@gmail.com",
             "password": "1234",
             "username": "test_student2",
-            "is_verified": true
+            "is_verified": true,
+            "google_open_id": "8tyrhgwge3r2v"
         },
         {
             "email": "test_student3@gmail.com",
             "password": "1234",
             "username": "test_student3",
-            "is_verified": true
+            "is_verified": true,
+            "google_open_id": "3p09kiurtgefwe"
         }
     ],
     "test_coach": {
         "email": "test_new_coach@gmail.com",
         "password": "1234",
-        "username": "test_new_coach"
+        "username": "test_new_coach",
+        "profile_picture": "http://path.to.picture",
+        "google_open_id": "rijwroinwiqpoqkp[2qepo"
     },
     "test_student": {
         "email": "test_new_student@gmail.com",
         "password": "1234",
-        "username": "test_new_student"
+        "username": "test_new_student",
+        "profile_picture": "http://path.to.picture",
+        "google_open_id": "efkpowefiojweifo"
     },
     "test_authorized_coaches": [
         {
@@ -56,7 +68,8 @@
             "username": "test_authorized_coach1",
             "is_verified": true,
             "first_name": "Jane",
-            "last_name": "Doe"
+            "last_name": "Doe",
+            "profile_picture": "http://path.to.picture"
         },
         {
             "email": "test_authorized_coach2@gmail.com",
@@ -74,7 +87,8 @@
             "username": "test_authorized_student1",
             "is_verified": true,
             "first_name": "John",
-            "last_name": "Doe"
+            "last_name": "Doe",
+            "profile_picture": "http://path.to.picture"
         },
         {
             "email": "test_authorized_student2@gmail.com",

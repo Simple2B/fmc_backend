@@ -73,7 +73,7 @@ async def student_sign_up(
     return status.HTTP_200_OK
 
 
-@student_auth_router.get("/account-confirmation", status_code=status.HTTP_200_OK)
+@student_auth_router.get("/account-confirmation/{token}", status_code=status.HTTP_200_OK)
 def student_account_confirmation(
     token: str,
     db: Session = Depends(get_db),
@@ -93,6 +93,7 @@ def student_account_confirmation(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Error while approving an account",
         )
+    log(log.INFO, "Student has been verified - [%s]", student.email)
     return status.HTTP_200_OK
 
 
@@ -101,6 +102,7 @@ async def forgot_password_student(
     data: s.UserEmail,
     db: Session = Depends(get_db),
     mail_client: MailClient = Depends(get_mail_client),
+    settings: Settings = Depends(get_settings),
 ):
     student: Student | None = db.query(Student).filter_by(email=data.email).first()
     if not student:
@@ -111,7 +113,7 @@ async def forgot_password_student(
     if not student.is_verified:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Coach hasn`t been verified before",
+            detail="You haven`t been verified before",
         )
     try:
         await mail_client.send_email(
@@ -120,7 +122,7 @@ async def forgot_password_student(
             "forgot_password_mail.html",
             {
                 "user_email": student.email,
-                "verification_token": student.verification_token,
+                "verification_link": f"{settings.BASE_URL}{settings.RESET_PASSWORD_URL_STUDENT}?token={student.verification_token}",  # noqa E501
             },
         )
     except ConnectionErrors as e:
@@ -160,8 +162,44 @@ def student_reset_password(
 
 
 @student_auth_router.post("/google-oauth", status_code=status.HTTP_200_OK)
-async def student_google_auth(
+def student_google_auth(
     student_data: s.UserGoogleLogin,
     db: Session = Depends(get_db),
 ):
-    return {}
+    # finish
+    student: Student | None = (
+        db.query(Student).filter_by(email=student_data.email).first()
+    )
+    if not student:
+        student = Student(
+            email=student_data.email,
+            username=student_data.email,
+            password="*",
+            google_open_id=student_data.google_openid_key,
+            is_verified=True,
+            verification_token=generate_uuid(),
+        )
+        db.add(student)
+        try:
+            db.commit()
+        except SQLAlchemyError as e:
+            log(log.INFO, "Error - [%s]", e)
+            raise HTTPException(
+                status=status.HTTP_409_CONFLICT,
+                detail="Error while saving creating a student",
+            )
+        log(
+            log.INFO,
+            "Student [%s] has been created (via Google account))",
+            student.email,
+        )
+    if student_data.picture:
+        student.picture = student_data.picture
+        db.commit()
+    student.authenticate(db, student.username, student.password)
+    log(log.INFO, "Authenticating user - [%s]", student.email)
+    access_token = create_access_token(data={"user_id": student.id})
+    return s.Token(
+        access_token=access_token,
+        token_type="bearer",
+    )

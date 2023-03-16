@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 
 
 class UserLogin(BaseModel):
@@ -12,6 +12,7 @@ class UserGoogleLogin(BaseModel):
     email: str
     username: str
     google_openid_key: str
+    picture: str | None
 
 
 class UserResetPassword(BaseModel):
@@ -20,4 +21,4 @@ class UserResetPassword(BaseModel):
 
 
 class UserEmail(BaseModel):
-    email: EmailStr
+    email: str

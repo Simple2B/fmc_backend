@@ -73,7 +73,7 @@ async def coach_sign_up(
     return status.HTTP_200_OK
 
 
-@coach_auth_router.get("/account-confirmation", status_code=status.HTTP_200_OK)
+@coach_auth_router.get("/account-confirmation/{token}", status_code=status.HTTP_200_OK)
 def coach_account_confirmation(
     token: str,
     db: Session = Depends(get_db),
@@ -99,6 +99,7 @@ async def forgot_password(
     data: s.UserEmail,
     db: Session = Depends(get_db),
     mail_client: MailClient = Depends(get_mail_client),
+    settings: Settings = Depends(get_settings),
 ):
     coach: Coach | None = db.query(Coach).filter_by(email=data.email).first()
     if not coach:
@@ -118,7 +119,7 @@ async def forgot_password(
             "forgot_password_mail.html",
             {
                 "user_email": coach.email,
-                "verification_token": coach.verification_token,
+                "verification_link": f"{settings.BASE_URL}{settings.RESET_PASSWORD_URL_COACH}?token={coach.verification_token}",  # noqa E501
             },
         )
     except ConnectionErrors as e:
@@ -159,11 +160,42 @@ def coach_reset_password(
 
 
 @coach_auth_router.post("/google-oauth", status_code=status.HTTP_200_OK)
-async def coach_google_auth(
+def coach_google_auth(
     coach_data: s.UserGoogleLogin,
     db: Session = Depends(get_db),
 ):
-    return {}
-
-
-# todo migrate back to invoke cli tool
+    # finish
+    coach: Coach | None = db.query(Coach).filter_by(email=coach_data.email).first()
+    if not coach:
+        coach = Coach(
+            email=coach_data.email,
+            username=coach_data.email,
+            password="*",
+            google_open_id=coach_data.google_openid_key,
+            is_verified=True,
+            verification_token=generate_uuid(),
+        )
+        db.add(coach)
+        try:
+            db.commit()
+        except SQLAlchemyError as e:
+            log(log.INFO, "Error - [%s]", e)
+            raise HTTPException(
+                status=status.HTTP_409_CONFLICT,
+                detail="Error while saving creating a coach",
+            )
+        log(
+            log.INFO,
+            "Coach [%s] has been created (via Google account))",
+            coach.email,
+        )
+    if coach_data.picture:
+        coach_data.picture = coach_data.picture
+        db.commit()
+    coach.authenticate(db, coach.username, coach.password)
+    log(log.INFO, "Authenticating coach - [%s]", coach.email)
+    access_token = create_access_token(data={"user_id": coach.id})
+    return s.Token(
+        access_token=access_token,
+        token_type="bearer",
+    )

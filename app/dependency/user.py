@@ -2,6 +2,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from jose import jwt
+from jose.exceptions import ExpiredSignatureError
 
 from app.schema import TokenData
 from app.database import get_db
@@ -23,7 +24,18 @@ def get_current_coach(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> Coach:
-    payload = jwt.decode(token, settings.JWT_SECRET)
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+        )
+    try:
+        payload = jwt.decode(token, settings.JWT_SECRET)
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+        )
     id: str = payload.get("user_id")
     if not id:
         raise HTTPException(
@@ -48,7 +60,18 @@ def get_current_student(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
 ) -> Student:
-    payload = jwt.decode(token, settings.JWT_SECRET)
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+        )
+    try:
+        payload = jwt.decode(token, settings.JWT_SECRET)
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+        )
     id: str = payload.get("user_id")
     if not id:
         raise http_exceptions

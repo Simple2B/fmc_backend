@@ -17,7 +17,7 @@ services:
       - network
 
   nextjs_app:
-    image: simple2b/fmc-frontend:v1
+    image: 270968290167.dkr.ecr.us-east-1.amazonaws.com/fmc-frontend:latest
     build: .
     command: node server.js
     restart: always
@@ -30,13 +30,14 @@ services:
       - network
 
   app:
-    build: # path to sources
+    build: .
+    image: 270968290167.dkr.ecr.us-east-1.amazonaws.com/fmc-backend:latest
     restart: always
     env_file:
       - .env
     environment:
       - DB_URI=postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@db/${DATABASE_NAME}
-    command: bash start_server.sh # or custom command
+    command: bash start_server.sh
     depends_on:
       - db
     networks:

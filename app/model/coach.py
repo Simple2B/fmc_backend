@@ -1,5 +1,7 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, func
+from sqlalchemy.orm import relationship
+
 from app.hash_utils import make_hash, hash_verify
 from app.database import Base, Session
 from app.utils import generate_uuid
@@ -26,6 +28,9 @@ class Coach(Base):
     is_verified = Column(Boolean, default=True)
 
     created_at = Column(DateTime, default=datetime.now)
+
+    # relationship
+    sports = relationship("SportType", secondary="coaches_sports", viewonly=True)
 
     @property
     def password(self):

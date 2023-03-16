@@ -1,5 +1,5 @@
 from functools import lru_cache
-from pydantic import BaseSettings, EmailStr
+from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -7,21 +7,25 @@ class Settings(BaseSettings):
     JWT_SECRET: str = "<None>"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 4320
     BASE_URL: str = "http://localhost:3000"
+    COACH_DEFAULT_LESSON_PRICE: float = 999
 
     CONFIRMATION_URL_COACH: str
     CONFIRMATION_URL_STUDENT: str
+
+    RESET_PASSWORD_URL_STUDENT: str
+    RESET_PASSWORD_URL_COACH: str
     # db
     DB_URI: str = ""
 
     # admin
     ADMIN_USER: str = "admin"
     ADMIN_PASS: str = "admin"
-    ADMIN_EMAIL: EmailStr = "admin@admin.com"
+    ADMIN_EMAIL: str = "admin@admin.com"
 
     # Mail settings
     MAIL_USERNAME: str = "test_mail_username"
     MAIL_PASSWORD: str = "test_mail_password"
-    MAIL_FROM: EmailStr = EmailStr("chairlift@simple2b.com")
+    MAIL_FROM: str = "chairlift@simple2b.com"
     MAIL_PORT: int = 465
     MAIL_SERVER: str = "test_mail_server"
     MAIL_FROM_NAME: str = "Chairlift"
@@ -38,6 +42,9 @@ class Settings(BaseSettings):
     AWS_ACCESS_KEY: str
     AWS_S3_BUCKET_NAME: str = "find-my-coach"
     AWS_S3_BUCKET_URL: str
+
+    GOOGLE_CLIENT_ID: str = "test_google_client_id"
+    GOOGLE_CLIENT_SECRET: str = "test_google_client_secret"
 
     class Config:
         env_file = ".env"
