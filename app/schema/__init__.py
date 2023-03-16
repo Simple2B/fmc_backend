@@ -7,4 +7,4 @@ from .api_keys import APIKeysSchema
 from .sport import ListSportTypeSchema
 from .contact import ContactFormSchema
 
-from .profile import StudentProfileSchema, CoachProfileSchema
+from .profile import StudentProfileSchema, CoachProfileSchema, ProfileChangePassword

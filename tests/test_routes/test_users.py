@@ -16,9 +16,7 @@ settings: Settings = get_test_settings()
 
 def test_get_profile(
     client: TestClient,
-    test_data: TestData,
     db: Session,
-    authorized_student_tokens: list,
     authorized_coach_tokens: list,
 ):
     # getting coach profile
@@ -133,7 +131,6 @@ def test_update_coach_profile(
     test_data: TestData,
     db: Session,
     authorized_coach_tokens: list,
-    authorized_student_tokens: list,
 ):
     # setup data
     TEST_CITY = "Manchester"
@@ -218,3 +215,15 @@ def test_update_coach_profile(
         .filter_by(coach_id=coach.id, location_id=location.id)
         .first()
     )
+
+
+def test_change_password(
+    client: TestClient,
+    test_data: TestData,
+    db: Session,
+    authorized_coach_tokens: list,
+    authorized_student_tokens: list,
+):
+    client.headers[
+        "Authorization"
+    ] = f"Bearer {authorized_coach_tokens[0].access_token}"

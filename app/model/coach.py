@@ -11,7 +11,7 @@ class Coach(Base):
     __tablename__ = "coaches"
 
     id = Column(Integer, primary_key=True)
-    uuid = Column(String(36), nullable=False, default=generate_uuid)
+    uuid = Column(String(36), nullable=False, index=True, default=generate_uuid)
 
     first_name = Column(String(64), nullable=False, default="")
     last_name = Column(String(64), nullable=False, default="")

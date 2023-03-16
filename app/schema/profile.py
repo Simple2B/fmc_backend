@@ -8,3 +8,9 @@ class StudentProfileSchema(BaseModel):
 
 class CoachProfileSchema(BaseModel):
     ...
+
+
+class ProfileChangePassword(BaseModel):
+    old_password: str
+    new_password: str
+    new_password_confirmation: str
