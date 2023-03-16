@@ -1,4 +1,12 @@
-from fastapi import APIRouter, Depends, UploadFile, File, status, HTTPException
+from fastapi import (
+    APIRouter,
+    Depends,
+    UploadFile,
+    File,
+    status,
+    HTTPException,
+    Form,
+)
 from sqlalchemy.orm import Session
 from botocore.exceptions import ClientError
 from sqlalchemy.exc import SQLAlchemyError
@@ -19,7 +27,7 @@ profile_router = APIRouter(prefix="/profile", tags=["Profiles"])
 )
 def get_coach_profile(
     db: Session = Depends(get_db),
-    coach=Depends(get_current_coach),
+    coach: m.Coach = Depends(get_current_coach),
 ):
     return s.UserProfile(
         email=coach.email,
@@ -37,7 +45,7 @@ def get_coach_profile(
 )
 def get_student_profile(
     db: Session = Depends(get_db),
-    student=Depends(get_current_student),
+    student: m.Student = Depends(get_current_student),
 ):
     return s.UserProfile(
         email=student.email,
@@ -49,9 +57,11 @@ def get_student_profile(
     )
 
 
-@profile_router.post("/coach/upload-image", status_code=status.HTTP_201_CREATED)
-def upload_coach_profile_image(
+@profile_router.post("/coach/personal-info", status_code=status.HTTP_201_CREATED)
+async def update_coach_personal_info(
     file: UploadFile = File(...),
+    first_name: str = Form(...),
+    last_name: str = Form(...),
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
     settings: Settings = Depends(get_settings),
@@ -72,21 +82,25 @@ def upload_coach_profile_image(
         file.file.close()
     # save to db
     coach.profile_picture = f"{settings.AWS_S3_BUCKET_URL}user_profiles/pictures/coaches/pictures/{coach.uuid}/{file.filename}"  # noqa:E501
+    coach.first_name = first_name
+    coach.last_name = last_name
     try:
-        log(log.INFO, "Saving profile picture for coach [%s]", coach.email)
+        log(log.INFO, "Saving profile for coach [%s]", coach.email)
         db.commit()
     except SQLAlchemyError as e:
-        log(log.ERROR, "Failed to create a profile url: [%s]\n[%s]", coach.email, e)
+        log(log.ERROR, "Failed to update a profile for - [%s]\n[%s]", coach.email, e)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Error while uploading profile picture url",
+            detail="Error while updating profile",
         )
     return status.HTTP_200_OK
 
 
-@profile_router.post("/student/upload-image", status_code=status.HTTP_201_CREATED)
-def upload_student_profile_image(
+@profile_router.post("/student/personal-info", status_code=status.HTTP_201_CREATED)
+def update_student_personal_info(
     file: UploadFile = File(...),
+    first_name: str = Form(...),
+    last_name: str = Form(...),
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
     settings: Settings = Depends(get_settings),
@@ -107,11 +121,13 @@ def upload_student_profile_image(
         file.file.close()
     # save to db
     student.profile_picture = f"{settings.AWS_S3_BUCKET_URL}user_profiles/pictures/students/pictures/{student.uuid}/{file.filename}"  # noqa:E501
+    student.first_name = first_name
+    student.last_name = last_name
     try:
-        log(log.INFO, "Saving profile picture for student [%s]", student.email)
+        log(log.INFO, "Updating profile for student [%s]", student.email)
         db.commit()
     except SQLAlchemyError as e:
-        log(log.ERROR, "Failed to create a profile url: [%s]\n[%s]", student.email, e)
+        log(log.ERROR, "Failed to update a profile for - [%s]\n[%s]", student.email, e)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Error while uploading profile picture url",

@@ -57,6 +57,8 @@ def test_save_image_to_profile(
     authorized_coach_tokens: list,
     authorized_student_tokens: list,
 ):
+    TEST_FIRST_NAME = "John"
+    TEST_LAST_NAME = "Doe"
     # creating a bucket
     s3 = get_s3_conn(settings)
     s3.create_bucket(Bucket=settings.AWS_S3_BUCKET_NAME)
@@ -66,13 +68,13 @@ def test_save_image_to_profile(
         "Authorization"
     ] = f"Bearer {authorized_coach_tokens[0].access_token}"
     response = client.post(
-        "api/profile/coach/upload-image",
+        "api/profile/coach/personal-info",
+        data=dict(
+            first_name=TEST_FIRST_NAME,
+            last_name=TEST_LAST_NAME,
+        ),
         files={
-            "file": (
-                "avatar_test.jpg",
-                open("tests/avatar_test.jpg", "rb"),
-                "image/jpeg",
-            )
+            "file": open("tests/avatar_test.jpg", "rb"),
         },
     )
     assert response
@@ -82,6 +84,7 @@ def test_save_image_to_profile(
         .first()
     )
     assert coach
+    assert coach.first_name == TEST_FIRST_NAME
     file_path = s3.list_objects_v2(Bucket=settings.AWS_S3_BUCKET_NAME)["Contents"][0][
         "Key"
     ]
@@ -93,13 +96,13 @@ def test_save_image_to_profile(
         "Authorization"
     ] = f"Bearer {authorized_student_tokens[0].access_token}"
     response = client.post(
-        "api/profile/student/upload-image",
+        "api/profile/student/personal-info",
+        data=dict(
+            first_name=TEST_FIRST_NAME,
+            last_name=TEST_LAST_NAME,
+        ),
         files={
-            "file": (
-                "avatar_test.jpg",
-                open("tests/avatar_test.jpg", "rb"),
-                "image/jpeg",
-            )
+            "file": open("tests/avatar_test.jpg", "rb"),
         },
     )
     assert response
@@ -109,6 +112,7 @@ def test_save_image_to_profile(
         .first()
     )
     assert student
+    assert student.first_name == "John"
     file_path = s3.list_objects_v2(Bucket=settings.AWS_S3_BUCKET_NAME)["Contents"][1][
         "Key"
     ]
