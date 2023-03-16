@@ -37,6 +37,7 @@ class Coach(Base):
     # relationship
     sports = relationship("SportType", secondary="coaches_sports", viewonly=True)
 
+    # TODO remove sport category and skills
     @property
     def password(self):
         return self.password_hash

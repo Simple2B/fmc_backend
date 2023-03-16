@@ -8,3 +8,4 @@ from .sport import ListSportTypeSchema
 from .contact import ContactFormSchema
 
 from .profile import StudentProfileSchema, CoachProfileSchema, ProfileChangePassword
+from .message import MessageCreate, Message, MessageUsersList, MessageList
