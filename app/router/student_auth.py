@@ -174,7 +174,7 @@ def student_google_auth(
     if not student:
         student = Student(
             email=student_data.email,
-            username=student_data.email,
+            username=student_data.username,
             password="*",
             google_open_id=student_data.google_openid_key,
             is_verified=True,

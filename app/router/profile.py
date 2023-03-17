@@ -223,3 +223,7 @@ def update_coach_profile(
             detail="Error while updating profile",
         )
     return status.HTTP_200_OK
+
+
+def coach_change_password():
+    ...

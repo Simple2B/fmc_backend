@@ -1,4 +1,4 @@
-from pydantic import BaseModel, AnyHttpUrl
+from pydantic import BaseModel, AnyHttpUrl, validator
 from .base import BaseUser
 
 
@@ -18,3 +18,21 @@ class BaseUserProfileList(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class CoachProfileOut(BaseUserProfileOut):
+    about: str
+    certificate_url: AnyHttpUrl
+    is_for_adults: bool
+    is_for_children: bool
+
+    class Config:
+        orm_mode = True
+
+    @validator("about")
+    def check_about_length(cls, v):
+        if len(v) > 1024:
+            raise ValueError("Length of 'about' couldnt be larger than 1024")
+        return v
+
+    # TODO validators + types

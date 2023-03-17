@@ -26,7 +26,6 @@ def create_footbal_coach():
         fc_sport = m.CoachSport(coach_id=football_coach.id, sport_id=SPORTS[0].id)
         db.add(fc_sport)
         db.commit()
-        # TODO create schedule
         print(f"Coach {football_coach} created successfully")
     return football_coach
 
@@ -49,7 +48,6 @@ def create_boxing_coach():
         db.add(bc_sport)
         db.commit()
         print(f"Coach {boxing_coach} created successfully")
-    # TODO create schedule
     return db.query(m.Coach).filter_by(email=BOXING_COACH_EMAIL).first()
 
 
