@@ -1,9 +1,13 @@
 import enum
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Enum
 
-from app.database import Base
-from app.utils import generate_uuid, get_datetime
+from app.database import Base, get_db
+from app.utils import generate_uuid
+from .coach import Coach
+from .student import Student
+
+db = get_db().__next__()
 
 
 class MessageTypes(enum.Enum):
@@ -16,14 +20,42 @@ class Message(Base):
 
     id = Column(Integer, primary_key=True)
     uuid = Column(String(36), nullable=False, default=generate_uuid)
-    message_text = Column(String(1024), nullable=False)
-    message_from = Column(String(36), nullable=False)  # uuid of owner
-    message_to = Column(String(36), nullable=False)  # uuid of recepient
-    message_type = Column(String(36), default=MessageTypes.MESSAGE.value)
-    is_read = Column(Boolean, default=False)
 
-    created_at = Column(DateTime, default=datetime.now)
-    created_at_timestamp = Column(Integer, default=get_datetime)
+    text = Column(String(1024), nullable=False)
+
+    author_id = Column(String(36), nullable=False)  # uuid of owner
+    receiver_id = Column(String(36), nullable=False)  # uuid of recepient
+
+    message_type = Column(Enum(MessageTypes), default=MessageTypes.MESSAGE)
+
+    is_read = Column(Boolean, default=False)
+    read_at = Column(DateTime(timezone=True), default=datetime.max)
+
+    created_at = Column(DateTime(timezone=True), default=datetime.now)
+
+    @property
+    def author(self) -> Coach | Student | None:
+        student: Student | None = (
+            db.query(Student).filter_by(uuid=self.author_id).first()
+        )
+        if student:
+            return student
+        coach: Coach | None = db.query(Coach).filter_by(uuid=self.author_id).first()
+        if coach:
+            return coach
+        return None
+
+    @property
+    def receiver(self) -> Coach | Student | None:
+        student: Student | None = (
+            db.query(Student).filter_by(uuid=self.receiver_id).first()
+        )
+        if student:
+            return student
+        coach: Coach | None = db.query(Coach).filter_by(uuid=self.receiver_id).first()
+        if coach:
+            return coach
+        return None
 
     def __repr__(self):
-        return f"<{self.id}:{self.created_at}>"
+        return f"<{self.id}:{self.created_at} - {self.message_text[:12]}...>"

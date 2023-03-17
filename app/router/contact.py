@@ -14,20 +14,19 @@ import app.model as m
 contact_router = APIRouter(prefix="/contact", tags=["Contact"])
 
 
-@contact_router.post("/", response_model=s.UserEmail)
+@contact_router.post("/", response_model=s.BaseUser)
 async def send_contact_request(
-    data: s.ContactFormSchema,
+    data: s.ContactDataIn,
     db: Session = Depends(get_db),
     mail_client: MailClient = Depends(get_mail_client),
     settings: Settings = Depends(get_settings),
 ):
-    contact = m.Contact(
+    contact: m.Contact = m.Contact(
         email_from=data.email_from,
         message=data.message,
     )
     db.add(contact)
     try:
-        log(log.INFO, "New contact request created from [%s]", contact.email_from)
         db.commit()
     except SQLAlchemyError as e:
         log(
@@ -54,5 +53,5 @@ async def send_contact_request(
         db.rollback()
         log(log.ERROR, "Error while sending message - [%s]", e)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-
-    return s.UserEmail(email=contact.email_from)
+    log(log.INFO, "New contact request created from [%s]", contact.email_from)
+    return s.BaseUser(email=contact.email_from)

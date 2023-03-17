@@ -1,11 +1,16 @@
 # flake8: noqa F401
-from .user_create import UserSignUp
-from .user_out import UserOut, UserProfile
-from .user_login import UserLogin, UserGoogleLogin, UserResetPassword, UserEmail
-from .token import Token, TokenData
-from .api_keys import APIKeysSchema
-from .sport import ListSportTypeSchema
-from .contact import ContactFormSchema
+from .user.base import BaseUser
 
-from .profile import StudentProfileSchema, CoachProfileSchema, ProfileChangePassword
-from .message import MessageCreate, Message, MessageUsersList, MessageList
+from .user.login import UserGoogleLogin
+from .user.profile import BaseUserProfileOut
+from .user.signup import UserSignUp
+
+from .token import Token, TokenData
+from .sport import ListSportTypeSchema
+from .contact import ContactDataIn
+
+
+from .user.profile import BaseUserProfileOut, BaseUserProfileList
+from .message import MessageDataIn, MessageOut, MessageList
+from .api_keys import GAPIKeysSchema
+from .user.reset_password import UserResetPasswordIn

@@ -25,15 +25,13 @@ def test_create_message(
 
     student = db.query(m.Student).first()
     assert student
-    request_data = s.MessageCreate(
-        message_text="text message", message_to=student.uuid
-    ).dict()
+    request_data = s.MessageDataIn(text="text message", receiver_id=student.uuid).dict()
     response = client.post(
-        "api/message/coach/send-message",
+        "api/message/coach/send-message-to-student",
         json=request_data,
     )
     assert response
-    resp_obj = s.Message.parse_obj(response.json())
+    resp_obj = s.MessageOut.parse_obj(response.json())
     assert resp_obj
     coach: m.Coach = (
         db.query(m.Coach)
@@ -41,15 +39,15 @@ def test_create_message(
         .first()
     )
     assert coach
-    assert resp_obj.message_from == coach.uuid
-    assert resp_obj.message_to == db.query(m.Student).first().uuid
+    assert resp_obj.author.email == coach.email
+    assert resp_obj.receiver.uuid == db.query(m.Student).first().uuid
 
     # Testing getting list of coach`s contacts`
     response = client.get(
         "api/message/coach/list-of-contacts",
     )
     assert response
-    resp_obj = s.MessageUsersList.parse_obj(response.json())
+    resp_obj = s.BaseUserProfileList.parse_obj(response.json())
     student = db.query(m.Student).first()
     assert student
     assert resp_obj.users[0].uuid == student.uuid
@@ -61,5 +59,5 @@ def test_create_message(
     assert response
     resp_obj = s.MessageList.parse_obj(response.json())
     assert len(resp_obj.messages) == 1
-    assert resp_obj.messages[0].message_from == coach.uuid
-    assert resp_obj.messages[0].message_to == db.query(m.Student).first().uuid
+    assert resp_obj.messages[0].author.uuid == coach.uuid
+    assert resp_obj.messages[0].receiver.uuid == db.query(m.Student).first().uuid

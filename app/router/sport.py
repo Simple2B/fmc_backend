@@ -6,7 +6,7 @@ from app.database import get_db
 import app.schema as s
 
 
-sport_router = APIRouter(prefix="/sports", tags=["Profiles"])
+sport_router = APIRouter(prefix="/sports", tags=["Sports"])
 
 
 @sport_router.get(

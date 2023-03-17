@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class APIKeysSchema(BaseModel):
+class GAPIKeysSchema(BaseModel):
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str

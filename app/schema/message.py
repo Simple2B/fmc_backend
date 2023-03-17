@@ -1,41 +1,27 @@
 from datetime import datetime
 from pydantic import BaseModel
 
-
-class MessageCreate(BaseModel):
-    message_text: str
-    message_to: str
+from .user.profile import BaseUserProfileOut
 
 
-class Message(BaseModel):
-    message_from: str
-    message_to: str
-    message_text: str
+class MessageDataIn(BaseModel):
+    text: str
+    receiver_id: str  # User # creation form
+
+
+class MessageOut(BaseModel):
+    author: BaseUserProfileOut
+    receiver: BaseUserProfileOut
+    text: str
     created_at: datetime
-
-    class Config:
-        orm_mode = True
-
-
-class MesssageUser(BaseModel):
-    email: str
-    uuid: str
-    first_name: str
-    last_name: str
-
-    class Config:
-        orm_mode = True
-
-
-class MessageUsersList(BaseModel):
-    users: list[MesssageUser]
+    is_read: bool
 
     class Config:
         orm_mode = True
 
 
 class MessageList(BaseModel):
-    messages: list[Message]
+    messages: list[MessageOut]
 
     class Config:
         orm_mode = True

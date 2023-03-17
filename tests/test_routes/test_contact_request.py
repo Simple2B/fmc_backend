@@ -18,12 +18,12 @@ def test_contact_form(
     mail_client: MailClient,
 ):
     with mail_client.mail.record_messages() as outbox:
-        request_data = s.ContactFormSchema(
+        request_data = s.ContactDataIn(
             email_from="test@email.com", message="Hi i got a question ..."
         ).dict()
         response = client.post("api/contact/", json=request_data)
         assert response
         assert len(outbox) == 1
-        resp_obj = s.UserEmail.parse_obj(response.json())
+        resp_obj = s.BaseUser.parse_obj(response.json())
         assert resp_obj
         assert resp_obj.email == request_data.get("email_from")

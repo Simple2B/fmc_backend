@@ -23,13 +23,13 @@ profile_router = APIRouter(prefix="/profile", tags=["Profiles"])
 
 @profile_router.get(
     "/coach",
-    response_model=s.UserProfile,
+    response_model=s.BaseUserProfileOut,
 )
 def get_coach_profile(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    return s.UserProfile(
+    return s.BaseUserProfileOut(
         email=coach.email,
         username=coach.username,
         first_name=coach.first_name,
@@ -42,13 +42,13 @@ def get_coach_profile(
 
 @profile_router.get(
     "/student",
-    response_model=s.UserProfile,
+    response_model=s.BaseUserProfileOut,
 )
 def get_student_profile(
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
 ):
-    return s.UserProfile(
+    return s.BaseUserProfileOut(
         email=student.email,
         username=student.username,
         first_name=student.first_name,
@@ -70,7 +70,6 @@ async def update_coach_personal_info(
 ):
     try:
         file.file.seek(0)
-        # Upload the file to to your S3 service
         s3.upload_fileobj(
             file.file,
             settings.AWS_S3_BUCKET_NAME,
@@ -86,7 +85,6 @@ async def update_coach_personal_info(
     coach.first_name = first_name
     coach.last_name = last_name
     try:
-        log(log.INFO, "Saving profile for coach [%s]", coach.email)
         db.commit()
     except SQLAlchemyError as e:
         log(log.ERROR, "Failed to update a profile for - [%s]\n[%s]", coach.email, e)
@@ -94,6 +92,7 @@ async def update_coach_personal_info(
             status_code=status.HTTP_409_CONFLICT,
             detail="Error while updating profile",
         )
+    log(log.INFO, "Saving profile for coach [%s]", coach.email)
     return status.HTTP_200_OK
 
 
@@ -109,7 +108,6 @@ def update_student_personal_info(
 ):
     try:
         file.file.seek(0)
-        # Upload the file to to your S3 service
         s3.upload_fileobj(
             file.file,
             settings.AWS_S3_BUCKET_NAME,
@@ -125,7 +123,6 @@ def update_student_personal_info(
     student.first_name = first_name
     student.last_name = last_name
     try:
-        log(log.INFO, "Updating profile for student [%s]", student.email)
         db.commit()
     except SQLAlchemyError as e:
         log(log.ERROR, "Failed to update a profile for - [%s]\n[%s]", student.email, e)
@@ -133,6 +130,7 @@ def update_student_personal_info(
             status_code=status.HTTP_409_CONFLICT,
             detail="Error while uploading profile picture url",
         )
+    log(log.INFO, "Updating profile for student [%s]", student.email)
     return status.HTTP_200_OK
 
 

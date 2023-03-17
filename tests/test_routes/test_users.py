@@ -25,7 +25,7 @@ def test_get_profile(
     ] = f"Bearer {authorized_coach_tokens[0].access_token}"
     response = client.get("/api/profile/coach")
     assert response
-    resp_obj = s.UserProfile.parse_obj(response.json())
+    resp_obj = s.BaseUser.parse_obj(response.json())
     coach = (
         db.query(m.Coach).filter_by(email="test_authorized_coach1@gmail.com").first()
     )
@@ -37,7 +37,7 @@ def test_get_profile(
     ] = f"Bearer {authorized_coach_tokens[0].access_token}"
     response = client.get("/api/profile/student")
     assert response
-    resp_obj = s.UserProfile.parse_obj(response.json())
+    resp_obj = s.BaseUser.parse_obj(response.json())
     student = (
         db.query(m.Student)
         .filter_by(email="test_authorized_student1@gmail.com")

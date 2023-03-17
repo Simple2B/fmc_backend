@@ -27,10 +27,12 @@ def test_signup_and_confirm_account_student(
         response = client.post("api/auth/student/sign-up", json=request_data)
         assert response
         assert len(outbox) == 1
+    # check if user created
     student = db.query(m.Student).filter_by(email=test_data.test_student.email).first()
     assert student
     assert not student.is_verified
     old_token = student.verification_token
+    # confirming students account
     response = client.get(
         f"api/auth/student/account-confirmation/{student.verification_token}"
     )
@@ -60,7 +62,7 @@ def test_signup_and_confirm_account_coach(
     assert coach
     assert not coach.is_verified
     old_token = coach.verification_token
-
+    # confirming coaches account
     response = client.get(
         f"api/auth/coach/account-confirmation/{coach.verification_token}"
     )
@@ -86,7 +88,7 @@ def test_forgot_password_coach(
     old_password = coach.password
     assert coach
     with mail_client.mail.record_messages() as outbox:
-        request_data = s.UserEmail(email=coach.email).dict()
+        request_data = s.BaseUser(email=coach.email).dict()
         response = client.post("api/auth/coach/forgot-password", json=request_data)
         assert response
         assert len(outbox) == 1
@@ -100,8 +102,8 @@ def test_forgot_password_coach(
     TEST_NEW_PASSWORD = "test_new_password"
 
     # confirm the new password
-    request_data = s.UserResetPassword(
-        password=TEST_NEW_PASSWORD, password1=TEST_NEW_PASSWORD
+    request_data = s.UserResetPasswordIn(
+        new_password=TEST_NEW_PASSWORD, new_password_confirmation=TEST_NEW_PASSWORD
     ).dict()
     response = client.post(
         f"api/auth/coach/reset-password/{coach.verification_token}", json=request_data
@@ -129,7 +131,7 @@ def test_forgot_password_student(
     old_password = student.password
     assert student
     with mail_client.mail.record_messages() as outbox:
-        request_data = s.UserEmail(email=student.email).dict()
+        request_data = s.BaseUser(email=student.email).dict()
         response = client.post("api/auth/student/forgot-password", json=request_data)
         assert response
         assert len(outbox) == 1
@@ -145,8 +147,8 @@ def test_forgot_password_student(
     TEST_NEW_PASSWORD = "test_new_password"
 
     # confirm the new password
-    request_data = s.UserResetPassword(
-        password=TEST_NEW_PASSWORD, password1=TEST_NEW_PASSWORD
+    request_data = s.UserResetPasswordIn(
+        new_password=TEST_NEW_PASSWORD, new_password_confirmation=TEST_NEW_PASSWORD
     ).dict()
     response = client.post(
         f"api/auth/student/reset-password/{student.verification_token}",

@@ -1,6 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
-class ContactFormSchema(BaseModel):
-    email_from: str
+class ContactDataIn(BaseModel):
+    email_from: EmailStr  # Anonymous user
     message: str
+
+    # TODO make validation to message length

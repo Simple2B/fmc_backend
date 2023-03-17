@@ -12,16 +12,16 @@ import app.schema as s
 message_router = APIRouter(prefix="/message", tags=["Messages"])
 
 
-@message_router.post("/coach/send-message", response_model=s.Message)
+@message_router.post("/coach/send-message-to-student", response_model=s.MessageOut)
 def coach_create_message(
-    message_data: s.MessageCreate,
+    message_data: s.MessageDataIn,
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    message = m.Message(
-        message_from=coach.uuid,
-        message_to=message_data.message_to,
-        message_text=message_data.message_text,
+    message: m.Message = m.Message(
+        author_id=coach.uuid,
+        receiver_id=message_data.receiver_id,
+        text=message_data.text,
     )
     db.add(message)
     try:
@@ -37,19 +37,19 @@ def coach_create_message(
 
 
 # get all messages with a specific user
-@message_router.get("/coach/list-of-contacts", response_model=s.MessageUsersList)
+@message_router.get("/coach/list-of-contacts", response_model=s.BaseUserProfileList)
 def get_coach_list_of_contacts(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
     messages: list[m.Message] = (
-        db.query(m.Message).filter_by(message_from=coach.uuid).all()
+        db.query(m.Message).filter_by(author_id=coach.uuid).all()
     )
-    result = list()
+    users = []
     for message in messages:
-        student = db.query(m.Student).filter_by(uuid=message.message_to).first()
-        result.append(student)
-    return s.MessageUsersList(users=set(result))
+        student = db.query(m.Student).filter_by(uuid=message.receiver_id).first()
+        users.append(student)
+    return s.BaseUserProfileList(users=users)
 
 
 # get messages for current dialogue
@@ -64,7 +64,7 @@ def get_coach_student_messages(
 ):
     messages: list[m.Message] = (
         db.query(m.Message)
-        .filter_by(message_from=coach.uuid, message_to=student_uuid)
+        .filter_by(author_id=coach.uuid, receiver_id=student_uuid)
         .order_by(m.Message.created_at.desc())
         .all()
     )
