@@ -167,17 +167,21 @@ def test_whoami_routes(
     authorized_coach_tokens: list,
     authorized_student_tokens: list,
 ):
-    client.headers[
-        "Authorization"
-    ] = f"Bearer {authorized_coach_tokens[0].access_token}"
-    response = client.get("api/whoami/student")
+    response = client.get(
+        "api/whoami/student",
+        headers={
+            "Authorization": f"Bearer {authorized_student_tokens[0].access_token}"
+        },
+    )
     assert response.status_code == 200
+    assert response.json() is True
 
-    client.headers[
-        "Authorization"
-    ] = f"Bearer {authorized_coach_tokens[0].access_token}"
-    response = client.get("api/whoami/coach")
+    response = client.get(
+        "api/whoami/coach",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
     assert response.status_code == 200
+    assert response.json() is True
 
 
 def test_google_auth(

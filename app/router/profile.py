@@ -16,6 +16,7 @@ from app.dependency import get_current_coach, get_current_student, get_s3_conn
 from app.database import get_db
 import app.schema as s
 import app.model as m
+from app.hash_utils import hash_verify
 from app.config import Settings, get_settings
 
 profile_router = APIRouter(prefix="/profile", tags=["Profiles"])
@@ -225,5 +226,30 @@ def update_coach_profile(
     return status.HTTP_200_OK
 
 
-def coach_change_password():
-    ...
+@profile_router.post("/coach/change-password", status_code=status.HTTP_200_OK)
+def coach_change_password(
+    data: s.ProfileChangePasswordIn,
+    coach: m.Coach = Depends(get_current_coach),
+    db: Session = Depends(get_db),
+):
+    if not hash_verify(data.old_password, coach.password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Old password is incorrect",
+        )
+    if data.new_password != data.new_password_confirmation:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New passwords do not match",
+        )
+    coach.password = data.new_password
+    try:
+        db.commit()
+    except SQLAlchemyError as e:
+        log(log.ERROR, "Failed to change password for - [%s]\n[%s]", coach.email, e)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Error while changing password",
+        )
+    log(log.INFO, "Changing password for coach - [%s]", coach.email)
+    return status.HTTP_200_OK

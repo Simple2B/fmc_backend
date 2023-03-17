@@ -7,6 +7,7 @@ from app.config import Settings
 from app.dependency import get_s3_conn
 import app.model as m
 import app.schema as s
+from app.hash_utils import make_hash, hash_verify
 from tests.conftest import get_test_settings
 from tests.fixture import TestData
 
@@ -20,10 +21,10 @@ def test_get_profile(
     authorized_coach_tokens: list,
 ):
     # getting coach profile
-    client.headers[
-        "Authorization"
-    ] = f"Bearer {authorized_coach_tokens[0].access_token}"
-    response = client.get("/api/profile/coach")
+    response = client.get(
+        "/api/profile/coach",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
     assert response
     resp_obj = s.BaseUser.parse_obj(response.json())
     coach = (
@@ -32,10 +33,10 @@ def test_get_profile(
     assert coach
     assert coach.email == resp_obj.email
     # getting student profile
-    client.headers[
-        "Authorization"
-    ] = f"Bearer {authorized_coach_tokens[0].access_token}"
-    response = client.get("/api/profile/student")
+    response = client.get(
+        "/api/profile/student",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
     assert response
     resp_obj = s.BaseUser.parse_obj(response.json())
     student = (
@@ -62,9 +63,6 @@ def test_save_personal_info(
     s3.create_bucket(Bucket=settings.AWS_S3_BUCKET_NAME)
 
     # upload image for coach
-    client.headers[
-        "Authorization"
-    ] = f"Bearer {authorized_coach_tokens[0].access_token}"
     response = client.post(
         "api/profile/coach/personal-info",
         data=dict(
@@ -74,6 +72,7 @@ def test_save_personal_info(
         files={
             "file": open("tests/avatar_test.jpg", "rb"),
         },
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response
     coach = (
@@ -90,9 +89,6 @@ def test_save_personal_info(
     assert coach.profile_picture == f"{settings.AWS_S3_BUCKET_URL}{file_path}"
 
     # upload image for student
-    client.headers[
-        "Authorization"
-    ] = f"Bearer {authorized_student_tokens[0].access_token}"
     response = client.post(
         "api/profile/student/personal-info",
         data=dict(
@@ -101,6 +97,9 @@ def test_save_personal_info(
         ),
         files={
             "file": open("tests/avatar_test.jpg", "rb"),
+        },
+        headers={
+            "Authorization": f"Bearer {authorized_student_tokens[0].access_token}"
         },
     )
     assert response
@@ -139,9 +138,6 @@ def test_update_coach_profile(
     # creating a bucket
     s3 = get_s3_conn(settings)
     s3.create_bucket(Bucket=settings.AWS_S3_BUCKET_NAME)
-    client.headers[
-        "Authorization"
-    ] = f"Bearer {authorized_coach_tokens[0].access_token}"
     sport_category = db.query(m.SportType).first()
     assert sport_category
     location = db.query(m.Location).first()
@@ -161,6 +157,7 @@ def test_update_coach_profile(
         files={
             "certificate": open("tests/cert_test.png", "rb"),
         },
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response
     coach = (
@@ -196,6 +193,7 @@ def test_update_coach_profile(
             street=TEST_STREET,
             postal_code=TEST_POSTAL_CODE,
         ),
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response
     location = (
@@ -215,3 +213,42 @@ def test_update_coach_profile(
         .filter_by(coach_id=coach.id, location_id=location.id)
         .first()
     )
+
+
+def test_change_profile_password(
+    client: TestClient,
+    test_data: TestData,
+    db: Session,
+    authorized_coach_tokens: list,
+):
+    TEST_NEW_PASSWORD = "NEW_PASSWORD"
+    # Changing coache`s password
+    coach = (
+        db.query(m.Coach)
+        .filter_by(email=test_data.test_authorized_coaches[0].email)
+        .first()
+    )
+    assert coach
+    old_password: str = coach.password
+    request_data = s.ProfileChangePasswordIn(
+        old_password=test_data.test_authorized_coaches[0].password,
+        new_password=TEST_NEW_PASSWORD,
+        new_password_confirmation=TEST_NEW_PASSWORD,
+    ).dict()
+    response = client.post(
+        "api/profile/coach/change-password",
+        json=request_data,
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response.status_code == 200
+
+    assert old_password != make_hash(TEST_NEW_PASSWORD)
+    coach = (
+        db.query(m.Coach)
+        .filter_by(email=test_data.test_authorized_coaches[0].email)
+        .first()
+    )
+    assert coach
+    assert hash_verify(TEST_NEW_PASSWORD, coach.password)
+
+    # TODO change student profile
