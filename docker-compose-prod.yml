@@ -17,7 +17,7 @@ services:
       - network
 
   nextjs_app:
-    image: 270968290167.dkr.ecr.eu-west-2.amazonaws.com/fmc-frontend
+    image: 270968290167.dkr.ecr.eu-west-2.amazonaws.com/fmc-frontend:latest
     build: .
     command: node server.js
     restart: always
@@ -31,7 +31,7 @@ services:
 
   app:
     build: .
-    image: 270968290167.dkr.ecr.eu-west-2.amazonaws.com/fmc-backend
+    image: 270968290167.dkr.ecr.eu-west-2.amazonaws.com/fmc-backend:latest
     restart: always
     env_file:
       - .env
