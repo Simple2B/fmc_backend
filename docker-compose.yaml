@@ -3,7 +3,7 @@ services:
 
   app:
     build: .
-    image: 270968290167.dkr.ecr.us-east-1.amazonaws.com/fmc-backend:latest
+    image: 270968290167.dkr.ecr.eu-west-2.amazonaws.com/fmc-backend:latest
     restart: always
     env_file:
       - .env
