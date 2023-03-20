@@ -61,6 +61,7 @@ async def student_sign_up(
             "Account activation",
             "email_verification.html",
             {
+                "user_name": student.username,
                 "user_email": student.email,
                 "verification_url": f"{settings.BASE_URL}{settings.CONFIRMATION_URL_STUDENT}?token={student.verification_token}",  # noqa E501
             },
@@ -120,9 +121,10 @@ async def forgot_password_student(
     try:
         await mail_client.send_email(
             student.email,
-            "Reseting password",
+            "Reset password",
             "forgot_password_mail.html",
             {
+                "user_name": student.username,
                 "user_email": student.email,
                 "verification_link": f"{settings.BASE_URL}{settings.RESET_PASSWORD_URL_STUDENT}?token={student.verification_token}",  # noqa E501
             },
