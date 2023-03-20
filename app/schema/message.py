@@ -1,0 +1,24 @@
+from datetime import datetime
+from pydantic import BaseModel
+
+from .user.profile import User
+
+
+class MessageData(BaseModel):
+    text: str
+    receiver_id: str
+
+
+class Message(BaseModel):
+    author: User
+    receiver: User
+    text: str
+    created_at: datetime
+    is_read: bool
+
+    class Config:
+        orm_mode = True
+
+
+class MessageList(BaseModel):
+    messages: list[Message]

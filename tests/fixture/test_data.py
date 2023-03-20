@@ -28,6 +28,15 @@ class TestStudent(BaseModel):
     google_open_id: str | None
 
 
+class TestLocation(BaseModel):
+    __test__ = False
+    name: str
+    street: str
+    city: str
+    state: str
+    postal_code: str
+
+
 class TestData(BaseModel):
     __test__ = False
     test_coaches: list[TestCoach]
@@ -37,6 +46,8 @@ class TestData(BaseModel):
     # authorized
     test_authorized_students: list[TestStudent]
     test_authorized_coaches: list[TestCoach]
+
+    test_locations: list[TestLocation]
 
 
 @pytest.fixture

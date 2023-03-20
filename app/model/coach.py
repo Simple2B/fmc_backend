@@ -11,21 +11,26 @@ class Coach(Base):
     __tablename__ = "coaches"
 
     id = Column(Integer, primary_key=True)
-    uuid = Column(String(36), nullable=False, default=generate_uuid)
+    uuid = Column(String(36), nullable=False, index=True, default=generate_uuid)
 
     first_name = Column(String(64), nullable=False, default="")
     last_name = Column(String(64), nullable=False, default="")
     email = Column(String(128), nullable=False, unique=True)
     username = Column(String(64), nullable=False, unique=False)
-    profile_picture = Column(String(256), nullable=True)
+    profile_picture = Column(String(256), nullable=False, default="")
     google_open_id = Column(String(128), nullable=True)
+
+    about = Column(String(1024), nullable=True)
+    certificate_url = Column(String(256), nullable=True)
 
     verification_token = Column(
         String(36), nullable=True, default=generate_uuid
-    )  # for email confirmation
+    )  # for email confirmation and forgot password
 
     password_hash = Column(String(128), nullable=False)
     is_verified = Column(Boolean, default=True)
+    is_for_adults = Column(Boolean, default=True)
+    is_for_children = Column(Boolean, default=False)
 
     created_at = Column(DateTime, default=datetime.now)
 

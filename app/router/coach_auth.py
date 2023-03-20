@@ -97,7 +97,7 @@ def coach_account_confirmation(
 
 @coach_auth_router.post("/forgot-password", status_code=status.HTTP_200_OK)
 async def forgot_password(
-    data: s.UserEmail,
+    data: s.BaseUser,
     db: Session = Depends(get_db),
     mail_client: MailClient = Depends(get_mail_client),
     settings: Settings = Depends(get_settings),
@@ -125,12 +125,19 @@ async def forgot_password(
             },
         )
     except ConnectionErrors as e:
-        db.rollback()
         log(log.ERROR, "Error while sending message - [%s]", e)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
     coach.password = "*"
-    db.commit()
+    try:
+        db.commit()
+    except SQLAlchemyError as e:
+        log(log.INFO, "Error while sending message - [%s]", e)
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Error while resetting password",
+        )
     return status.HTTP_200_OK
 
 
@@ -139,10 +146,10 @@ async def forgot_password(
 )
 def coach_reset_password(
     verification_token: str,
-    data: s.UserResetPassword,
+    data: s.UserResetPasswordIn,
     db: Session = Depends(get_db),
 ):
-    if data.password != data.password1:
+    if data.new_password != data.new_password_confirmation:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Passwords are not the same",
@@ -156,7 +163,7 @@ def coach_reset_password(
             detail="Bad token",
         )
     coach.verification_token = generate_uuid()
-    coach.password = data.password
+    coach.password = data.new_password
     db.commit()
     return status.HTTP_200_OK
 
@@ -166,7 +173,6 @@ def coach_google_auth(
     coach_data: s.UserGoogleLogin,
     db: Session = Depends(get_db),
 ):
-    # finish
     coach: Coach | None = db.query(Coach).filter_by(email=coach_data.email).first()
     if not coach:
         coach = Coach(

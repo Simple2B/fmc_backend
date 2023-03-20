@@ -12,8 +12,8 @@ class Location(Base):
 
     name = Column(String(64), default="")
     city = Column(String(64), default="")
-    address_line_1 = Column(String(64), default="")
-    address_line_2 = Column(String(64), default="")
+    street = Column(String(64), default="")
+    postal_code = Column(String(64), default="")
 
     def __repr__(self):
         return f"<Location {self.name} - {self.city}>"

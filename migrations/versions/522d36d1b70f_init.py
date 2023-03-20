@@ -1,8 +1,8 @@
-"""init migration
+"""init
 
-Revision ID: 9906bae2af23
+Revision ID: 522d36d1b70f
 Revises: 
-Create Date: 2023-03-06 18:24:11.793098
+Create Date: 2023-03-20 09:57:18.005536
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '9906bae2af23'
+revision = '522d36d1b70f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,22 +25,49 @@ def upgrade():
     sa.Column('last_name', sa.String(length=64), nullable=False),
     sa.Column('email', sa.String(length=128), nullable=False),
     sa.Column('username', sa.String(length=64), nullable=False),
-    sa.Column('profile_picture', sa.String(length=256), nullable=True),
+    sa.Column('profile_picture', sa.String(length=256), nullable=False),
     sa.Column('google_open_id', sa.String(length=128), nullable=True),
+    sa.Column('about', sa.String(length=1024), nullable=True),
+    sa.Column('certificate_url', sa.String(length=256), nullable=True),
     sa.Column('verification_token', sa.String(length=36), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=False),
     sa.Column('is_verified', sa.Boolean(), nullable=True),
+    sa.Column('is_for_adults', sa.Boolean(), nullable=True),
+    sa.Column('is_for_children', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
+    )
+    op.create_index(op.f('ix_coaches_uuid'), 'coaches', ['uuid'], unique=False)
+    op.create_table('contacts',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('uuid', sa.String(length=36), nullable=False),
+    sa.Column('email_from', sa.String(length=64), nullable=False),
+    sa.Column('message', sa.String(length=1024), nullable=False),
+    sa.Column('have_replied', sa.Boolean(), nullable=True),
+    sa.Column('in_review', sa.Boolean(), nullable=True),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('locations',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('uuid', sa.String(length=36), nullable=False),
     sa.Column('name', sa.String(length=64), nullable=True),
     sa.Column('city', sa.String(length=64), nullable=True),
-    sa.Column('address_line_1', sa.String(length=64), nullable=True),
-    sa.Column('address_line_2', sa.String(length=64), nullable=True),
+    sa.Column('street', sa.String(length=64), nullable=True),
+    sa.Column('postal_code', sa.String(length=64), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('messages',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('uuid', sa.String(length=36), nullable=False),
+    sa.Column('text', sa.String(length=1024), nullable=False),
+    sa.Column('author_id', sa.String(length=36), nullable=False),
+    sa.Column('receiver_id', sa.String(length=36), nullable=False),
+    sa.Column('message_type', sa.Enum('MESSAGE', 'NOTIFICATION', name='messagetypes'), nullable=True),
+    sa.Column('is_read', sa.Boolean(), nullable=True),
+    sa.Column('read_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('sport_types',
@@ -67,10 +94,20 @@ def upgrade():
     sa.Column('verification_token', sa.String(length=64), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=False),
     sa.Column('is_verified', sa.Boolean(), nullable=True),
-    sa.Column('profile_picture', sa.String(length=256), nullable=True),
+    sa.Column('profile_picture', sa.String(length=256), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
+    )
+    op.create_table('superusers',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('username', sa.String(length=64), nullable=False),
+    sa.Column('email', sa.String(length=128), nullable=False),
+    sa.Column('password_hash', sa.String(length=128), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email'),
+    sa.UniqueConstraint('username')
     )
     op.create_table('coach_schedules',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -81,6 +118,14 @@ def upgrade():
     sa.Column('begin', sa.DateTime(), nullable=False),
     sa.Column('end', sa.DateTime(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['coach_id'], ['coaches.id'], ),
+    sa.ForeignKeyConstraint(['location_id'], ['locations.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('coaches_locations',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('coach_id', sa.Integer(), nullable=True),
+    sa.Column('location_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['coach_id'], ['coaches.id'], ),
     sa.ForeignKeyConstraint(['location_id'], ['locations.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -99,13 +144,16 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('uuid', sa.String(length=36), nullable=False),
     sa.Column('coach_id', sa.Integer(), nullable=True),
+    sa.Column('student_id', sa.Integer(), nullable=True),
     sa.Column('location_id', sa.Integer(), nullable=True),
     sa.Column('sport_type_id', sa.Integer(), nullable=True),
+    sa.Column('appointment_time', sa.DateTime(timezone=True), nullable=True),
     sa.Column('date', sa.DateTime(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['coach_id'], ['coaches.id'], ),
     sa.ForeignKeyConstraint(['location_id'], ['locations.id'], ),
     sa.ForeignKeyConstraint(['sport_type_id'], ['sport_types.id'], ),
+    sa.ForeignKeyConstraint(['student_id'], ['students.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('students_lessons',
@@ -127,10 +175,15 @@ def downgrade():
     op.drop_table('students_lessons')
     op.drop_table('lessons')
     op.drop_table('coaches_sports')
+    op.drop_table('coaches_locations')
     op.drop_table('coach_schedules')
+    op.drop_table('superusers')
     op.drop_table('students')
     op.drop_table('student_lesson_payments')
     op.drop_table('sport_types')
+    op.drop_table('messages')
     op.drop_table('locations')
+    op.drop_table('contacts')
+    op.drop_index(op.f('ix_coaches_uuid'), table_name='coaches')
     op.drop_table('coaches')
     # ### end Alembic commands ###

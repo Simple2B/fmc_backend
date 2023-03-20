@@ -13,6 +13,12 @@ settings: Settings = get_settings()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+http_exceptions: HTTPException = HTTPException(
+    status_code=status.HTTP_401_UNAUTHORIZED,
+    detail="Unauthorized",
+    headers={"WWW-Authenticate": "Bearer"},
+)
+
 
 def get_current_coach(
     token: str = Depends(oauth2_scheme),
@@ -45,6 +51,8 @@ def get_current_coach(
             detail="Unauthorized",
             headers={"WWW-Authenticate": "Bearer"},
         )
+    if not coach.is_verified:
+        return http_exceptions
     return coach
 
 
@@ -66,11 +74,7 @@ def get_current_student(
         )
     id: str = payload.get("user_id")
     if not id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Unauthorized",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        raise http_exceptions
     token_data = TokenData(id=id)
     student: Student | None = db.query(Student).filter_by(id=token_data.id).first()
     if not student:
@@ -78,5 +82,21 @@ def get_current_student(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Unauthorized",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+    if not student.is_verified:
+        raise http_exceptions
+    return student
+
+
+def get_student_by_uuid(
+    student_uuid: str,
+    coach: Coach = Depends(get_current_coach),
+    db: Session = Depends(get_db),
+):
+    student: Student = db.query(Student).filter_by(uuid=student_uuid).first()
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Student not found",
         )
     return student

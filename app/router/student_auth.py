@@ -102,7 +102,7 @@ def student_account_confirmation(
 
 @student_auth_router.post("/forgot-password", status_code=status.HTTP_200_OK)
 async def forgot_password_student(
-    data: s.UserEmail,
+    data: s.BaseUser,
     db: Session = Depends(get_db),
     mail_client: MailClient = Depends(get_mail_client),
     settings: Settings = Depends(get_settings),
@@ -143,10 +143,10 @@ async def forgot_password_student(
 )
 def student_reset_password(
     verification_token: str,
-    data: s.UserResetPassword,
+    data: s.UserResetPasswordIn,
     db: Session = Depends(get_db),
 ):
-    if data.password != data.password1:
+    if data.new_password != data.new_password_confirmation:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Passwords are not the same",
@@ -160,7 +160,7 @@ def student_reset_password(
             detail="Bad token",
         )
     student.verification_token = generate_uuid()
-    student.password = data.password
+    student.password = data.new_password
     db.commit()
     return status.HTTP_200_OK
 
@@ -170,14 +170,13 @@ def student_google_auth(
     student_data: s.UserGoogleLogin,
     db: Session = Depends(get_db),
 ):
-    # finish
     student: Student | None = (
         db.query(Student).filter_by(email=student_data.email).first()
     )
     if not student:
         student = Student(
             email=student_data.email,
-            username=student_data.email,
+            username=student_data.username,
             password="*",
             google_open_id=student_data.google_openid_key,
             is_verified=True,

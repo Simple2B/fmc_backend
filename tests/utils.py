@@ -3,6 +3,17 @@ from sqlalchemy.orm import Session
 import app.model as m
 from tests.fixture import TestData
 
+SPORTS_TYPES = [
+    "Football",
+    "Cricket",
+    "Tennis",
+    "Yoga",
+    "Rugby",
+    "Fitness",
+    "Golf",
+    "Swimming",
+]
+
 
 def fill_db_by_test_data(db: Session, test_data: TestData):
     print("Filling up db with fake data")
@@ -21,4 +32,23 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
     for auth_student in test_data.test_authorized_students:
         if not db.query(m.Student).filter_by(email=auth_student.email).first():
             db.add(m.Student(**auth_student.dict()))
+            db.commit()
+    for sport_type in SPORTS_TYPES:
+        if not db.query(m.SportType).filter_by(name=sport_type).first():
+            db.add(m.SportType(name=sport_type))
+            db.commit()
+    for location in test_data.test_locations:
+        if (
+            not db.query(m.Location)
+            .filter_by(city=location.city, street=location.street)
+            .first()
+        ):
+            db.add(
+                m.Location(
+                    name=location.name,
+                    city=location.city,
+                    street=location.street,
+                    postal_code=location.postal_code,
+                )
+            )
             db.commit()
