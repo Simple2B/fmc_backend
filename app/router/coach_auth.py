@@ -177,7 +177,7 @@ def coach_google_auth(
     if not coach:
         coach = Coach(
             email=coach_data.email,
-            username=coach_data.email,
+            username=coach_data.username,
             password="*",
             google_open_id=coach_data.google_openid_key,
             is_verified=True,

@@ -25,7 +25,7 @@ class Student(Base):
 
     password_hash = Column(String(128), nullable=False)
     is_verified = Column(Boolean, default=True)
-    profile_picture = Column(String(256), nullable=False, default="")
+    profile_picture = Column(String(256), nullable=True)
 
     created_at = Column(DateTime, default=datetime.now)
 

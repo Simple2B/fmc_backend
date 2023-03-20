@@ -31,6 +31,7 @@ def get_coach_profile(
     coach: m.Coach = Depends(get_current_coach),
 ):
     return s.User(
+        uuid=coach.uuid,
         email=coach.email,
         username=coach.username,
         first_name=coach.first_name,
@@ -50,6 +51,7 @@ def get_student_profile(
     student: m.Student = Depends(get_current_student),
 ):
     return s.User(
+        uuid=student.uuid,
         email=student.email,
         username=student.username,
         first_name=student.first_name,
