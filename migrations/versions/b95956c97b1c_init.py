@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 522d36d1b70f
+Revision ID: b95956c97b1c
 Revises: 
-Create Date: 2023-03-20 09:57:18.005536
+Create Date: 2023-03-20 11:31:14.247460
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '522d36d1b70f'
+revision = 'b95956c97b1c'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,7 +25,7 @@ def upgrade():
     sa.Column('last_name', sa.String(length=64), nullable=False),
     sa.Column('email', sa.String(length=128), nullable=False),
     sa.Column('username', sa.String(length=64), nullable=False),
-    sa.Column('profile_picture', sa.String(length=256), nullable=False),
+    sa.Column('profile_picture', sa.String(length=256), nullable=True),
     sa.Column('google_open_id', sa.String(length=128), nullable=True),
     sa.Column('about', sa.String(length=1024), nullable=True),
     sa.Column('certificate_url', sa.String(length=256), nullable=True),
@@ -94,7 +94,7 @@ def upgrade():
     sa.Column('verification_token', sa.String(length=64), nullable=True),
     sa.Column('password_hash', sa.String(length=128), nullable=False),
     sa.Column('is_verified', sa.Boolean(), nullable=True),
-    sa.Column('profile_picture', sa.String(length=256), nullable=False),
+    sa.Column('profile_picture', sa.String(length=256), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
