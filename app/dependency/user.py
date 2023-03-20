@@ -97,6 +97,20 @@ def get_student_by_uuid(
     if not student:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Student not found",
+            detail="Such student does not exist",
         )
     return student
+
+
+def get_coach_by_uuid(
+    coach_uuid: str,
+    student: Student = Depends(get_current_student),
+    db: Session = Depends(get_db),
+):
+    coach: Coach = db.query(Coach).filter_by(uuid=coach_uuid).first()
+    if not coach:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Such coach does not exist",
+        )
+    return coach
