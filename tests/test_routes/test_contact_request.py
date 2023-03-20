@@ -24,6 +24,3 @@ def test_contact_form(
         response = client.post("api/contact/", json=request_data)
         assert response
         assert len(outbox) == 1
-        resp_obj = s.BaseUser.parse_obj(response.json())
-        assert resp_obj
-        assert resp_obj.email == request_data.get("email_from")

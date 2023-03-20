@@ -14,7 +14,7 @@ import app.model as m
 contact_router = APIRouter(prefix="/contact", tags=["Contact"])
 
 
-@contact_router.post("/", response_model=s.BaseUser)
+@contact_router.post("/", status_code=status.HTTP_200_OK)
 async def send_contact_request(
     data: s.ContactDataIn,
     db: Session = Depends(get_db),
@@ -46,12 +46,11 @@ async def send_contact_request(
             "contact_question.html",
             {
                 "user_email": contact.email_from,
-                "message": contact.message,  # noqa E501
+                "message": contact.message,
             },
         )
     except ConnectionErrors as e:
-        db.rollback()
         log(log.ERROR, "Error while sending message - [%s]", e)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
     log(log.INFO, "New contact request created from [%s]", contact.email_from)
-    return s.BaseUser(email=contact.email_from)
+    return status.HTTP_200_OK

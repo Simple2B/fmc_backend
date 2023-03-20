@@ -25,7 +25,7 @@ class Coach(Base):
 
     verification_token = Column(
         String(36), nullable=True, default=generate_uuid
-    )  # for email confirmation
+    )  # for email confirmation and forgot password
 
     password_hash = Column(String(128), nullable=False)
     is_verified = Column(Boolean, default=True)

@@ -131,6 +131,11 @@ async def forgot_password(
         db.commit()
     except SQLAlchemyError as e:
         log(log.INFO, "Error while sending message - [%s]", e)
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Error while resetting password",
+        )
     return status.HTTP_200_OK
 
 

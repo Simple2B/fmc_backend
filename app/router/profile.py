@@ -24,13 +24,13 @@ profile_router = APIRouter(prefix="/profile", tags=["Profiles"])
 
 @profile_router.get(
     "/coach",
-    response_model=s.BaseUserProfileOut,
+    response_model=s.User,
 )
 def get_coach_profile(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    return s.BaseUserProfileOut(
+    return s.User(
         email=coach.email,
         username=coach.username,
         first_name=coach.first_name,
@@ -43,13 +43,13 @@ def get_coach_profile(
 
 @profile_router.get(
     "/student",
-    response_model=s.BaseUserProfileOut,
+    response_model=s.User,
 )
 def get_student_profile(
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
 ):
-    return s.BaseUserProfileOut(
+    return s.User(
         email=student.email,
         username=student.username,
         first_name=student.first_name,

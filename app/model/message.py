@@ -41,21 +41,18 @@ class Message(Base):
         if student:
             return student
         coach: Coach | None = db.query(Coach).filter_by(uuid=self.author_id).first()
-        if coach:
-            return coach
-        return None
+        return coach
 
     @property
     def receiver(self) -> Coach | Student | None:
         student: Student | None = (
             db.query(Student).filter_by(uuid=self.receiver_id).first()
         )
-        if student:
-            return student
-        coach: Coach | None = db.query(Coach).filter_by(uuid=self.receiver_id).first()
-        if coach:
-            return coach
-        return None
+        return (
+            student
+            if student
+            else db.query(Coach).filter_by(uuid=self.receiver_id).first()
+        )
 
     def __repr__(self):
         return f"<{self.id}:{self.created_at} - {self.message_text[:12]}...>"

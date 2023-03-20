@@ -1,8 +1,8 @@
 """init
 
-Revision ID: 1118c3b8f9fd
+Revision ID: 522d36d1b70f
 Revises: 
-Create Date: 2023-03-17 16:46:18.617264
+Create Date: 2023-03-20 09:57:18.005536
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '1118c3b8f9fd'
+revision = '522d36d1b70f'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -144,13 +144,16 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('uuid', sa.String(length=36), nullable=False),
     sa.Column('coach_id', sa.Integer(), nullable=True),
+    sa.Column('student_id', sa.Integer(), nullable=True),
     sa.Column('location_id', sa.Integer(), nullable=True),
     sa.Column('sport_type_id', sa.Integer(), nullable=True),
+    sa.Column('appointment_time', sa.DateTime(timezone=True), nullable=True),
     sa.Column('date', sa.DateTime(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['coach_id'], ['coaches.id'], ),
     sa.ForeignKeyConstraint(['location_id'], ['locations.id'], ),
     sa.ForeignKeyConstraint(['sport_type_id'], ['sport_types.id'], ),
+    sa.ForeignKeyConstraint(['student_id'], ['students.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('students_lessons',

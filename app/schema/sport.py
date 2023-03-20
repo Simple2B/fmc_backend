@@ -11,6 +11,3 @@ class SportTypeSchema(BaseModel):
 
 class ListSportTypeSchema(BaseModel):
     sport_types: list[SportTypeSchema]
-
-    class Config:
-        orm_mode = True

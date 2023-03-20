@@ -86,3 +86,17 @@ def get_current_student(
     if not student.is_verified:
         raise http_exceptions
     return student
+
+
+def get_student_by_uuid(
+    student_uuid: str,
+    coach: Coach = Depends(get_current_coach),
+    db: Session = Depends(get_db),
+):
+    student: Student = db.query(Student).filter_by(uuid=student_uuid).first()
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Student not found",
+        )
+    return student

@@ -21,14 +21,14 @@ def test_create_message(
     # Testing email from coach to student
     student = db.query(m.Student).first()
     assert student
-    request_data = s.MessageDataIn(text="text message", receiver_id=student.uuid).dict()
+    request_data = s.MessageData(text="text message", receiver_id=student.uuid).dict()
     response = client.post(
         "api/message/coach/send-message-to-student",
         json=request_data,
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response
-    resp_obj = s.MessageOut.parse_obj(response.json())
+    resp_obj = s.Message.parse_obj(response.json())
     assert resp_obj
     coach: m.Coach = (
         db.query(m.Coach)
@@ -45,7 +45,7 @@ def test_create_message(
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response
-    resp_obj = s.BaseUserProfileList.parse_obj(response.json())
+    resp_obj = s.UserList.parse_obj(response.json())
     student = db.query(m.Student).first()
     assert student
     assert resp_obj.users[0].uuid == student.uuid

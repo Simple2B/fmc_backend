@@ -2,7 +2,7 @@ from pydantic import BaseModel, AnyHttpUrl, validator
 from .base import BaseUser
 
 
-class BaseUserProfileOut(BaseUser):
+class User(BaseUser):
     username: str
     first_name: str
     last_name: str
@@ -13,14 +13,11 @@ class BaseUserProfileOut(BaseUser):
         orm_mode = True
 
 
-class BaseUserProfileList(BaseModel):
-    users: list[BaseUserProfileOut]
-
-    class Config:
-        orm_mode = True
+class UserList(BaseModel):
+    users: list[User]
 
 
-class CoachProfileOut(BaseUserProfileOut):
+class Coach(User):
     about: str
     certificate_url: AnyHttpUrl
     is_for_adults: bool
@@ -34,5 +31,3 @@ class CoachProfileOut(BaseUserProfileOut):
         if len(v) > 1024:
             raise ValueError("Length of 'about' couldnt be larger than 1024")
         return v
-
-    # TODO validators + types
