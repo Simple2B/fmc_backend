@@ -61,6 +61,7 @@ async def coach_sign_up(
             "Account activation",
             "email_verification.html",
             {
+                "user_name": coach.username,
                 "user_email": coach.email,
                 "verification_url": f"{settings.BASE_URL}{settings.CONFIRMATION_URL_COACH}?token={coach.verification_token}",  # noqa E501
             },
@@ -115,9 +116,10 @@ async def forgot_password(
     try:
         await mail_client.send_email(
             coach.email,
-            "Reseting password",
+            "Reset password",
             "forgot_password_mail.html",
             {
+                "user_name": coach.username,
                 "user_email": coach.email,
                 "verification_link": f"{settings.BASE_URL}{settings.RESET_PASSWORD_URL_COACH}?token={coach.verification_token}",  # noqa E501
             },
