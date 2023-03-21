@@ -32,6 +32,7 @@ class Message(Base):
     read_at = Column(DateTime(timezone=True), default=datetime.max)
 
     created_at = Column(DateTime(timezone=True), default=datetime.now)
+    is_deleted = Column(Boolean, nullable=False, default=False)
 
     @property
     def author(self) -> Coach | Student | None:
