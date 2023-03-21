@@ -65,26 +65,27 @@ def get_student_profile(
 async def update_coach_personal_info(
     file: UploadFile = File(...),
     first_name: str = Form(...),
-    last_name: str = Form(...),
+    last_name: str = Form(''),
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
     settings: Settings = Depends(get_settings),
     s3=Depends(get_s3_conn),
 ):
-    try:
-        file.file.seek(0)
-        s3.upload_fileobj(
-            file.file,
-            settings.AWS_S3_BUCKET_NAME,
-            f"user_profiles/pictures/coaches/pictures/{coach.uuid}/{file.filename}",
-        )
-    except ClientError as e:
-        log(log.ERROR, "Error uploading file to S3 - [%s]", e)
-        raise HTTPException(status_code=500, detail="Something went wrong")
-    finally:
-        file.file.close()
-    # save to db
-    coach.profile_picture = f"{settings.AWS_S3_BUCKET_URL}user_profiles/pictures/coaches/pictures/{coach.uuid}/{file.filename}"  # noqa:E501
+    if file:
+        try:
+            file.file.seek(0)
+            s3.upload_fileobj(
+                file.file,
+                settings.AWS_S3_BUCKET_NAME,
+                f"user_profiles/pictures/coaches/pictures/{coach.uuid}/{file.filename}",
+            )
+        except ClientError as e:
+            log(log.ERROR, "Error uploading file to S3 - [%s]", e)
+            raise HTTPException(status_code=500, detail="Something went wrong")
+        finally:
+            file.file.close()
+        # save to db
+        coach.profile_picture = f"{settings.AWS_S3_BUCKET_URL}user_profiles/pictures/coaches/pictures/{coach.uuid}/{file.filename}"  # noqa:E501
     coach.first_name = first_name
     coach.last_name = last_name
     try:
@@ -103,26 +104,27 @@ async def update_coach_personal_info(
 def update_student_personal_info(
     file: UploadFile = File(...),
     first_name: str = Form(...),
-    last_name: str = Form(...),
+    last_name: str = Form(''),
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
     settings: Settings = Depends(get_settings),
     s3=Depends(get_s3_conn),
 ):
-    try:
-        file.file.seek(0)
-        s3.upload_fileobj(
-            file.file,
-            settings.AWS_S3_BUCKET_NAME,
-            f"user_profiles/pictures/students/pictures/{student.uuid}/{file.filename}",
-        )
-    except ClientError as e:
-        log(log.ERROR, "Error uploading file to S3 - [%s]", e)
-        raise HTTPException(status_code=500, detail="Something went wrong")
-    finally:
-        file.file.close()
-    # save to db
-    student.profile_picture = f"{settings.AWS_S3_BUCKET_URL}user_profiles/pictures/students/pictures/{student.uuid}/{file.filename}"  # noqa:E501
+    if file:
+        try:
+            file.file.seek(0)
+            s3.upload_fileobj(
+                file.file,
+                settings.AWS_S3_BUCKET_NAME,
+                f"user_profiles/pictures/students/pictures/{student.uuid}/{file.filename}",
+            )
+        except ClientError as e:
+            log(log.ERROR, "Error uploading file to S3 - [%s]", e)
+            raise HTTPException(status_code=500, detail="Something went wrong")
+        finally:
+            file.file.close()
+        # save to db
+        student.profile_picture = f"{settings.AWS_S3_BUCKET_URL}user_profiles/pictures/students/pictures/{student.uuid}/{file.filename}"  # noqa:E501
     student.first_name = first_name
     student.last_name = last_name
     try:
@@ -254,4 +256,33 @@ def coach_change_password(
             detail="Error while changing password",
         )
     log(log.INFO, "Changing password for coach - [%s]", coach.email)
+    return status.HTTP_200_OK
+
+
+@profile_router.post("/student/change-password", status_code=status.HTTP_200_OK)
+def student_change_password(
+    data: s.ProfileChangePasswordIn,
+    student: m.Student = Depends(get_current_student),
+    db: Session = Depends(get_db),
+):
+    if not hash_verify(data.old_password, student.password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Old password is incorrect",
+        )
+    if data.new_password != data.new_password_confirmation:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New passwords do not match",
+        )
+    student.password = data.new_password
+    try:
+        db.commit()
+    except SQLAlchemyError as e:
+        log(log.ERROR, "Failed to change password for - [%s]\n[%s]", student.email, e)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Error while changing password",
+        )
+    log(log.INFO, "Changing password for coach - [%s]", student.email)
     return status.HTTP_200_OK
