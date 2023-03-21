@@ -42,7 +42,7 @@ def coach_create_message(
 
 
 # get all messages with a specific user
-@message_router.get("/coach/list-of-contacts", response_model=s.UserList)
+@message_router.get("/coach/list-of-contacts", response_model=s.ContactList)
 def get_coach_list_of_contacts(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
@@ -60,8 +60,21 @@ def get_coach_list_of_contacts(
     for message in messages:
         student = db.query(m.Student).filter_by(uuid=message.author_id).first()
         contacts.append(student)
+
     contacts: list = list(set(contacts))
-    return s.UserList(users=contacts)
+
+    result = [
+        {
+            "message": db.query(m.Message)
+            .filter_by(author_id=student.id, receiver_id=coach.id)
+            .filter_by(author_id=coach.id, receiver=student.id)
+            .order_by(m.Message.created_at.desc())
+            .first(),
+            "user": student,
+        }
+        for student in contacts
+    ]
+    return s.ContactList(contacts=result)
 
 
 # get messages for current dialogue
@@ -139,7 +152,7 @@ def student_create_message(
 
 
 # get all messages with a specific user
-@message_router.get("/student/list-of-contacts", response_model=s.UserList)
+@message_router.get("/student/list-of-contacts", response_model=s.ContactList)
 def get_student_list_of_contacts(
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
@@ -157,8 +170,26 @@ def get_student_list_of_contacts(
     for message in messages:
         coach = db.query(m.Coach).filter_by(uuid=message.author_id).first()
         contacts.append(coach)
+    # getting all coaches from sessions
+    lessons: list[m.Lesson] = (
+        db.query(m.StudentLesson).filter_by(student_id=student.id).all()
+    )
+    for lesson in lessons:
+        contacts.append(lesson.coach)
     contacts = list(set(contacts))
-    return s.UserList(users=contacts)
+
+    result = [
+        {
+            "message": db.query(m.Message)
+            .filter_by(author_id=student.id, receiver_id=coach.id)
+            .filter_by(author_id=coach.id, receiver=student.id)
+            .order_by(m.Message.created_at.desc())
+            .first(),
+            "user": coach,
+        }
+        for coach in contacts
+    ]
+    return s.ContactList(contacts=result)
 
 
 # get messages for current dialogue

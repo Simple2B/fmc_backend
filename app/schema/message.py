@@ -22,3 +22,15 @@ class Message(BaseModel):
 
 class MessageList(BaseModel):
     messages: list[Message]
+
+
+class Contact(BaseModel):
+    user: User
+    message: Message | None
+
+    class Config:
+        orm_mode = True
+
+
+class ContactList(BaseModel):
+    contacts: list[Contact]

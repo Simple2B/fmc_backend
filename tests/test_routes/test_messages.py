@@ -45,10 +45,10 @@ def test_message_coach(
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response
-    resp_obj = s.UserList.parse_obj(response.json())
+    resp_obj = s.ContactList.parse_obj(response.json())
     student = db.query(m.Student).first()
     assert student
-    assert resp_obj.users[0].uuid == student.uuid
+    assert resp_obj.contacts[0].user.uuid == student.uuid
 
     # Getting messages between coach and student
     response = client.get(
@@ -111,10 +111,10 @@ def test_message_student(
         },
     )
     assert response
-    resp_obj = s.UserList.parse_obj(response.json())
+    resp_obj = s.ContactList.parse_obj(response.json())
     coach = db.query(m.Coach).first()
     assert coach
-    assert resp_obj.users[0].uuid == coach.uuid
+    assert resp_obj.contacts[0].user.uuid == coach.uuid
 
     # Getting messages between student and coach
     response = client.get(

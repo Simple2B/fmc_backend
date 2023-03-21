@@ -28,7 +28,14 @@ def create_dummy_coach():
             is_verified=True,
         )
         db.add(test_coach)
-        db.commit()
+        db.flush()
+        coach_sport = m.CoachSport(
+            coach_id=test_coach.id,
+            sport_id=random.randint(1, len(SPORTS)),
+            price=2000,
+        )
+        db.add(coach_sport)
+    db.commit()
 
 
 def create_dummy_student():
