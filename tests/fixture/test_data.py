@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 class TestCoach(BaseModel):
     __test__ = False
+    uuid: str | None
     email: str
     password: str
     username: str
@@ -18,6 +19,7 @@ class TestCoach(BaseModel):
 
 class TestStudent(BaseModel):
     __test__ = False
+    uuid: str | None
     email: str
     username: str
     password: str

@@ -85,6 +85,28 @@ def get_coach_student_messages(
     return s.MessageList(messages=messages)
 
 
+@message_router.delete("/coach/messages/{student_uuid}", status_code=status.HTTP_200_OK)
+def delete_coach_student_messages(
+    student_uuid: str,
+    student: m.Student = Depends(get_student_by_uuid),
+    db: Session = Depends(get_db),
+    coach: m.Coach = Depends(get_current_coach),
+):
+    db.query(m.Message).filter_by(
+        author_id=coach.uuid, receiver_id=student.uuid
+    ).delete()
+    try:
+        db.commit()
+    except SQLAlchemyError as e:
+        log(log.INFO, "Error while deleting messages - [%s]", e)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Error occured while deleting messages",
+        )
+    log(log.INFO, "Messages deleted - [%d]")
+    return status.HTTP_200_OK
+
+
 # Routes for students
 
 
@@ -154,3 +176,25 @@ def get_student_coach_messages(
     )
     log(log.INFO, "found [%d] messages", len(messages))
     return s.MessageList(messages=messages)
+
+
+@message_router.delete("/student/messages/{coach_uuid}", status_code=status.HTTP_200_OK)
+def delete_student_coach_messages(
+    coach_uuid: str,
+    coach: m.Student = Depends(get_coach_by_uuid),
+    db: Session = Depends(get_db),
+    student: m.Student = Depends(get_current_student),
+):
+    db.query(m.Message).filter_by(
+        author_id=student.uuid, receiver_id=coach.uuid
+    ).delete()
+    try:
+        db.commit()
+    except SQLAlchemyError as e:
+        log(log.INFO, "Error while deleting messages - [%s]", e)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Error occured while deleting messages",
+        )
+    log(log.INFO, "Messages deleted - [%d]")
+    return status.HTTP_200_OK

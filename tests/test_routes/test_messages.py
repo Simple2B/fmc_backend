@@ -12,7 +12,7 @@ from tests.fixture import TestData
 settings: Settings = get_test_settings()
 
 
-def test_create_message_coach(
+def test_message_coach(
     client: TestClient,
     test_data: TestData,
     db: Session,
@@ -61,8 +61,19 @@ def test_create_message_coach(
     assert resp_obj.messages[0].author.uuid == coach.uuid
     assert resp_obj.messages[0].receiver.uuid == db.query(m.Student).first().uuid
 
+    # deleting messages
+    student = db.query(m.Student).first()
+    assert student
+    response = client.delete(
+        f"api/message/coach/messages/{student.uuid}",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response
+    messages = db.query(m.Message).all()
+    assert not messages
 
-def test_create_message_student(
+
+def test_message_student(
     client: TestClient,
     test_data: TestData,
     db: Session,
@@ -116,3 +127,16 @@ def test_create_message_student(
     assert len(resp_obj.messages) == 1
     assert resp_obj.messages[0].author.uuid == student.uuid
     assert resp_obj.messages[0].receiver.uuid == db.query(m.Coach).first().uuid
+
+    # deleting messages
+    coach = db.query(m.Coach).first()
+    assert student
+    response = client.delete(
+        f"api/message/student/messages/{coach.uuid}",
+        headers={
+            "Authorization": f"Bearer {authorized_student_tokens[0].access_token}"
+        },
+    )
+    assert response
+    messages = db.query(m.Message).all()
+    assert not messages
