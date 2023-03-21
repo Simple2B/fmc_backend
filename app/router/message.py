@@ -92,9 +92,13 @@ def delete_coach_student_messages(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    db.query(m.Message).filter_by(
-        author_id=coach.uuid, receiver_id=student.uuid
-    ).delete()
+    messages = (
+        db.query(m.Message)
+        .filter_by(author_id=coach.uuid, receiver_id=student.uuid)
+        .all()
+    )
+    for message in messages:
+        message.is_deleted = True
     try:
         db.commit()
     except SQLAlchemyError as e:
@@ -103,7 +107,7 @@ def delete_coach_student_messages(
             status_code=status.HTTP_409_CONFLICT,
             detail="Error occured while deleting messages",
         )
-    log(log.INFO, "Messages deleted - [%d]")
+    log(log.INFO, "Messages deleted - [%d]", len(messages))
     return status.HTTP_200_OK
 
 
@@ -185,9 +189,13 @@ def delete_student_coach_messages(
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
 ):
-    db.query(m.Message).filter_by(
-        author_id=student.uuid, receiver_id=coach.uuid
-    ).delete()
+    messages = (
+        db.query(m.Message)
+        .filter_by(author_id=student.uuid, receiver_id=coach.uuid)
+        .all()
+    )
+    for message in messages:
+        message.is_deleted = True
     try:
         db.commit()
     except SQLAlchemyError as e:
@@ -196,5 +204,5 @@ def delete_student_coach_messages(
             status_code=status.HTTP_409_CONFLICT,
             detail="Error occured while deleting messages",
         )
-    log(log.INFO, "Messages deleted - [%d]")
+    log(log.INFO, "Messages deleted - [%d]", len(messages))
     return status.HTTP_200_OK

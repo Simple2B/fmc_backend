@@ -70,7 +70,8 @@ def test_message_coach(
     )
     assert response
     messages = db.query(m.Message).all()
-    assert not messages
+    for message in messages:
+        assert message.is_deleted
 
 
 def test_message_student(
@@ -139,4 +140,6 @@ def test_message_student(
     )
     assert response
     messages = db.query(m.Message).all()
-    assert not messages
+    messages = db.query(m.Message).all()
+    for message in messages:
+        assert message.is_deleted
