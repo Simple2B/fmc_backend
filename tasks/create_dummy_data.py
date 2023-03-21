@@ -8,6 +8,43 @@ db: Session = get_db().__next__()
 
 SPORTS: list[m.SportType] = db.query(m.SportType).all()
 
+TEST_EMAIL = "user1@gmail.com"
+TEST_PASSWORD = "user1"
+TEST_FIRSTNAME = "John"
+TEST_LASTNAME = "Doe"
+
+
+@task
+def create_dummy_coach(_):
+    test_coach = db.query(m.Coach).filter_by(email=TEST_EMAIL).first()
+    if not test_coach:
+        test_coach = m.Coach(
+            email=TEST_EMAIL,
+            password=TEST_PASSWORD,
+            username=TEST_EMAIL,
+            first_name=TEST_FIRSTNAME,
+            last_name=TEST_LASTNAME,
+            is_verified=True,
+        )
+        db.add(test_coach)
+        db.commit()
+
+
+@task
+def create_dummy_student(_):
+    test_student = db.query(m.Student).filter_by(email=TEST_EMAIL).first()
+    if not test_student:
+        test_student = m.Student(
+            email=TEST_EMAIL,
+            password=TEST_PASSWORD,
+            username=TEST_EMAIL,
+            first_name=TEST_FIRSTNAME,
+            last_name=TEST_LASTNAME,
+            is_verified=True,
+        )
+        db.add(test_student)
+        db.commit()
+
 
 def create_footbal_coach():
     FOOTBALL_COACH_EMAIL = "mourinho@gmail.com"
@@ -44,7 +81,7 @@ def create_boxing_coach():
         )
         db.add(boxing_coach)
         db.commit()
-        bc_sport = m.CoachSport(coach_id=boxing_coach.id, sport_id=SPORTS[7].id)
+        bc_sport = m.CoachSport(coach_id=boxing_coach.id, sport_id=SPORTS[0].id)
         db.add(bc_sport)
         db.commit()
         print(f"Coach {boxing_coach} created successfully")
@@ -93,8 +130,8 @@ def create_dummy_students():
                 first_name="John",
                 last_name="Doe",
                 username="johndoe",
-                email="johndoe@gmail.com",
-                password="password",
+                email="user1@gmail.com",
+                password="user1",
                 is_verified=True,
             ),
             m.Student(
