@@ -18,8 +18,8 @@ class UserList(BaseModel):
 
 
 class Coach(User):
-    about: str
-    certificate_url: AnyHttpUrl
+    about: str = ""
+    certificate_url: AnyHttpUrl | None
     is_for_adults: bool
     is_for_children: bool
 

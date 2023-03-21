@@ -1,3 +1,5 @@
+import random
+from datetime import datetime, timedelta
 from invoke import task
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -14,8 +16,7 @@ TEST_FIRSTNAME = "John"
 TEST_LASTNAME = "Doe"
 
 
-@task
-def create_dummy_coach(_):
+def create_dummy_coach():
     test_coach = db.query(m.Coach).filter_by(email=TEST_EMAIL).first()
     if not test_coach:
         test_coach = m.Coach(
@@ -30,8 +31,7 @@ def create_dummy_coach(_):
         db.commit()
 
 
-@task
-def create_dummy_student(_):
+def create_dummy_student():
     test_student = db.query(m.Student).filter_by(email=TEST_EMAIL).first()
     if not test_student:
         test_student = m.Student(
@@ -94,23 +94,18 @@ def create_dummy_locations():
         locations = [
             m.Location(
                 name="São Paulo Sport Hall",
-                address_line_1="Rua São Paulo",
-                address_line_2="123",
+                city="Rua São Paulo",
+                street="123",
             ),
             m.Location(
                 name="Rio de Janeiro Sport Hall",
-                address_line_1="Rua São Paulo",
-                address_line_2="124",
+                city="Rua São Paulo",
+                street="124",
             ),
             m.Location(
                 name="Rio de Janeiro Sport Hall #2",
-                address_line_1="Rua São Paulo",
-                address_line_2="125",
-            ),
-            m.Location(
-                name="Rio de Janeiro Sport Hall #3",
-                address_line_1="Rua São Paulo",
-                address_line_2="126",
+                city="Rua São Paulo",
+                street="125",
             ),
         ]
         db.add_all(locations)
@@ -152,11 +147,41 @@ def create_dummy_students():
     return students
 
 
+def create_dummy_lesson():
+    coach = db.query(m.Coach).filter_by(email=TEST_EMAIL).first()
+    location = db.query(m.Location).first()
+    lesson = db.query(m.Lesson).first()
+    student = db.query(m.Student).filter_by(email=TEST_EMAIL).first()
+    if not lesson:
+        lesson = m.Lesson(
+            coach_id=coach.id,
+            location_id=location.id,
+            sport_type_id=random.randint(1, len(SPORTS)),
+        )
+        db.add(lesson)
+        db.commit()
+    student_lesson = m.StudentLesson(
+        student_id=student.id,
+        lesson_id=lesson.id,
+        appointment_time=(datetime.now() + timedelta(days=1)),
+        date=datetime.now() + timedelta(days=1),
+    )
+    db.add(student_lesson)
+    db.commit()
+
+
 @task
 def dummy_data(_):
+    # users
+    create_dummy_coach()
+    create_dummy_student()
+
+    create_dummy_locations()
     create_footbal_coach()
     create_boxing_coach()
-    # create_dummy_locations()
     create_dummy_students()
+    # lesson
+    create_dummy_lesson()
 
-    # todo create lessons
+
+# todo create lessons

@@ -8,6 +8,7 @@ from .keys import keys_router
 from .contact import contact_router
 from .sport import sport_router
 from .message import message_router
+from .lesson import lesson_router
 
 router = APIRouter(prefix="/api")
 router.include_router(student_auth_router)
@@ -18,3 +19,4 @@ router.include_router(keys_router)
 router.include_router(contact_router)
 router.include_router(sport_router)
 router.include_router(message_router)
+router.include_router(lesson_router)
