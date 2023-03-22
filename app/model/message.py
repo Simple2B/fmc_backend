@@ -102,7 +102,6 @@ class Message(Base):
                     ),
                 ),
             )
-            .filter_by(is_deleted=False)
             .all()
         )
 

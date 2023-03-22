@@ -11,6 +11,7 @@ db: Session = get_db().__next__()
 SPORTS: list[m.SportType] = db.query(m.SportType).all()
 
 TEST_COACH_EMAIL = "coach1@gmail.com"
+TEST_COACH_TWO_EMAIL = "coach2@gmail.com"
 TEST_STUDENT_EMAIL = "student1@gmail.com"
 TEST_PASSWORD = "password"
 TEST_FIRSTNAME = "John"
@@ -29,6 +30,7 @@ def create_dummy_coach():
             is_verified=True,
         )
         db.add(test_coach)
+
         db.flush()
         coach_sport = m.CoachSport(
             coach_id=test_coach.id,
@@ -36,7 +38,30 @@ def create_dummy_coach():
             price=2000,
         )
         db.add(coach_sport)
+
     db.commit()
+
+
+def create_second_dummy_coach():
+    test_coach = db.query(m.Coach).filter_by(email=TEST_COACH_TWO_EMAIL).first()
+    if not test_coach:
+        test_coach = m.Coach(
+            email=TEST_COACH_TWO_EMAIL,
+            password=TEST_PASSWORD,
+            username=TEST_COACH_TWO_EMAIL,
+            first_name=TEST_FIRSTNAME,
+            last_name=TEST_LASTNAME,
+            is_verified=True,
+        )
+        db.add(test_coach)
+        coach_sport = m.CoachSport(
+            coach_id=test_coach.id,
+            sport_id=random.randint(1, len(SPORTS)),
+            price=2000,
+        )
+        db.add(coach_sport)
+    db.commit()
+    print(f"{TEST_COACH_TWO_EMAIL} created")
 
 
 def create_dummy_student():
@@ -190,6 +215,12 @@ def create_dummy_messages():
         receiver_id=student.uuid, author_id=coach.uuid, text="I`m good,thanks !"
     )
     db.add(message_two)
+
+    second_coach = db.query(m.Coach).filter_by(email=TEST_COACH_TWO_EMAIL).first()
+    message_three = m.Message(
+        receiver_id=student.uuid, author_id=second_coach.uuid, text="Hey buddy"
+    )
+    db.add(message_three)
     db.commit()
     print("Messages created")
 
@@ -198,6 +229,7 @@ def create_dummy_messages():
 def dummy_data(_):
     # users
     create_dummy_coach()
+    create_second_dummy_coach()
     create_dummy_student()
 
     create_dummy_locations()

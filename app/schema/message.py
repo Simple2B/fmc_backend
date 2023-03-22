@@ -10,6 +10,7 @@ class MessageData(BaseModel):
 
 
 class BaseMessage(BaseModel):
+    uuid: str
     text: str
     created_at: datetime
     is_read: bool
