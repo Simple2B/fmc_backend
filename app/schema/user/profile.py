@@ -1,13 +1,17 @@
 from pydantic import BaseModel, AnyHttpUrl, validator
 from .base import BaseUser
 
+from app.config import get_settings, Settings
+
+settings: Settings = get_settings()
+
 
 class User(BaseUser):
     username: str
     first_name: str
     last_name: str
     is_verified: bool
-    profile_picture: AnyHttpUrl | None
+    profile_picture: AnyHttpUrl | None = settings.DEFAULT_AVATAR_URL
 
     class Config:
         orm_mode = True

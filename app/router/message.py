@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -54,25 +55,24 @@ def get_coach_list_of_contacts(
     contacts: list = []
     for message in messages:
         student = db.query(m.Student).filter_by(uuid=message.receiver_id).first()
-        contacts.append(student)
+        if student not in contacts:
+            contacts.append(student)
     # messages where coach is a recepeint
     messages = db.query(m.Message).filter_by(receiver_id=coach.uuid).all()
     for message in messages:
         student = db.query(m.Student).filter_by(uuid=message.author_id).first()
-        contacts.append(student)
-
-    contacts: list = list(set(contacts))
+        if student not in contacts:
+            contacts.append(student)
 
     result = [
         {
             "message": db.query(m.Message)
-            .filter_by(author_id=student.id, receiver_id=coach.id)
-            .filter_by(author_id=coach.id, receiver=student.id)
+            .filter_by(author_id=coach.uuid, receiver_id=student.uuid)
             .order_by(m.Message.created_at.desc())
             .first(),
-            "user": student,
+            "user": coach,
         }
-        for student in contacts
+        for coach in contacts
     ]
     return s.ContactList(contacts=result)
 
@@ -157,36 +157,32 @@ def get_student_list_of_contacts(
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
 ):
+    contacts: list = []
+
     # messages where coach is owner
     messages: list[m.Message] = (
         db.query(m.Message).filter_by(author_id=student.uuid).all()
     )
-    contacts: list = []
+
     for message in messages:
         coach = db.query(m.Coach).filter_by(uuid=message.receiver_id).first()
-        contacts.append(coach)
+        if coach not in contacts:
+            contacts.append(coach)
     # messages where coach is a recepeint
     messages = db.query(m.Message).filter_by(receiver_id=student.uuid).all()
     for message in messages:
         coach = db.query(m.Coach).filter_by(uuid=message.author_id).first()
-        contacts.append(coach)
-    # getting all coaches from sessions
-    lessons: list[m.Lesson] = (
-        db.query(m.StudentLesson).filter_by(student_id=student.id).all()
-    )
-    for lesson in lessons:
-        contacts.append(lesson.coach)
-    contacts = list(set(contacts))
+        if coach not in contacts:
+            contacts.append(coach)
 
     result = [
-        {
-            "message": db.query(m.Message)
-            .filter_by(author_id=student.id, receiver_id=coach.id)
-            .filter_by(author_id=coach.id, receiver=student.id)
+        s.Contact(
+            message=db.query(m.Message)
+            .filter_by(author_id=student.uuid, receiver_id=coach.uuid, is_deleted=False)
             .order_by(m.Message.created_at.desc())
             .first(),
-            "user": coach,
-        }
+            user=coach,
+        )
         for coach in contacts
     ]
     return s.ContactList(contacts=result)
@@ -205,7 +201,7 @@ def get_student_coach_messages(
 ):
     messages: list[m.Message] = (
         db.query(m.Message)
-        .filter_by(author_id=student.uuid, receiver_id=coach.uuid)
+        .filter_by(author_id=student.uuid, receiver_id=coach.uuid, is_deleted=False)
         .order_by(m.Message.created_at.desc())
         .all()
     )

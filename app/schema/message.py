@@ -14,6 +14,9 @@ class BaseMessage(BaseModel):
     created_at: datetime
     is_read: bool
 
+    class Config:
+        orm_mode = True
+
 
 class Message(BaseMessage):
     author: User

@@ -10,19 +10,20 @@ db: Session = get_db().__next__()
 
 SPORTS: list[m.SportType] = db.query(m.SportType).all()
 
-TEST_EMAIL = "user1@gmail.com"
-TEST_PASSWORD = "user1"
+TEST_COACH_EMAIL = "coach1@gmail.com"
+TEST_STUDENT_EMAIL = "student1@gmail.com"
+TEST_PASSWORD = "password"
 TEST_FIRSTNAME = "John"
 TEST_LASTNAME = "Doe"
 
 
 def create_dummy_coach():
-    test_coach = db.query(m.Coach).filter_by(email=TEST_EMAIL).first()
+    test_coach = db.query(m.Coach).filter_by(email=TEST_COACH_EMAIL).first()
     if not test_coach:
         test_coach = m.Coach(
-            email=TEST_EMAIL,
+            email=TEST_COACH_EMAIL,
             password=TEST_PASSWORD,
-            username=TEST_EMAIL,
+            username=TEST_COACH_EMAIL,
             first_name=TEST_FIRSTNAME,
             last_name=TEST_LASTNAME,
             is_verified=True,
@@ -39,12 +40,12 @@ def create_dummy_coach():
 
 
 def create_dummy_student():
-    test_student = db.query(m.Student).filter_by(email=TEST_EMAIL).first()
+    test_student = db.query(m.Student).filter_by(email=TEST_STUDENT_EMAIL).first()
     if not test_student:
         test_student = m.Student(
-            email=TEST_EMAIL,
+            email=TEST_STUDENT_EMAIL,
             password=TEST_PASSWORD,
-            username=TEST_EMAIL,
+            username=TEST_STUDENT_EMAIL,
             first_name=TEST_FIRSTNAME,
             last_name=TEST_LASTNAME,
             is_verified=True,
@@ -155,10 +156,10 @@ def create_dummy_students():
 
 
 def create_dummy_lesson():
-    coach = db.query(m.Coach).filter_by(email=TEST_EMAIL).first()
+    coach = db.query(m.Coach).filter_by(email=TEST_COACH_EMAIL).first()
     location = db.query(m.Location).first()
     lesson = db.query(m.Lesson).first()
-    student = db.query(m.Student).filter_by(email=TEST_EMAIL).first()
+    student = db.query(m.Student).filter_by(email=TEST_STUDENT_EMAIL).first()
     if not lesson:
         lesson = m.Lesson(
             coach_id=coach.id,
@@ -177,6 +178,22 @@ def create_dummy_lesson():
     db.commit()
 
 
+def create_dummy_messages():
+    coach = db.query(m.Coach).filter_by(email=TEST_COACH_EMAIL).first()
+    student = db.query(m.Student).filter_by(email=TEST_STUDENT_EMAIL).first()
+    # creating dumme messages
+    message_one = m.Message(
+        receiver_id=coach.uuid, author_id=student.uuid, text="Hey,whats up buddy !"
+    )
+    db.add(message_one)
+    message_two = m.Message(
+        receiver_id=student.uuid, author_id=coach.uuid, text="I`m good,thanks !"
+    )
+    db.add(message_two)
+    db.commit()
+    print("Messages created")
+
+
 @task
 def dummy_data(_):
     # users
@@ -189,6 +206,7 @@ def dummy_data(_):
     create_dummy_students()
     # lesson
     create_dummy_lesson()
+    create_dummy_messages()
 
 
 # todo create lessons
