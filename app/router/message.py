@@ -195,7 +195,7 @@ def get_student_coach_messages(
 ):
     messages: list[m.Message] = (
         db.query(m.Message)
-        .filter_by(author_id=student.uuid, receiver_id=coach.uuid, is_deleted=False)
+        .filter_by(author_id=student.uuid, receiver_id=coach.uuid)
         .order_by(m.Message.created_at.desc())
         .all()
     )
@@ -210,20 +210,18 @@ def delete_student_coach_messages(
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
 ):
-    messages = (
-        db.query(m.Message)
-        .filter_by(author_id=student.uuid, receiver_id=coach.uuid)
-        .all()
+    messages = m.Message.get_diaogue_messages(
+        coach_id=coach.uuid, student_id=student.uuid
     )
     for message in messages:
         message.is_deleted = True
-    try:
-        db.commit()
-    except SQLAlchemyError as e:
-        log(log.INFO, "Error while deleting messages - [%s]", e)
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Error occured while deleting messages",
-        )
+        try:
+            db.commit()
+        except SQLAlchemyError as e:
+            log(log.INFO, "Error while deleting messages - [%s]", e)
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Error occured while deleting messages",
+            )
     log(log.INFO, "Messages deleted - [%d]", len(messages))
     return status.HTTP_200_OK

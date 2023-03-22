@@ -18,7 +18,7 @@ def test_message_coach(
     db: Session,
     authorized_coach_tokens,
 ):
-    # Testing email from coach to student
+    # Testing message from coach to student
     student = db.query(m.Student).first()
     assert student
     request_data = s.MessageData(text="text message", receiver_id=student.uuid).dict()

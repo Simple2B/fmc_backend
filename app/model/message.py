@@ -1,4 +1,5 @@
 import enum
+from typing import Self
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Enum, and_, or_
@@ -61,7 +62,7 @@ class Message(Base):
         cls,
         coach_id: str,
         student_id: str,
-    ):
+    ) -> Self:
         return (
             db.query(cls)
             .filter(
@@ -75,10 +76,34 @@ class Message(Base):
                         cls.receiver_id == student_id,
                     ),
                 ),
-                cls.is_deleted == False,  # noqa:flake8 E712
             )
+            .filter_by(is_deleted=False)
             .order_by(cls.created_at.desc())
             .first()
+        )
+
+    @classmethod
+    def get_diaogue_messages(
+        cls,
+        coach_id: str,
+        student_id: str,
+    ) -> list[Self]:
+        return (
+            db.query(cls)
+            .filter(
+                or_(
+                    and_(
+                        cls.author_id == student_id,
+                        cls.receiver_id == coach_id,
+                    ),
+                    and_(
+                        cls.author_id == coach_id,
+                        cls.receiver_id == student_id,
+                    ),
+                ),
+            )
+            .filter_by(is_deleted=False)
+            .all()
         )
 
     def __repr__(self):
