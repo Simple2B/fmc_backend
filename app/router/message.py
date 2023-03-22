@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -65,13 +65,10 @@ def get_coach_list_of_contacts(
             contacts.append(student)
 
     result = [
-        {
-            "message": db.query(m.Message)
-            .filter_by(author_id=coach.uuid, receiver_id=student.uuid)
-            .order_by(m.Message.created_at.desc())
-            .first(),
-            "user": coach,
-        }
+        s.Contact(
+            message=m.Message.get_contact_latest_message(coach.uuid, student.uuid),
+            user=coach,
+        )
         for coach in contacts
     ]
     return s.ContactList(contacts=result)
@@ -177,10 +174,7 @@ def get_student_list_of_contacts(
 
     result = [
         s.Contact(
-            message=db.query(m.Message)
-            .filter_by(author_id=student.uuid, receiver_id=coach.uuid, is_deleted=False)
-            .order_by(m.Message.created_at.desc())
-            .first(),
+            message=m.Message.get_contact_latest_message(coach.uuid, student.uuid),
             user=coach,
         )
         for coach in contacts
