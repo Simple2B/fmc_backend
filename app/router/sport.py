@@ -10,7 +10,7 @@ sport_router = APIRouter(prefix="/sports", tags=["Sports"])
 
 
 @sport_router.get(
-    "/",
+    "/types",
     response_model=s.ListSportTypeSchema,
 )
 def get_sports(db: Session = Depends(get_db)):
