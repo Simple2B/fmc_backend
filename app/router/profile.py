@@ -199,7 +199,7 @@ def update_coach_profile(
         for coach_location in parse_locations:
             location = (
                 db.query(m.Location)
-                .filter_by(city=coach_location['city'], street=coach_location['street'], postal_code=coach_location['postal_code'])
+                .filter_by(city=coach_location['city'], street=coach_location['street'], postal_code=coach_location['postal_code'])  # noqa:E501
                 .first()
             )
             if not location:

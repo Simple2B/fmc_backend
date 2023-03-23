@@ -1,9 +1,7 @@
 from datetime import datetime
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Boolean, func
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
 
-from app.hash_utils import make_hash, hash_verify
-from app.database import Base, Session
+from app.database import Base
 from app.utils import generate_uuid
 
 

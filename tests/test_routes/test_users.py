@@ -1,6 +1,5 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-import json
 from moto import mock_s3
 
 
