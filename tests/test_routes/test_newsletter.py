@@ -4,6 +4,7 @@ from fastapi import status
 
 from app import schema as s
 from app import model as m
+from app.controller import MailClient, send_daily_report
 
 
 def test_create_subscription(client: TestClient, db: Session):
@@ -30,3 +31,23 @@ def test_create_subscription(client: TestClient, db: Session):
     assert res
     assert db.query(m.NewsletterSubscription).count() == 1
     assert res.status_code == status.HTTP_208_ALREADY_REPORTED
+
+
+def test_daily_report(db: Session, mail_client: MailClient):
+    from tasks.create_dummy_data import (
+        create_dummy_newsletter_subscriptions,
+        TEST_NEWSLETTER_NUMBER_TODAYS_NEW,
+        TEST_NEWSLETTER_NUMBER_YESTERDAY_ACTIVE,
+    )
+
+    create_dummy_newsletter_subscriptions(db)
+    assert (
+        db.query(m.NewsletterSubscription).count()
+        == TEST_NEWSLETTER_NUMBER_TODAYS_NEW + TEST_NEWSLETTER_NUMBER_YESTERDAY_ACTIVE
+    )
+
+    with mail_client.mail.record_messages() as outbox:
+        send_daily_report()
+        assert len(outbox) == 1
+        letter = outbox[0]
+        assert "@" in letter["To"]

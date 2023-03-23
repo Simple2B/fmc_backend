@@ -23,4 +23,4 @@ class NewsletterSubscription(Base):
     state: State = Column(Enum(State), default=State.NEW)
 
     def __repr__(self):
-        return f"<{self.id}:{self.email}>"
+        return f"<{self.id}:{self.email}:{self.state.name}>"

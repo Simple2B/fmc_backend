@@ -46,6 +46,8 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = "test_google_client_id"
     GOOGLE_CLIENT_SECRET: str = "test_google_client_secret"
 
+    NEWSLETTER_REPORT_EMAIL: str = "info@findmycoach.co.uk"
+
     class Config:
         env_file = ".env"
 
