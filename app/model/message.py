@@ -79,7 +79,7 @@ class Message(Base):
                     ),
                 ),
             )
-            .order_by(cls.created_at.asc())
+            .order_by(cls.created_at.desc())
             .first()
         )
 
@@ -105,7 +105,7 @@ class Message(Base):
                     ),
                 ),
             )
-            .order_by(cls.created_at.asc())
+            .order_by(cls.created_at.desc())
             .all()
         )
 
