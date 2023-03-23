@@ -31,3 +31,16 @@ class Coach(User):
         if len(v) > 1024:
             raise ValueError("Length of 'about' couldnt be larger than 1024")
         return v
+
+
+class Location(BaseUser):
+    city: str
+    street: str
+    postal_code: str
+
+    class Config:
+        orm_mode = True
+
+
+class Locations(BaseUser):
+    locations: list[Location]
