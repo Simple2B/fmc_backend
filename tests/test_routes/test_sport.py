@@ -21,7 +21,7 @@ def test_get_all_sports(
     sports = db.query(m.SportType).all()
     assert sports
 
-    response = client.get("/api/sports/")
+    response = client.get("/api/sports/types")
     assert response
     resp_obj = s.ListSportTypeSchema.parse_obj(response.json())
     assert resp_obj
