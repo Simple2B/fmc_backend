@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import Response
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -11,7 +12,7 @@ import app.model as m
 newsletter_router = APIRouter(prefix="/newsletter", tags=["Newsletter"])
 
 
-@newsletter_router.post("/", status_code=status.HTTP_200_OK)
+@newsletter_router.post("/")
 async def send_contact_request(
     data: s.NewsletterSubscription,
     db: Session = Depends(get_db),
@@ -22,7 +23,7 @@ async def send_contact_request(
     )
     if subscription:
         log(log.INFO, "Newsletter Subscription for [%s] already exists", data.email)
-        return status.HTTP_208_ALREADY_REPORTED
+        return Response(status_code=status.HTTP_208_ALREADY_REPORTED)
 
     subscription = m.NewsletterSubscription(
         email=data.email,
@@ -42,4 +43,4 @@ async def send_contact_request(
             detail="Failed to create a new contact request",
         )
     log(log.INFO, "Newsletter Subscription for [%s] created", data.email)
-    return status.HTTP_201_CREATED
+    return Response(status_code=status.HTTP_201_CREATED)
