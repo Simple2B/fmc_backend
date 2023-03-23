@@ -6,8 +6,6 @@ import app.model as m
 
 db: Session = get_db().__next__()
 
-SPORTS: list[m.SportType] = db.query(m.SportType).all()
-
 TEST_EMAIL = "user1@gmail.com"
 TEST_PASSWORD = "user1"
 TEST_FIRSTNAME = "John"
@@ -60,7 +58,9 @@ def create_footbal_coach():
         )
         db.add(football_coach)
         db.commit()
-        fc_sport = m.CoachSport(coach_id=football_coach.id, sport_id=SPORTS[0].id)
+        SPORT_ID: int = db.query(m.SportType).first().id
+
+        fc_sport = m.CoachSport(coach_id=football_coach.id, sport_id=SPORT_ID)
         db.add(fc_sport)
         db.commit()
         print(f"Coach {football_coach} created successfully")
@@ -81,7 +81,8 @@ def create_boxing_coach():
         )
         db.add(boxing_coach)
         db.commit()
-        bc_sport = m.CoachSport(coach_id=boxing_coach.id, sport_id=SPORTS[0].id)
+        SPORT_ID: int = db.query(m.SportType).first().id
+        bc_sport = m.CoachSport(coach_id=boxing_coach.id, sport_id=SPORT_ID)
         db.add(bc_sport)
         db.commit()
         print(f"Coach {boxing_coach} created successfully")
