@@ -86,11 +86,8 @@ def get_coach_student_messages(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    messages: list[m.Message] = (
-        db.query(m.Message)
-        .filter_by(author_id=coach.uuid, receiver_id=student.uuid)
-        .order_by(m.Message.created_at.desc())
-        .all()
+    messages: list[m.Message] = m.Message.get_diaogue_messages(
+        coach_id=coach.uuid, student_id=student.uuid
     )
     log(log.INFO, "found [%d] messages", len(messages))
     return s.MessageList(messages=messages)
@@ -170,11 +167,8 @@ def get_student_coach_messages(
     db: Session = Depends(get_db),
     student: m.Coach = Depends(get_current_student),
 ):
-    messages: list[m.Message] = (
-        db.query(m.Message)
-        .filter_by(author_id=student.uuid, receiver_id=coach.uuid)
-        .order_by(m.Message.created_at.desc())
-        .all()
+    messages: list[m.Message] = m.Message.get_diaogue_messages(
+        coach_id=coach.uuid, student_id=student.uuid
     )
     log(log.INFO, "found [%d] messages", len(messages))
     return s.MessageList(messages=messages)
