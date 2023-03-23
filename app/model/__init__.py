@@ -14,5 +14,7 @@ from .student_lesson_payment import StudentLessonPayment
 from .contact import Contact
 from .superuser import SuperUser
 
+from newsletter_subscription import NewsletterSubscription
+
 
 from app.database import Base
