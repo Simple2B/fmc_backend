@@ -2,7 +2,7 @@
 from .user.base import BaseUser
 
 from .user.login import UserGoogleLogin
-from .user.profile import User
+from .user.profile import User, Location, Locations
 from .user.signup import UserSignUp
 from .user.profile import User, UserList
 from .user.change_password import ProfileChangePasswordIn

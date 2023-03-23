@@ -12,6 +12,7 @@ class User(BaseUser):
     last_name: str
     is_verified: bool
     profile_picture: AnyHttpUrl | None = settings.DEFAULT_AVATAR_URL
+    # profile_picture: str | None
 
     class Config:
         orm_mode = True
@@ -35,3 +36,16 @@ class Coach(User):
         if len(v) > 1024:
             raise ValueError("Length of 'about' couldnt be larger than 1024")
         return v
+
+
+class Location(BaseUser):
+    city: str
+    street: str
+    postal_code: str
+
+    class Config:
+        orm_mode = True
+
+
+class Locations(BaseUser):
+    locations: list[Location]

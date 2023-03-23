@@ -21,6 +21,6 @@ def test_contact_form(
         request_data = s.ContactDataIn(
             email_from="test@email.com", message="Hi i got a question ..."
         ).dict()
-        response = client.post("api/contact/", json=request_data)
+        response = client.post("api/contact/question", json=request_data)
         assert response
         assert len(outbox) == 1

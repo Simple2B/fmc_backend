@@ -14,7 +14,7 @@ import app.model as m
 contact_router = APIRouter(prefix="/contact", tags=["Contact"])
 
 
-@contact_router.post("/", status_code=status.HTTP_200_OK)
+@contact_router.post("/question", status_code=status.HTTP_200_OK)
 async def send_contact_request(
     data: s.ContactDataIn,
     db: Session = Depends(get_db),
@@ -37,7 +37,7 @@ async def send_contact_request(
         )
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Student with such email address already exists",
+            detail="Failed to create a new contact request",
         )
     try:
         await mail_client.send_email(

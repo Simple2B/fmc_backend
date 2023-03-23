@@ -1,3 +1,4 @@
+import json
 from fastapi import (
     APIRouter,
     Depends,
@@ -18,6 +19,7 @@ import app.schema as s
 import app.model as m
 from app.hash_utils import hash_verify
 from app.config import Settings, get_settings
+
 
 profile_router = APIRouter(prefix="/profile", tags=["Profiles"])
 
@@ -64,26 +66,27 @@ def get_student_profile(
 async def update_coach_personal_info(
     file: UploadFile = File(...),
     first_name: str = Form(...),
-    last_name: str = Form(...),
+    last_name: str = Form(''),
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
     settings: Settings = Depends(get_settings),
     s3=Depends(get_s3_conn),
 ):
-    try:
-        file.file.seek(0)
-        s3.upload_fileobj(
-            file.file,
-            settings.AWS_S3_BUCKET_NAME,
-            f"user_profiles/pictures/coaches/pictures/{coach.uuid}/{file.filename}",
-        )
-    except ClientError as e:
-        log(log.ERROR, "Error uploading file to S3 - [%s]", e)
-        raise HTTPException(status_code=500, detail="Something went wrong")
-    finally:
-        file.file.close()
-    # save to db
-    coach.profile_picture = f"{settings.AWS_S3_BUCKET_URL}user_profiles/pictures/coaches/pictures/{coach.uuid}/{file.filename}"  # noqa:E501
+    if file:
+        try:
+            file.file.seek(0)
+            s3.upload_fileobj(
+                file.file,
+                settings.AWS_S3_BUCKET_NAME,
+                f"user_profiles/pictures/coaches/pictures/{coach.uuid}/{file.filename}",
+            )
+        except ClientError as e:
+            log(log.ERROR, "Error uploading file to S3 - [%s]", e)
+            raise HTTPException(status_code=500, detail="Something went wrong")
+        finally:
+            file.file.close()
+        # save to db
+        coach.profile_picture = f"{settings.AWS_S3_BUCKET_URL}user_profiles/pictures/coaches/pictures/{coach.uuid}/{file.filename}"  # noqa:E501
     coach.first_name = first_name
     coach.last_name = last_name
     try:
@@ -102,26 +105,27 @@ async def update_coach_personal_info(
 def update_student_personal_info(
     file: UploadFile = File(...),
     first_name: str = Form(...),
-    last_name: str = Form(...),
+    last_name: str = Form(''),
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
     settings: Settings = Depends(get_settings),
     s3=Depends(get_s3_conn),
 ):
-    try:
-        file.file.seek(0)
-        s3.upload_fileobj(
-            file.file,
-            settings.AWS_S3_BUCKET_NAME,
-            f"user_profiles/pictures/students/pictures/{student.uuid}/{file.filename}",
-        )
-    except ClientError as e:
-        log(log.ERROR, "Error uploading file to S3 - [%s]", e)
-        raise HTTPException(status_code=500, detail="Something went wrong")
-    finally:
-        file.file.close()
-    # save to db
-    student.profile_picture = f"{settings.AWS_S3_BUCKET_URL}user_profiles/pictures/students/pictures/{student.uuid}/{file.filename}"  # noqa:E501
+    if file:
+        try:
+            file.file.seek(0)
+            s3.upload_fileobj(
+                file.file,
+                settings.AWS_S3_BUCKET_NAME,
+                f"user_profiles/pictures/students/pictures/{student.uuid}/{file.filename}",
+            )
+        except ClientError as e:
+            log(log.ERROR, "Error uploading file to S3 - [%s]", e)
+            raise HTTPException(status_code=500, detail="Something went wrong")
+        finally:
+            file.file.close()
+        # save to db
+        student.profile_picture = f"{settings.AWS_S3_BUCKET_URL}user_profiles/pictures/students/pictures/{student.uuid}/{file.filename}"  # noqa:E501
     student.first_name = first_name
     student.last_name = last_name
     try:
@@ -136,16 +140,14 @@ def update_student_personal_info(
     return status.HTTP_200_OK
 
 
-@profile_router.post("/coach/", status_code=status.HTTP_201_CREATED)
+@profile_router.post("/coach/profile-info", status_code=status.HTTP_201_CREATED)
 def update_coach_profile(
     sport_category: str = Form(None),
     about: str | None = Form(None),
-    certificate: UploadFile = File(None),
+    certificates: list[UploadFile] = Form(None),
     is_for_adult: bool | None = Form(None),
     is_for_children: bool | None = Form(None),
-    city: str | None = Form(None),
-    street: str | None = Form(None),
-    postal_code: str | None = Form(None),
+    locations: str | None = Form(None),
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
     settings: Settings = Depends(get_settings),
@@ -174,41 +176,45 @@ def update_coach_profile(
         if not coach_sport:
             db.add(m.CoachSport(coach_id=coach.id, sport_id=sport.id))
             db.flush()
-    if certificate:
-        try:
-            certificate.file.seek(0)
-            # Upload the file to to your S3 service
-            s3.upload_fileobj(
-                certificate.file,
-                settings.AWS_S3_BUCKET_NAME,
-                f"user_profiles/certificates/coaches/{coach.uuid}/{certificate.filename}",
-            )
-        except ClientError as e:
-            log(log.ERROR, "Error uploading certificate to S3 - [%s]", e)
-            raise HTTPException(status_code=500, detail="Something went wrong")
-        finally:
-            certificate.file.close()
-        # save to db
-        coach.certificate_url = f"{settings.AWS_S3_BUCKET_URL}user_profiles/certificates/coaches/{coach.uuid}/{certificate.filename}"  # noqa:E501
-    if city and street and postal_code:
-        location = (
-            db.query(m.Location)
-            .filter_by(city=city, street=street, postal_code=postal_code)
-            .first()
-        )
-        if not location:
-            db.add(m.Location(city=city, street=street, postal_code=postal_code))
-            db.flush()
+    if certificates:
+        for certificate in certificates:
+            try:
+                certificate.file.seek(0)
+                # Upload the file to to your S3 service
+                s3.upload_fileobj(
+                    certificate.file,
+                    settings.AWS_S3_BUCKET_NAME,
+                    f"user_profiles/certificates/coaches/{coach.uuid}/{certificate.filename}",
+                )
+            except ClientError as e:
+                log(log.ERROR, "Error uploading certificate to S3 - [%s]", e)
+                raise HTTPException(status_code=500, detail="Something went wrong")
+            finally:
+                certificate.file.close()
+            # save to db
+            coach.certificate_url = f"{settings.AWS_S3_BUCKET_URL}user_profiles/certificates/coaches/{coach.uuid}/{certificate.filename}"  # noqa:E501
+    if locations:
+        parse_locations = json.loads(locations)
+        for coach_location in parse_locations:
             location = (
                 db.query(m.Location)
-                .filter_by(
-                    city=city,
-                    street=street,
-                    postal_code=postal_code,
-                )
+                .filter_by(city=coach_location['city'], street=coach_location['street'], postal_code=coach_location['postal_code'])  # noqa:E501
                 .first()
             )
-        db.add(m.CoachLocation(coach_id=coach.id, location_id=location.id))
+            if not location:
+                db.add(m.Location(city=coach_location['city'], street=coach_location['street'],
+                       postal_code=coach_location['postal_code']))
+                db.flush()
+                location = (
+                    db.query(m.Location)
+                    .filter_by(
+                        city=coach_location['city'],
+                        street=coach_location['street'],
+                        postal_code=coach_location['postal_code'],
+                    )
+                    .first()
+                )
+            db.add(m.CoachLocation(coach_id=coach.id, location_id=location.id))
     try:
         log(log.INFO, "Updating profile for coach - [%s]", coach.email)
         db.commit()
@@ -253,4 +259,33 @@ def coach_change_password(
             detail="Error while changing password",
         )
     log(log.INFO, "Changing password for coach - [%s]", coach.email)
+    return status.HTTP_200_OK
+
+
+@profile_router.post("/student/change-password", status_code=status.HTTP_200_OK)
+def student_change_password(
+    data: s.ProfileChangePasswordIn,
+    student: m.Student = Depends(get_current_student),
+    db: Session = Depends(get_db),
+):
+    if not hash_verify(data.old_password, student.password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Old password is incorrect",
+        )
+    if data.new_password != data.new_password_confirmation:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New passwords do not match",
+        )
+    student.password = data.new_password
+    try:
+        db.commit()
+    except SQLAlchemyError as e:
+        log(log.ERROR, "Failed to change password for - [%s]\n[%s]", student.email, e)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Error while changing password",
+        )
+    log(log.INFO, "Changing password for coach - [%s]", student.email)
     return status.HTTP_200_OK
