@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
 from .coach_auth import coach_auth_router
 from .student_auth import student_auth_router
@@ -20,3 +20,11 @@ router.include_router(contact_router)
 router.include_router(sport_router)
 router.include_router(message_router)
 router.include_router(lesson_router)
+
+
+@router.get("/list-endpoints/")
+def list_endpoints(request: Request):
+    url_list = [
+        {"path": route.path, "name": route.name} for route in request.app.routes
+    ]
+    return url_list

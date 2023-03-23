@@ -70,15 +70,16 @@ class Message(Base):
                     and_(
                         cls.author_id == student_id,
                         cls.receiver_id == coach_id,
+                        cls.is_deleted == False,  # noqa:flake8 E712
                     ),
                     and_(
                         cls.author_id == coach_id,
                         cls.receiver_id == student_id,
+                        cls.is_deleted == False,  # noqa:flake8 E712
                     ),
                 ),
             )
-            .filter_by(is_deleted=False)
-            .order_by(cls.created_at.desc())
+            .order_by(cls.created_at.asc())
             .first()
         )
 
@@ -95,13 +96,16 @@ class Message(Base):
                     and_(
                         cls.author_id == student_id,
                         cls.receiver_id == coach_id,
+                        cls.is_deleted == False,  # noqa:flake8 E712
                     ),
                     and_(
                         cls.author_id == coach_id,
                         cls.receiver_id == student_id,
+                        cls.is_deleted == False,  # noqa:flake8 E712
                     ),
                 ),
             )
+            .order_by(cls.created_at.asc())
             .all()
         )
 

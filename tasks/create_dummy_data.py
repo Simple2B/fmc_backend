@@ -208,17 +208,17 @@ def create_dummy_messages():
     student = db.query(m.Student).filter_by(email=TEST_STUDENT_EMAIL).first()
     # creating dumme messages
     message_one = m.Message(
-        receiver_id=coach.uuid, author_id=student.uuid, text="Hey,whats up buddy !"
+        receiver_id=coach.uuid, author_id=student.uuid, text="Message from student"
     )
     db.add(message_one)
     message_two = m.Message(
-        receiver_id=student.uuid, author_id=coach.uuid, text="I`m good,thanks !"
+        receiver_id=student.uuid, author_id=coach.uuid, text="Message from coach"
     )
     db.add(message_two)
 
     second_coach = db.query(m.Coach).filter_by(email=TEST_COACH_TWO_EMAIL).first()
     message_three = m.Message(
-        receiver_id=student.uuid, author_id=second_coach.uuid, text="Hey buddy"
+        receiver_id=student.uuid, author_id=second_coach.uuid, text="Message from coach"
     )
     db.add(message_three)
     db.commit()
