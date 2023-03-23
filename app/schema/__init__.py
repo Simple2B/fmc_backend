@@ -15,3 +15,5 @@ from .contact import ContactDataIn
 from .message import MessageData, Message, MessageList
 from .api_keys import GAPIKeysSchema
 from .user.reset_password import UserResetPasswordIn
+
+from .newsletter import NewsletterSubscription

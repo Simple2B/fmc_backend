@@ -6,7 +6,7 @@ from app.database import Base
 from app.utils import generate_uuid
 
 
-class NewsletterSubscription:
+class NewsletterSubscription(Base):
     __tablename__ = "newsletter_subscriptions"
 
     class State(enum.Enum):
