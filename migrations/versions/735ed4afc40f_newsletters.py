@@ -1,8 +1,8 @@
 """newsletters
 
-Revision ID: 58bb18448adf
-Revises: c36e94f12826
-Create Date: 2023-03-23 16:11:13.994989
+Revision ID: 735ed4afc40f
+Revises: 226b37dbb868
+Create Date: 2023-03-23 17:19:05.880192
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = "58bb18448adf"
-down_revision = "c36e94f12826"
+revision = "735ed4afc40f"
+down_revision = "226b37dbb868"
 branch_labels = None
 depends_on = None
 
