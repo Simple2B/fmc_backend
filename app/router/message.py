@@ -93,6 +93,24 @@ def get_coach_student_messages(
     return s.MessageList(messages=messages)
 
 
+@message_router.post(
+    "/coach/messages/{student_uuid}/read",
+    response_model=s.MessageList,
+)
+def read_coach_student_messages(
+    student_uuid: str,
+    student: m.Student = Depends(get_student_by_uuid),
+    db: Session = Depends(get_db),
+    coach: m.Coach = Depends(get_current_coach),
+):
+    messages: list[m.Message] = m.Message.get_diaogue_messages(
+        coach_id=coach.uuid, student_id=student.uuid
+    )
+    for message in messages:
+        message.is_read = True
+    return status.HTTP_200_OK
+
+
 # Routes for students
 @message_router.post("/student/create", response_model=s.Message)
 def student_create_message(
