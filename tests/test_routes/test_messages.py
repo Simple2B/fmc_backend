@@ -80,6 +80,7 @@ def test_message_coach(
         .first()
     )
     assert resp_obj.messages[0].receiver.uuid == student.uuid
+    assert resp_obj.messages[0].is_read == False  # noqa:flake8 E712
 
     # getting unread messages from coach
     response = client.get(
@@ -91,6 +92,15 @@ def test_message_coach(
     assert response
     resp_obj = s.MessageCount.parse_obj(response.json())
     assert db.query(m.Message).count() == resp_obj.count
+
+    # setting message as read
+    response = client.post(
+        f"api/message/coach/messages/{student.uuid}/read",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response
+    message = db.query(m.Message).first()
+    assert message.is_read == True  # noqa:flake8 E712
 
 
 def test_message_student(
@@ -177,3 +187,14 @@ def test_message_student(
     assert response
     resp_obj = s.MessageCount.parse_obj(response.json())
     assert db.query(m.Message).count() == resp_obj.count
+
+    # setting message as read
+    response = client.post(
+        f"api/message/student/messages/{coach.uuid}/read",
+        headers={
+            "Authorization": f"Bearer {authorized_student_tokens[0].access_token}"
+        },
+    )
+    assert response
+    message = db.query(m.Message).first()
+    assert message.is_read == True  # noqa:flake8 E712
