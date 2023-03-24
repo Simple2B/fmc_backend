@@ -41,7 +41,8 @@ class Settings(BaseSettings):
     AWS_SECRET_KEY: str | None
     AWS_ACCESS_KEY: str | None
     AWS_S3_BUCKET_NAME: str = "find-my-coach"
-    AWS_S3_BUCKET_URL: str | None
+    AWS_S3_BUCKET_URL: str
+    DEFAULT_AVATAR_URL: str
 
     GOOGLE_CLIENT_ID: str = "test_google_client_id"
     GOOGLE_CLIENT_SECRET: str = "test_google_client_secret"

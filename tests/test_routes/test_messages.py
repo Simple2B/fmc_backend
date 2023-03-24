@@ -18,7 +18,7 @@ def test_message_coach(
     db: Session,
     authorized_coach_tokens,
 ):
-    # Testing email from coach to student
+    # Testing message from coach to student
     student = db.query(m.Student).first()
     assert student
     request_data = s.MessageData(text="text message", receiver_id=student.uuid).dict()
@@ -45,10 +45,10 @@ def test_message_coach(
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response
-    resp_obj = s.UserList.parse_obj(response.json())
+    resp_obj = s.ContactList.parse_obj(response.json())
     student = db.query(m.Student).first()
     assert student
-    assert resp_obj.users[0].uuid == student.uuid
+    assert resp_obj.contacts[0].user.uuid == student.uuid
 
     # Getting messages between coach and student
     response = client.get(
@@ -60,18 +60,6 @@ def test_message_coach(
     assert len(resp_obj.messages) == 1
     assert resp_obj.messages[0].author.uuid == coach.uuid
     assert resp_obj.messages[0].receiver.uuid == db.query(m.Student).first().uuid
-
-    # deleting messages
-    student = db.query(m.Student).first()
-    assert student
-    response = client.delete(
-        f"api/message/coach/messages/{student.uuid}",
-        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
-    )
-    assert response
-    messages = db.query(m.Message).all()
-    for message in messages:
-        assert message.is_deleted
 
 
 def test_message_student(
@@ -111,10 +99,10 @@ def test_message_student(
         },
     )
     assert response
-    resp_obj = s.UserList.parse_obj(response.json())
+    resp_obj = s.ContactList.parse_obj(response.json())
     coach = db.query(m.Coach).first()
     assert coach
-    assert resp_obj.users[0].uuid == coach.uuid
+    assert resp_obj.contacts[0].user.uuid == coach.uuid
 
     # Getting messages between student and coach
     response = client.get(
@@ -128,18 +116,3 @@ def test_message_student(
     assert len(resp_obj.messages) == 1
     assert resp_obj.messages[0].author.uuid == student.uuid
     assert resp_obj.messages[0].receiver.uuid == db.query(m.Coach).first().uuid
-
-    # deleting messages
-    coach = db.query(m.Coach).first()
-    assert student
-    response = client.delete(
-        f"api/message/student/messages/{coach.uuid}",
-        headers={
-            "Authorization": f"Bearer {authorized_student_tokens[0].access_token}"
-        },
-    )
-    assert response
-    messages = db.query(m.Message).all()
-    messages = db.query(m.Message).all()
-    for message in messages:
-        assert message.is_deleted

@@ -1,6 +1,8 @@
 import enum
+from typing import Self
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Enum
+
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Enum, and_, or_
 
 from app.database import Base, get_db
 from app.utils import generate_uuid
@@ -53,6 +55,58 @@ class Message(Base):
             student
             if student
             else db.query(Coach).filter_by(uuid=self.receiver_id).first()
+        )
+
+    @classmethod
+    def get_contact_latest_message(
+        cls,
+        coach_id: str,
+        student_id: str,
+    ) -> Self:
+        return (
+            db.query(cls)
+            .filter(
+                or_(
+                    and_(
+                        cls.author_id == student_id,
+                        cls.receiver_id == coach_id,
+                        cls.is_deleted == False,  # noqa:flake8 E712
+                    ),
+                    and_(
+                        cls.author_id == coach_id,
+                        cls.receiver_id == student_id,
+                        cls.is_deleted == False,  # noqa:flake8 E712
+                    ),
+                ),
+            )
+            .order_by(cls.created_at.desc())
+            .first()
+        )
+
+    @classmethod
+    def get_diaogue_messages(
+        cls,
+        coach_id: str,
+        student_id: str,
+    ) -> list[Self]:
+        return (
+            db.query(cls)
+            .filter(
+                or_(
+                    and_(
+                        cls.author_id == student_id,
+                        cls.receiver_id == coach_id,
+                        cls.is_deleted == False,  # noqa:flake8 E712
+                    ),
+                    and_(
+                        cls.author_id == coach_id,
+                        cls.receiver_id == student_id,
+                        cls.is_deleted == False,  # noqa:flake8 E712
+                    ),
+                ),
+            )
+            .order_by(cls.created_at.desc())
+            .all()
         )
 
     def __repr__(self):
