@@ -12,7 +12,7 @@ import app.model as m
 newsletter_router = APIRouter(prefix="/newsletter", tags=["Newsletter"])
 
 
-@newsletter_router.post("/")
+@newsletter_router.post("/subscribe")
 async def send_contact_request(
     data: s.NewsletterSubscription,
     db: Session = Depends(get_db),

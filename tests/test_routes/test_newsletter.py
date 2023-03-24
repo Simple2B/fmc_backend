@@ -12,7 +12,7 @@ def test_create_subscription(client: TestClient, db: Session):
     assert db.query(m.NewsletterSubscription).count() == 0
     data = s.NewsletterSubscription(email=TEST_EMAIL).dict()
     res = client.post(
-        "api/newsletter",
+        "api/newsletter/subscribe",
         json=data,
     )
     assert res
@@ -25,7 +25,7 @@ def test_create_subscription(client: TestClient, db: Session):
     assert subscription.state == m.NewsletterSubscription.State.NEW
 
     res = client.post(
-        "api/newsletter",
+        "api/newsletter/subscribe",
         json=data,
     )
     assert res
