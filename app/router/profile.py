@@ -41,7 +41,6 @@ def get_coach_profile(
         profile_picture=coach.profile_picture,
         is_verified=coach.is_verified,
     )
-    # TODO return locations and other stuff
 
 
 @profile_router.get(

@@ -9,9 +9,8 @@ class MessageData(BaseModel):
     receiver_id: str
 
 
-class Message(BaseModel):
-    author: User
-    receiver: User
+class BaseMessage(BaseModel):
+    uuid: str
     text: str
     created_at: datetime
     is_read: bool
@@ -20,5 +19,25 @@ class Message(BaseModel):
         orm_mode = True
 
 
+class Message(BaseMessage):
+    author: User
+    receiver: User
+
+    class Config:
+        orm_mode = True
+
+
 class MessageList(BaseModel):
     messages: list[Message]
+
+
+class Contact(BaseModel):
+    user: User
+    message: BaseMessage | None
+
+    class Config:
+        orm_mode = True
+
+
+class ContactList(BaseModel):
+    contacts: list[Contact]

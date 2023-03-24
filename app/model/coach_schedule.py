@@ -24,6 +24,7 @@ class CoachSchedule(Base):
 
     coach_id = Column(Integer, ForeignKey("coaches.id"))
     location_id = Column(Integer, ForeignKey("locations.id"))
+    notes = Column(String(256), nullable=True)
 
     week_day = Column(Enum(WeekDay), default=WeekDay.monday)
     begin = Column(DateTime, nullable=False)

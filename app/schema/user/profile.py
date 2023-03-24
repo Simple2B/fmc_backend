@@ -1,13 +1,18 @@
 from pydantic import BaseModel, AnyHttpUrl, validator
 from .base import BaseUser
 
+from app.config import get_settings, Settings
+
+settings: Settings = get_settings()
+
 
 class User(BaseUser):
     username: str
     first_name: str
     last_name: str
     is_verified: bool
-    profile_picture: str | None
+    profile_picture: AnyHttpUrl | None = settings.DEFAULT_AVATAR_URL
+    # profile_picture: str | None
 
     class Config:
         orm_mode = True
@@ -18,8 +23,8 @@ class UserList(BaseModel):
 
 
 class Coach(User):
-    about: str
-    certificate_url: AnyHttpUrl
+    about: str = ""
+    certificate_url: AnyHttpUrl | None
     is_for_adults: bool
     is_for_children: bool
 

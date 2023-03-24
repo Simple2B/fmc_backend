@@ -12,8 +12,12 @@ from .sport import ListSportTypeSchema
 from .contact import ContactDataIn
 
 
-from .message import MessageData, Message, MessageList
+from .message import MessageData, Message, MessageList, ContactList, Contact
 from .api_keys import GAPIKeysSchema
 from .user.reset_password import UserResetPasswordIn
 
+from .location import Location, LocationList
+from .lesson import Lesson, LessonList, UpcomingLessonList
+
 from .newsletter import NewsletterSubscription
+
