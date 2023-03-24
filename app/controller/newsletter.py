@@ -20,6 +20,10 @@ def send_daily_report():
         .all()
     )
 
+    if not new_subscriptions:
+        log(log.INFO, "No new Newsletter Subscriptions")
+        return
+
     async def send_email():
         mail = MailClient(settings)
 
@@ -30,6 +34,11 @@ def send_daily_report():
                 "daily_report.html",
                 {"subscriptions": new_subscriptions, "len": len},
             )
+
+            for sub in new_subscriptions:
+                sub.state = m.NewsletterSubscription.State.ACTIVE
+            db.commit()
+
         except ConnectionErrors as e:
             log(
                 log.ERROR, "Cannot send daily Newsletter Subscriptions Report - [%s]", e
