@@ -25,6 +25,7 @@ def get_upcoming_lessons(
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
 ):
+    # TODO filter by date
     upcoming_lessons = (
         db.query(m.StudentLesson)
         .filter(
