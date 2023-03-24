@@ -39,8 +39,26 @@ class TestLocation(BaseModel):
     postal_code: str
 
 
+class TestSubscriptionProduct(BaseModel):
+    __test__ = False
+
+    stripe_product_id: str
+    name: str
+    description: str
+
+
+class TestSubscriptionPrice(BaseModel):
+    __test__ = False
+
+    stripe_price_id: str
+    currency: str = "usd"
+    created: int | None
+    unit_amount: int
+
+
 class TestData(BaseModel):
     __test__ = False
+
     test_coaches: list[TestCoach]
     test_students: list[TestStudent]
     test_coach: TestCoach | None
@@ -50,6 +68,8 @@ class TestData(BaseModel):
     test_authorized_coaches: list[TestCoach]
 
     test_locations: list[TestLocation]
+    test_subscription_product: TestSubscriptionProduct
+    test_subscription_price: TestSubscriptionPrice
 
 
 @pytest.fixture

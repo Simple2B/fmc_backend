@@ -49,6 +49,8 @@ class Settings(BaseSettings):
 
     NEWSLETTER_REPORT_EMAIL: str = "info@findmycoach.co.uk"
 
+    COACH_SUBSCRIPTION_PRODUCT_ID: str
+
     class Config:
         env_file = ".env"
 

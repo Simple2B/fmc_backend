@@ -90,3 +90,23 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
         if not db.query(m.Student).filter_by(email=auth_student.email).first():
             db.add(m.Student(**auth_student.dict()))
             db.commit()
+
+    price = m.StripeProductPrice(
+        stripe_price_id=test_data.test_subscription_price.stripe_price_id,
+        currency=test_data.test_subscription_price.currency,
+        created=datetime.now().timestamp(),
+        unit_amount=test_data.test_subscription_price.unit_amount,
+    )
+    db.add(price)
+    db.flush()
+    db.refresh(price)
+    db.add(
+        m.StripeProduct(
+            stripe_product_id=test_data.test_subscription_product.stripe_product_id,
+            price_id=price.id,
+            name=test_data.test_subscription_product.name,
+            description=test_data.test_subscription_product.description,
+            created=datetime.now().timestamp(),
+        )
+    )
+    db.commit()

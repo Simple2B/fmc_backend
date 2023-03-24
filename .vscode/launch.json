@@ -45,5 +45,15 @@
             ],
             "justMyCode": true
         },
+        {
+            "name": "stripe coach subscription",
+            "type": "python",
+            "request": "launch",
+            "module": "invoke",
+            "args": [
+                "get-coach-subscription"
+            ],
+            "justMyCode": true
+        },
     ]
 }

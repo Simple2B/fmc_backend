@@ -9,3 +9,5 @@ alembic upgrade head &&
 
 invoke create-sports
 invoke dummy-data
+
+invoke get-coach-subscription

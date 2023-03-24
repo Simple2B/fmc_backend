@@ -1,0 +1,25 @@
+from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
+import app.model as m
+import app.schema as s
+from tests.fixture import TestData
+
+
+def test_get_subscriptions(
+    client: TestClient,
+    test_data: TestData,
+    db: Session,
+):
+    response = client.get("api/stripe/products")
+    assert response
+    resp_obj = s.Product.parse_obj(response.json())
+    product = (
+        db.query(m.StripeProduct)
+        .filter_by(
+            stripe_product_id=test_data.test_subscription_product.stripe_product_id
+        )
+        .first()
+    )
+    assert product
+    assert resp_obj.stripe_product_id == product.stripe_product_id
