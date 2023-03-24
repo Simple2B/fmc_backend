@@ -112,4 +112,4 @@ class Message(Base):
         )
 
     def __repr__(self):
-        return f"<{self.id}:{self.created_at} - {self.message_text[:12]}...>"
+        return f"<{self.id}:{self.created_at} - {self.text[:12]}...>"

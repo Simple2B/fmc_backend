@@ -107,10 +107,10 @@ def read_coach_student_messages(
     )
 
     for message in messages:
-        if not message.is_read:
-            if message.author.uuid == coach.uuid:
+        if message.author.uuid != coach.uuid:
+            if not message.is_read:
                 message.is_read = True
-
+    log(log.INFO, "Reading messages from coach to student")
     db.commit()
     return status.HTTP_200_OK
 
@@ -209,9 +209,10 @@ def read_student_coach_messages(
         db=db, coach_id=coach.uuid, student_id=student.uuid
     )
     for message in messages:
-        if not message.is_read:
-            if message.author.uuid == student.uuid:
+        if message.author.uuid != student.uuid:
+            if not message.is_read:
                 message.is_read = True
 
     db.commit()
+    log(log.INFO, "Reading messages from student to coach")
     return status.HTTP_200_OK

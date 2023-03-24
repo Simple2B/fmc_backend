@@ -100,7 +100,7 @@ def test_message_coach(
     )
     assert response
     message = db.query(m.Message).first()
-    assert message.is_read == True  # noqa:flake8 E712
+    assert message.is_read == False  # noqa:flake8 E712
 
 
 def test_message_student(
@@ -197,4 +197,4 @@ def test_message_student(
     )
     assert response
     message = db.query(m.Message).first()
-    assert message.is_read == True  # noqa:flake8 E712
+    assert message.is_read == False  # noqa:flake8 E712
