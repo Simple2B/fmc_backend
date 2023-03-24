@@ -4,6 +4,7 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Run app",
             "type": "python",
@@ -31,6 +32,16 @@
             "module": "invoke",
             "args": [
                 "dummy-data"
+            ],
+            "justMyCode": true
+        },
+        {
+            "name": "daily report",
+            "type": "python",
+            "request": "launch",
+            "module": "invoke",
+            "args": [
+                "send-daily-report"
             ],
             "justMyCode": true
         },

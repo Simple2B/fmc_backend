@@ -14,5 +14,7 @@ from .coach_certificate import Certificate
 from .contact import Contact
 from .superuser import SuperUser
 
+from .newsletter_subscription import NewsletterSubscription
+
 
 from app.database import Base
