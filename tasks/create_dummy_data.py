@@ -195,7 +195,6 @@ def create_dummy_students():
     return students
 
 
-
 def create_dummy_lesson():
     coach = db.query(m.Coach).filter_by(email=TEST_COACH_EMAIL).first()
     location = db.query(m.Location).first()
@@ -239,6 +238,7 @@ def create_dummy_messages():
     db.add(message_three)
     db.commit()
     print("Messages created")
+
 
 def gen_number_emails(num_emails: int) -> Generator[str, None, None]:
     from faker import Faker
@@ -287,7 +287,6 @@ def create_dummy_newsletter_subscriptions(db: Session = db):
     log(log.INFO, "Newsletter Subscriptions created successfully")
 
 
-
 @task
 def dummy_data(_):
     # users
@@ -304,8 +303,4 @@ def dummy_data(_):
     create_dummy_lesson()
     create_dummy_messages()
 
-
     create_dummy_newsletter_subscriptions()
-
-
-

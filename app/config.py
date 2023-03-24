@@ -44,7 +44,6 @@ class Settings(BaseSettings):
     AWS_S3_BUCKET_URL: str
     DEFAULT_AVATAR_URL: str
 
-
     GOOGLE_CLIENT_ID: str = "test_google_client_id"
     GOOGLE_CLIENT_SECRET: str = "test_google_client_secret"
 
