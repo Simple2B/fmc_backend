@@ -9,6 +9,8 @@ from .contact import contact_router
 from .sport import sport_router
 from .message import message_router
 from .lesson import lesson_router
+from .newsletter import newsletter_router
+
 
 router = APIRouter(prefix="/api")
 router.include_router(student_auth_router)
@@ -20,7 +22,7 @@ router.include_router(contact_router)
 router.include_router(sport_router)
 router.include_router(message_router)
 router.include_router(lesson_router)
-
+router.include_router(newsletter_router)
 
 @router.get("/list-endpoints/")
 def list_endpoints(request: Request):
@@ -28,3 +30,5 @@ def list_endpoints(request: Request):
         {"path": route.path, "name": route.name} for route in request.app.routes
     ]
     return url_list
+
+

@@ -1,12 +1,17 @@
 import random
 from datetime import datetime, timedelta
+
+from typing import Generator
+
 from invoke import task
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.database import get_db, Session
 import app.model as m
+from app.logger import log
 
 db: Session = get_db().__next__()
+
 
 SPORTS: list[m.SportType] = db.query(m.SportType).all()
 
@@ -14,8 +19,15 @@ TEST_COACH_EMAIL = "coach1@gmail.com"
 TEST_COACH_TWO_EMAIL = "coach2@gmail.com"
 TEST_STUDENT_EMAIL = "student1@gmail.com"
 TEST_PASSWORD = "password"
+
+TEST_EMAIL = "user1@gmail.com"
+TEST_PASSWORD = "user1"
+
 TEST_FIRSTNAME = "John"
 TEST_LASTNAME = "Doe"
+
+TEST_NEWSLETTER_NUMBER_TODAYS_NEW = 5
+TEST_NEWSLETTER_NUMBER_YESTERDAY_ACTIVE = 7
 
 
 def create_dummy_coach():
@@ -93,10 +105,12 @@ def create_footbal_coach():
         )
         db.add(football_coach)
         db.commit()
-        fc_sport = m.CoachSport(coach_id=football_coach.id, sport_id=SPORTS[0].id)
+        sport_id: int = db.query(m.SportType).first().id
+
+        fc_sport = m.CoachSport(coach_id=football_coach.id, sport_id=sport_id)
         db.add(fc_sport)
         db.commit()
-        print(f"Coach {football_coach} created successfully")
+        log(log.INFO, f"Coach {football_coach} created successfully")
     return football_coach
 
 
@@ -114,10 +128,11 @@ def create_boxing_coach():
         )
         db.add(boxing_coach)
         db.commit()
-        bc_sport = m.CoachSport(coach_id=boxing_coach.id, sport_id=SPORTS[0].id)
+        sport_id: int = db.query(m.SportType).first().id
+        bc_sport = m.CoachSport(coach_id=boxing_coach.id, sport_id=sport_id)
         db.add(bc_sport)
         db.commit()
-        print(f"Coach {boxing_coach} created successfully")
+        log(log.INFO, f"Coach {boxing_coach} created successfully")
     return db.query(m.Coach).filter_by(email=BOXING_COACH_EMAIL).first()
 
 
@@ -146,7 +161,7 @@ def create_dummy_locations():
             db.commit()
         except SQLAlchemyError:
             pass
-        print("Locations created successfully")
+        log(log.INFO, "Locations created successfully")
     return locations
 
 
@@ -176,8 +191,9 @@ def create_dummy_students():
             db.commit()
         except SQLAlchemyError:
             pass
-        print("Students created successfully")
+        log(log.INFO, "Students created successfully")
     return students
+
 
 
 def create_dummy_lesson():
@@ -224,6 +240,53 @@ def create_dummy_messages():
     db.commit()
     print("Messages created")
 
+def gen_number_emails(num_emails: int) -> Generator[str, None, None]:
+    from faker import Faker
+
+    fake = Faker()
+
+    DOMAINS = ("com", "com.br", "net", "net.br", "org", "org.br", "gov", "gov.br")
+
+    for _ in range(num_emails):
+        # Primary name
+        first_name = fake.first_name()
+
+        # Secondary name
+        last_name = fake.last_name()
+
+        company = fake.company().split()[0].strip(",")
+
+        # Company DNS
+        dns_org = fake.random_choices(elements=DOMAINS, length=1)[0]
+
+        # email formatting
+        yield f"{first_name}.{last_name}@{company}.{dns_org}".lower()
+
+
+def create_dummy_newsletter_subscriptions(db: Session = db):
+    from datetime import timedelta, datetime
+
+    if db.query(m.NewsletterSubscription).count():
+        log(log.INFO, "Newsletter Subscriptions already present")
+        return
+    db.add_all(
+        [
+            m.NewsletterSubscription(email=email)
+            for email in gen_number_emails(TEST_NEWSLETTER_NUMBER_TODAYS_NEW)
+        ]
+        + [
+            m.NewsletterSubscription(
+                email=email,
+                state=m.NewsletterSubscription.State.ACTIVE,
+                created_at=(datetime.now() - timedelta(days=1)),
+            )
+            for email in gen_number_emails(TEST_NEWSLETTER_NUMBER_YESTERDAY_ACTIVE)
+        ]
+    )
+    db.commit()
+    log(log.INFO, "Newsletter Subscriptions created successfully")
+
+
 
 @task
 def dummy_data(_):
@@ -236,9 +299,13 @@ def dummy_data(_):
     create_footbal_coach()
     create_boxing_coach()
     create_dummy_students()
+
     # lesson
     create_dummy_lesson()
     create_dummy_messages()
 
 
-# todo create lessons
+    create_dummy_newsletter_subscriptions()
+
+
+

@@ -9,11 +9,11 @@ class Settings(BaseSettings):
     BASE_URL: str = "http://localhost:3000"
     COACH_DEFAULT_LESSON_PRICE: float = 999
 
-    CONFIRMATION_URL_COACH: str
-    CONFIRMATION_URL_STUDENT: str
+    CONFIRMATION_URL_COACH: str | None
+    CONFIRMATION_URL_STUDENT: str | None
 
-    RESET_PASSWORD_URL_STUDENT: str
-    RESET_PASSWORD_URL_COACH: str
+    RESET_PASSWORD_URL_STUDENT: str | None
+    RESET_PASSWORD_URL_COACH: str | None
     # db
     DB_URI: str = ""
 
@@ -38,14 +38,17 @@ class Settings(BaseSettings):
     STRIPE_PUBLIC_KEY: str = ""
 
     # AWS
-    AWS_SECRET_KEY: str
-    AWS_ACCESS_KEY: str
+    AWS_SECRET_KEY: str | None
+    AWS_ACCESS_KEY: str | None
     AWS_S3_BUCKET_NAME: str = "find-my-coach"
     AWS_S3_BUCKET_URL: str
     DEFAULT_AVATAR_URL: str
 
+
     GOOGLE_CLIENT_ID: str = "test_google_client_id"
     GOOGLE_CLIENT_SECRET: str = "test_google_client_secret"
+
+    NEWSLETTER_REPORT_EMAIL: str = "info@findmycoach.co.uk"
 
     class Config:
         env_file = ".env"
