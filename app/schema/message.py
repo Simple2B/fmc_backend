@@ -41,3 +41,7 @@ class Contact(BaseModel):
 
 class ContactList(BaseModel):
     contacts: list[Contact]
+
+
+class MessageCount(BaseModel):
+    count: int

@@ -10,7 +10,7 @@ from .sport import sport_router
 from .message import message_router
 from .lesson import lesson_router
 from .newsletter import newsletter_router
-
+from .notifications import notifications_router
 
 router = APIRouter(prefix="/api")
 router.include_router(student_auth_router)
@@ -23,6 +23,7 @@ router.include_router(sport_router)
 router.include_router(message_router)
 router.include_router(lesson_router)
 router.include_router(newsletter_router)
+router.include_router(notifications_router)
 
 
 @router.get("/list-endpoints/")

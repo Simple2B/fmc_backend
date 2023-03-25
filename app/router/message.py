@@ -87,10 +87,32 @@ def get_coach_student_messages(
     coach: m.Coach = Depends(get_current_coach),
 ):
     messages: list[m.Message] = m.Message.get_diaogue_messages(
-        coach_id=coach.uuid, student_id=student.uuid
+        db=db, coach_id=coach.uuid, student_id=student.uuid
     )
     log(log.INFO, "found [%d] messages", len(messages))
     return s.MessageList(messages=messages)
+
+
+@message_router.post(
+    "/coach/messages/{student_uuid}/read",
+)
+def read_coach_student_messages(
+    student_uuid: str,
+    student: m.Student = Depends(get_student_by_uuid),
+    db: Session = Depends(get_db),
+    coach: m.Coach = Depends(get_current_coach),
+):
+    messages: list[m.Message] = m.Message.get_diaogue_messages(
+        db=db, coach_id=coach.uuid, student_id=student.uuid
+    )
+
+    for message in messages:
+        if message.author.uuid != coach.uuid:
+            if not message.is_read:
+                message.is_read = True
+    log(log.INFO, "Reading messages from coach to student")
+    db.commit()
+    return status.HTTP_200_OK
 
 
 # Routes for students
@@ -168,7 +190,29 @@ def get_student_coach_messages(
     student: m.Coach = Depends(get_current_student),
 ):
     messages: list[m.Message] = m.Message.get_diaogue_messages(
-        coach_id=coach.uuid, student_id=student.uuid
+        db=db, coach_id=coach.uuid, student_id=student.uuid
     )
     log(log.INFO, "found [%d] messages", len(messages))
     return s.MessageList(messages=messages)
+
+
+@message_router.post(
+    "/student/messages/{coach_uuid}/read",
+)
+def read_student_coach_messages(
+    coach_uuid: str,
+    coach: m.Student = Depends(get_coach_by_uuid),
+    db: Session = Depends(get_db),
+    student: m.Coach = Depends(get_current_student),
+):
+    messages: list[m.Message] = m.Message.get_diaogue_messages(
+        db=db, coach_id=coach.uuid, student_id=student.uuid
+    )
+    for message in messages:
+        if message.author.uuid != student.uuid:
+            if not message.is_read:
+                message.is_read = True
+
+    db.commit()
+    log(log.INFO, "Reading messages from student to coach")
+    return status.HTTP_200_OK
