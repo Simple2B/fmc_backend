@@ -29,6 +29,7 @@ class Coach(User):
     certificate_url: str | None
     is_for_adults: bool
     is_for_children: bool
+    # TODO: we have one sport type !?
     sports: list[SportType] | None
 
     class Config:
