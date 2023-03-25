@@ -23,19 +23,32 @@ def get_students(_):
 
 
 @task
-def send_message(_, author, receiver, text: str = "Hello"):
+def message_to_coach(_, author: str, receiver: str, text: str = "Hello"):
+    """Create message from someone to somebody"""
     # TODO
-    coach = db.query(m.Coach).filter_by(uuid=author).first()
-    student = db.query(m.Student).filter_by(uuid=receiver).first()
+    student = db.query(m.Student).filter_by(email=author).first()
+    coach = db.query(m.Coach).filter_by(email=receiver).first()
+
     if not coach or not student:
         print("Author or receiver not found")
         exit()
-    if coach:
-        author = coach
-        receiver = student
-    else:
-        author = student
-        receiver = coach
-    db.add(m.Message(author_id=author, receiver_id=receiver, text=text))
+    text = f"Message from {student} to {coach}:{text} has been sent"
+    db.add(m.Message(author_id=student.uuid, receiver_id=coach.uuid, text=text))
     db.commit()
-    print(f"Message from {author} to {receiver}:{text} has been sent")
+    print(f"Message from {student} to {coach}:{text} has been sent")
+
+
+@task
+def message_to_student(_, author: str, receiver: str, text: str = "Hello"):
+    """Create message from someone to somebody"""
+    # TODO
+    student = db.query(m.Student).filter_by(email=receiver).first()
+    coach = db.query(m.Coach).filter_by(email=author).first()
+
+    if not coach or not student:
+        print("Author or receiver not found")
+        exit()
+    text = f"Message from {coach} to {student}:{text} has been sent"
+    db.add(m.Message(author_id=coach.uuid, receiver_id=student.uuid, text=text))
+    db.commit()
+    print(f"Message from {coach} to {student}:{text} has been sent")
