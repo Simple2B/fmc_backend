@@ -25,7 +25,7 @@ profile_router = APIRouter(prefix="/profile", tags=["Profiles"])
 
 
 @profile_router.get(
-    "/coach",
+    "/info/coach",
     response_model=s.Coach,
 )
 def get_coach_profile(
@@ -33,6 +33,25 @@ def get_coach_profile(
     coach: m.Coach = Depends(get_current_coach),
 ):
     return s.Coach(**coach.__dict__)
+
+
+@profile_router.get(
+    "/coach",
+    response_model=s.User,
+)
+def get_coach_profile(
+    db: Session = Depends(get_db),
+    coach: m.Coach = Depends(get_current_coach),
+):
+    return s.User(
+        uuid=coach.uuid,
+        email=coach.email,
+        username=coach.username,
+        first_name=coach.first_name,
+        last_name=coach.last_name,
+        profile_picture=coach.profile_picture,
+        is_verified=coach.is_verified,
+    )
 
 
 @profile_router.get(

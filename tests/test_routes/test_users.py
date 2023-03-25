@@ -22,7 +22,7 @@ def test_get_profile(
 ):
     # getting coach profile
     response = client.get(
-        "/api/profile/coach",
+        "/api/profile/info/coach",
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response
