@@ -8,3 +8,7 @@ class Certificate(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class CertificateList(BaseModel):
+    certificates: list[Certificate]

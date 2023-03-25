@@ -166,25 +166,25 @@ def update_coach_profile(
 ):
     if about:
         coach.about = about
-
     coach.is_for_adults = is_for_adult
     coach.is_for_children = is_for_children
-
     if sport_category:
-        sport = db.query(m.SportType).filter_by(name=sport_category).first()
-        if not sport:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Sport Category was not found",
+        parse_sport_category = json.loads(sport_category)
+        for sport_type in parse_sport_category:
+            sport = db.query(m.SportType).filter_by(name=sport_type).first()
+            if not sport:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Sport Category was not found",
+                )
+            coach_sport = (
+                db.query(m.CoachSport)
+                .filter_by(coach_id=coach.id, sport_id=sport.id)
+                .first()
             )
-        coach_sport = (
-            db.query(m.CoachSport)
-            .filter_by(coach_id=coach.id, sport_id=sport.id)
-            .first()
-        )
-        if not coach_sport:
-            db.add(m.CoachSport(coach_id=coach.id, sport_id=sport.id))
-            db.flush()
+            if not coach_sport:
+                db.add(m.CoachSport(coach_id=coach.id, sport_id=sport.id))
+                db.flush()
     if certificates:
         for certificate in certificates:
             try:
@@ -202,6 +202,11 @@ def update_coach_profile(
                 certificate.file.close()
             # save to db
             coach.certificate_url = f"{settings.AWS_S3_BUCKET_URL}user_profiles/certificates/coaches/{coach.uuid}/{certificate.filename}"  # noqa:E501
+            db.add(m.Certificate(
+                coach_id=coach.id,
+                certificate_url=coach.certificate_url
+            ))
+            db.flush()
     if locations:
         parse_locations = json.loads(locations)
         for coach_location in parse_locations:
@@ -233,21 +238,22 @@ def update_coach_profile(
                     .first()
                 )
             db.add(m.CoachLocation(coach_id=coach.id, location_id=location.id))
-    try:
-        log(log.INFO, "Updating profile for coach - [%s]", coach.email)
-        db.commit()
-    except SQLAlchemyError as e:
-        log(
-            log.ERROR,
-            "Error occured while uploading coach`s profile - [%s]\n[%s]",
-            coach.email,
-            e,
-        )
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Error while updating profile",
-        )
+    db.commit()
+    # try:
+    #     log(log.INFO, "Updating profile for coach - [%s]", coach.email)
+    #     db.commit()
+    # except SQLAlchemyError as e:
+    #     log(
+    #         log.ERROR,
+    #         "Error occured while uploading coach`s profile - [%s]\n[%s]",
+    #         coach.email,
+    #         e,
+    #     )
+    #     db.rollback()
+    #     raise HTTPException(
+    #         status_code=status.HTTP_409_CONFLICT,
+    #         detail="Error while updating profile",
+    #     )
     return status.HTTP_200_OK
 
 
