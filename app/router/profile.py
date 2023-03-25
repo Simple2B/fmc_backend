@@ -28,7 +28,7 @@ profile_router = APIRouter(prefix="/profile", tags=["Profiles"])
     "/info/coach",
     response_model=s.Coach,
 )
-def get_coach_profile(
+def get__info_coach_profile(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
