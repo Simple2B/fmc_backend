@@ -28,11 +28,11 @@ profile_router = APIRouter(prefix="/profile", tags=["Profiles"])
     "/info/coach",
     response_model=s.Coach,
 )
-def get__info_coach_profile(
+def get_info_coach_profile(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    return s.Coach(**coach.__dict__)
+    return coach
 
 
 @profile_router.get(

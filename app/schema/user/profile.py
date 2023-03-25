@@ -1,6 +1,9 @@
 from pydantic import BaseModel, AnyHttpUrl, validator
+
 from .base import BaseUser
 from ..sport import SportType
+from ..certificate import Certificate
+from ..location import Location
 from app.config import get_settings, Settings
 
 settings: Settings = get_settings()
@@ -25,11 +28,11 @@ class UserList(BaseModel):
 class Coach(User):
     about: str = ""
     # TODO: must be check for frontend (this type AnyHttpUrl didn't work for frontend)
-    # certificate_url: AnyHttpUrl | None
-    certificate_url: str | None
     is_for_adults: bool
     is_for_children: bool
-    # TODO: we have one sport type !?
+
+    locations: list[Location]
+    certificates: list[Certificate]
     sports: list[SportType] | None
 
     class Config:

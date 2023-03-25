@@ -36,6 +36,8 @@ class Coach(Base):
 
     # relationship
     sports = relationship("SportType", secondary="coaches_sports", viewonly=True)
+    certificates = relationship("Certificate", viewonly=True)
+    locations = relationship("Location", secondary="coaches_locations", viewonly=True)
 
     @property
     def password(self):

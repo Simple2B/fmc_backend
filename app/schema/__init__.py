@@ -27,3 +27,4 @@ from .location import Location, LocationList
 from .lesson import Lesson, LessonList, UpcomingLessonList
 
 from .newsletter import NewsletterSubscription
+from .certificate import Certificate
