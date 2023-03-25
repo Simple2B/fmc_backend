@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class SportTypeSchema(BaseModel):
+class SportType(BaseModel):
     uuid: str
     name: str
 
@@ -9,5 +9,5 @@ class SportTypeSchema(BaseModel):
         orm_mode = True
 
 
-class ListSportTypeSchema(BaseModel):
-    sport_types: list[SportTypeSchema]
+class ListSportType(BaseModel):
+    sport_types: list[SportType]

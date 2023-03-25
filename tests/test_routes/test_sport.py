@@ -23,6 +23,6 @@ def test_get_all_sports(
 
     response = client.get("/api/sports/types")
     assert response
-    resp_obj = s.ListSportTypeSchema.parse_obj(response.json())
+    resp_obj = s.ListSportType.parse_obj(response.json())
     assert resp_obj
     assert len(resp_obj.sport_types) == len(sports)
