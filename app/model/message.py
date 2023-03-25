@@ -3,6 +3,7 @@ from typing import Self
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Enum, and_, or_
+from sqlalchemy.orm import Session
 
 from app.database import Base, get_db
 from app.utils import generate_uuid
@@ -86,6 +87,7 @@ class Message(Base):
     @classmethod
     def get_diaogue_messages(
         cls,
+        db: Session,
         coach_id: str,
         student_id: str,
     ) -> list[Self]:
@@ -110,4 +112,4 @@ class Message(Base):
         )
 
     def __repr__(self):
-        return f"<{self.id}:{self.created_at} - {self.message_text[:12]}...>"
+        return f"<{self.id}:{self.created_at} - {self.text[:12]}...>"

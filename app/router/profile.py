@@ -26,21 +26,13 @@ profile_router = APIRouter(prefix="/profile", tags=["Profiles"])
 
 @profile_router.get(
     "/coach",
-    response_model=s.User,
+    response_model=s.Coach,
 )
 def get_coach_profile(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    return s.User(
-        uuid=coach.uuid,
-        email=coach.email,
-        username=coach.username,
-        first_name=coach.first_name,
-        last_name=coach.last_name,
-        profile_picture=coach.profile_picture,
-        is_verified=coach.is_verified,
-    )
+    return s.Coach(**coach.__dict__)
 
 
 @profile_router.get(
@@ -64,9 +56,9 @@ def get_student_profile(
 
 @profile_router.post("/coach/personal-info", status_code=status.HTTP_201_CREATED)
 async def update_coach_personal_info(
-    file: UploadFile = File(...),
+    file: UploadFile = File(None),
     first_name: str = Form(...),
-    last_name: str = Form(''),
+    last_name: str = Form(""),
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
     settings: Settings = Depends(get_settings),
@@ -105,7 +97,7 @@ async def update_coach_personal_info(
 def update_student_personal_info(
     file: UploadFile = File(...),
     first_name: str = Form(...),
-    last_name: str = Form(''),
+    last_name: str = Form(""),
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
     settings: Settings = Depends(get_settings),
@@ -198,19 +190,28 @@ def update_coach_profile(
         for coach_location in parse_locations:
             location = (
                 db.query(m.Location)
-                .filter_by(city=coach_location['city'], street=coach_location['street'], postal_code=coach_location['postal_code'])  # noqa:E501
+                .filter_by(
+                    city=coach_location["city"],
+                    street=coach_location["street"],
+                    postal_code=coach_location["postal_code"],
+                )  # noqa:E501
                 .first()
             )
             if not location:
-                db.add(m.Location(city=coach_location['city'], street=coach_location['street'],
-                       postal_code=coach_location['postal_code']))
+                db.add(
+                    m.Location(
+                        city=coach_location["city"],
+                        street=coach_location["street"],
+                        postal_code=coach_location["postal_code"],
+                    )
+                )
                 db.flush()
                 location = (
                     db.query(m.Location)
                     .filter_by(
-                        city=coach_location['city'],
-                        street=coach_location['street'],
-                        postal_code=coach_location['postal_code'],
+                        city=coach_location["city"],
+                        street=coach_location["street"],
+                        postal_code=coach_location["postal_code"],
                     )
                     .first()
                 )

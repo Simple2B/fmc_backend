@@ -1,6 +1,6 @@
 from pydantic import BaseModel, AnyHttpUrl, validator
 from .base import BaseUser
-
+from ..sport import SportType
 from app.config import get_settings, Settings
 
 settings: Settings = get_settings()
@@ -27,6 +27,7 @@ class Coach(User):
     certificate_url: AnyHttpUrl | None
     is_for_adults: bool
     is_for_children: bool
+    sports: list[SportType] | None
 
     class Config:
         orm_mode = True

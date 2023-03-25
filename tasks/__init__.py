@@ -4,3 +4,4 @@ from .sports import create_sports
 from .create_dummy_data import dummy_data, create_dummy_student, create_dummy_coach
 from .newsletter import send_daily_report
 from .stripe import get_coach_subscription
+from .message import get_coaches, get_students, message_to_coach, message_to_student
