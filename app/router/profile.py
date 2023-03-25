@@ -166,11 +166,9 @@ def update_coach_profile(
 ):
     if about:
         coach.about = about
-    if is_for_adult:
-        coach.is_for_adult = is_for_adult
 
-    if is_for_children:
-        coach.is_for_children = is_for_children
+    coach.is_for_adults = is_for_adult
+    coach.is_for_children = is_for_children
 
     if sport_category:
         sport = db.query(m.SportType).filter_by(name=sport_category).first()
