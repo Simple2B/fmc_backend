@@ -51,6 +51,8 @@ class Settings(BaseSettings):
 
     COACH_SUBSCRIPTION_PRODUCT_ID: str
 
+    STRIPE_WEBHOOK_SECRET: str = ""
+
     class Config:
         env_file = ".env"
 

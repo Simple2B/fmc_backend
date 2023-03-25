@@ -37,6 +37,12 @@ def create_coach_subscription(
         coach.stripe_customer_id = customer.id
         log(log.INFO, "Coach [%s] created a stripe customer", coach.email)
         db.commit()
+    if coach.subscription:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Coach already owns this subscription",
+        )
+
     subscription_product: m.StripeProduct = (
         db.query(m.StripeProduct)
         .filter_by(stripe_product_id=settings.COACH_SUBSCRIPTION_PRODUCT_ID)
@@ -63,4 +69,5 @@ def create_coach_subscription(
             status_code=status.HTTP_409_CONFLICT,
             detail="Error while creating a checkout session",
         )
+    log(log.INFO, "URL:[%s]", checkout_session.url)
     return s.CheckoutSession(url=checkout_session.url)
