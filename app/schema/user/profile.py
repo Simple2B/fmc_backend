@@ -24,7 +24,9 @@ class UserList(BaseModel):
 
 class Coach(User):
     about: str = ""
-    certificate_url: AnyHttpUrl | None
+    # TODO: must be check for frontend (this type AnyHttpUrl didn't work for frontend)
+    # certificate_url: AnyHttpUrl | None
+    certificate_url: str | None
     is_for_adults: bool
     is_for_children: bool
     sports: list[SportType] | None
