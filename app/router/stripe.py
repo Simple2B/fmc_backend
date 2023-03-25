@@ -35,8 +35,6 @@ async def stripe_webhook(
     stripe=Depends(get_stripe),
 ):
     data = await request.body()
-
-    request_data = await request.json()
     webhook_secret = settings.STRIPE_WEBHOOK_SECRET
     try:
         event = stripe.Webhook.construct_event(
