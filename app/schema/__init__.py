@@ -21,4 +21,4 @@ from .lesson import Lesson, LessonList, UpcomingLessonList
 
 from .newsletter import NewsletterSubscription
 
-from .stripe import Price, Product
+from .stripe import Price, Product, CheckoutSession

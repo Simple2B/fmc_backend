@@ -1,6 +1,4 @@
 from fastapi import APIRouter, Depends
-
-
 from app.config import get_settings, Settings
 import app.model as m
 import app.schema as s

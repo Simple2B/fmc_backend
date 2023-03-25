@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl
 
 
 class Price(BaseModel):
@@ -20,3 +20,7 @@ class Product(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class CheckoutSession(BaseModel):
+    url: HttpUrl

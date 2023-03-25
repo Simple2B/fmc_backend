@@ -1,12 +1,16 @@
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+import stripe
+from stripe.http_client import RequestsClient
 
 import app.model as m
 import app.schema as s
 from tests.fixture import TestData
 
+stripe.default_http_client = RequestsClient()  # assigning the default HTTP client
 
-def test_get_subscriptions(
+
+def test_get_products(
     client: TestClient,
     test_data: TestData,
     db: Session,
@@ -23,3 +27,11 @@ def test_get_subscriptions(
     )
     assert product
     assert resp_obj.stripe_product_id == product.stripe_product_id
+
+
+def test_create_coach_sub(
+    client: TestClient,
+    test_data: TestData,
+    db: Session,
+):
+    ...
