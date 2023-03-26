@@ -48,6 +48,13 @@ class Settings(BaseSettings):
 
     NEWSLETTER_REPORT_EMAIL: str = "info@findmycoach.co.uk"
 
+    # Redis
+    REDIS_URL: str = ""
+
+    # Scheduler
+    DAILY_REPORT_HOURS: int = 21
+    DAILY_REPORT_MINUTES: int = 0
+
     class Config:
         env_file = ".env"
 

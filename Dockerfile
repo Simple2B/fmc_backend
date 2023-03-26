@@ -34,4 +34,4 @@ RUN POETRY_VIRTUALENVS_CREATE=false poetry install --no-dev --no-interaction --n
 
 COPY . .
 RUN chmod +x start_server.sh
-ENTRYPOINT [ "sh","start_server.sh" ]
+RUN chmod +x start_worker.sh
