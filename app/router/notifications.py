@@ -41,7 +41,12 @@ def get_review_notifications(
     for lesson in lessons:
         if lesson.appointment_time < datetime.now():  # TODO finish date logic
             result.append(lesson)
-    review_notifications = []
+    review_notifications = [
+        message
+        for message in db.query(m.Message).filter_by(
+            message_type=m.MessageType.REVIEW_COACH, is_read=False
+        )
+    ]
     for lesson in result:
         message = m.Message(
             message_type=m.MessageType.REVIEW_COACH, receiver_id=student.uuid
@@ -57,7 +62,8 @@ def get_review_notifications(
             is_read=message.is_read,
             message_type=message.message_type,
         )
-        review_notifications.append(message)
+        if message not in review_notifications:
+            review_notifications.append(message)
 
     return s.ReviewMessageList(messages=review_notifications)
 
