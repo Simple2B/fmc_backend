@@ -41,7 +41,7 @@ class Coach(User):
     @validator("about")
     def check_about_length(cls, v):
         if len(v) > 1024:
-            raise ValueError("Length of 'about' couldnt be larger than 1024")
+            raise ValueError("Length of 'about' couldn't be larger than 1024")
         return v
 
 

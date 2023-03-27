@@ -156,6 +156,7 @@ def update_coach_profile(
     sport_category: str = Form(None),
     about: str | None = Form(None),
     certificates: list[UploadFile] = Form(None),
+    deleted_certificates: str = Form(None),
     is_for_adult: bool | None = Form(None),
     is_for_children: bool | None = Form(None),
     locations: str | None = Form(None),
@@ -177,14 +178,16 @@ def update_coach_profile(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Sport Category was not found",
                 )
-            coach_sport = (
+            coach_sports = (
                 db.query(m.CoachSport)
-                .filter_by(coach_id=coach.id, sport_id=sport.id)
-                .first()
+                .filter_by(coach_id=coach.id)
+                .all()
             )
-            if not coach_sport:
-                db.add(m.CoachSport(coach_id=coach.id, sport_id=sport.id))
+            for coach_sport in coach_sports:
+                db.delete(coach_sport)
                 db.flush()
+            db.add(m.CoachSport(coach_id=coach.id, sport_id=sport.id))
+            log(log.INFO, "Coach sport created - [%s]", sport.name)
     if certificates:
         for certificate in certificates:
             try:
@@ -202,10 +205,34 @@ def update_coach_profile(
                 certificate.file.close()
             # save to db
             coach.certificate_url = f"{settings.AWS_S3_BUCKET_URL}user_profiles/certificates/coaches/{coach.uuid}/{certificate.filename}"  # noqa:E501
-            db.add(m.Certificate(
-                coach_id=coach.id,
-                certificate_url=coach.certificate_url
-            ))
+            find_certificate = db.query(m.Certificate).filter_by(
+                certificate_url=coach.certificate_url,
+            ).first()
+            if not find_certificate:
+                db.add(m.Certificate(
+                    coach_id=coach.id,
+                    certificate_url=coach.certificate_url
+                ))
+                db.flush()
+    if deleted_certificates:
+        parse_deleted_certificates = json.loads(deleted_certificates)
+        log(log.INFO, "Deleted certificates - [%s]", parse_deleted_certificates)
+        for deleted_certificate in parse_deleted_certificates:
+            certificate = (
+                db.query(m.Certificate)
+                .filter_by(
+                    coach_id=coach.id,
+                    certificate_url=deleted_certificate,
+                )
+                .first()
+            )
+            if not certificate:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Certificate was not found",
+                )
+            certificate.is_deleted = True
+            db.add(certificate)
             db.flush()
     if locations:
         parse_locations = json.loads(locations)
@@ -239,6 +266,7 @@ def update_coach_profile(
                 )
             db.add(m.CoachLocation(coach_id=coach.id, location_id=location.id))
     db.commit()
+    log(log.INFO, "Updating profile for coach - [%s]", coach.email)
     # try:
     #     log(log.INFO, "Updating profile for coach - [%s]", coach.email)
     #     db.commit()
