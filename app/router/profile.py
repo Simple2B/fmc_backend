@@ -237,33 +237,31 @@ def update_coach_profile(
     if locations:
         parse_locations = json.loads(locations)
         for coach_location in parse_locations:
+            all_locations = (
+                db.query(m.CoachLocation)
+                .filter_by(coach_id=coach.id)
+                .all()
+            )
+            for location in all_locations:
+                db.delete(location)
+                db.flush()
+            db.add(
+                m.Location(
+                    city=coach_location["city"],
+                    street=coach_location["street"],
+                    postal_code=coach_location["postal_code"],
+                )
+            )
+            db.flush()
             location = (
                 db.query(m.Location)
                 .filter_by(
                     city=coach_location["city"],
                     street=coach_location["street"],
                     postal_code=coach_location["postal_code"],
-                )  # noqa:E501
+                )
                 .first()
             )
-            if not location:
-                db.add(
-                    m.Location(
-                        city=coach_location["city"],
-                        street=coach_location["street"],
-                        postal_code=coach_location["postal_code"],
-                    )
-                )
-                db.flush()
-                location = (
-                    db.query(m.Location)
-                    .filter_by(
-                        city=coach_location["city"],
-                        street=coach_location["street"],
-                        postal_code=coach_location["postal_code"],
-                    )
-                    .first()
-                )
             db.add(m.CoachLocation(coach_id=coach.id, location_id=location.id))
     db.commit()
     log(log.INFO, "Updating profile for coach - [%s]", coach.email)
