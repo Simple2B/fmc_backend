@@ -218,6 +218,30 @@ def create_dummy_lesson():
     db.commit()
 
 
+def create_dummy_past_lesson():
+    coach = db.query(m.Coach).filter_by(email=TEST_COACH_EMAIL).first()
+    location = db.query(m.Location).first()
+    lesson = db.query(m.Lesson).first()
+    student = db.query(m.Student).filter_by(email=TEST_STUDENT_EMAIL).first()
+    if not lesson:
+        lesson = m.Lesson(
+            coach_id=coach.id,
+            location_id=location.id,
+            sport_type_id=random.randint(1, len(SPORTS)),
+        )
+        db.add(lesson)
+        db.commit()
+    student_lesson = m.StudentLesson(
+        student_id=student.id,
+        lesson_id=lesson.id,
+        appointment_time=(datetime.now() - timedelta(days=1)),
+        date=datetime.now() - timedelta(days=1),
+    )
+    db.add(student_lesson)
+    db.commit()
+    log(log.INFO, "Dummy past session created")
+
+
 def create_dummy_messages():
     coach = db.query(m.Coach).filter_by(email=TEST_COACH_EMAIL).first()
     student = db.query(m.Student).filter_by(email=TEST_STUDENT_EMAIL).first()
@@ -301,6 +325,7 @@ def dummy_data(_):
 
     # lesson
     create_dummy_lesson()
+    create_dummy_past_lesson()
     create_dummy_messages()
 
     create_dummy_newsletter_subscriptions()
