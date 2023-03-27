@@ -53,7 +53,7 @@ class Settings(BaseSettings):
     REDIS_URL: str = ""
 
     # Scheduler
-    DAILY_REPORT_HOURS: int = 21
+    DAILY_REPORT_HOURS: int = 20
     DAILY_REPORT_MINUTES: int = 0
 
     class Config:
