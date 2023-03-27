@@ -1,4 +1,4 @@
-from pydantic import BaseModel, AnyHttpUrl, validator
+from pydantic import BaseModel, validator
 
 from .base import BaseUser
 from ..sport import SportType
