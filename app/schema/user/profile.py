@@ -14,7 +14,7 @@ class User(BaseUser):
     first_name: str
     last_name: str
     is_verified: bool
-    profile_picture: AnyHttpUrl | None = settings.DEFAULT_AVATAR_URL
+    profile_picture: str | None = settings.DEFAULT_AVATAR_URL
     # profile_picture: str | None
 
     class Config:
