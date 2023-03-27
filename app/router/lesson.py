@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import (
     APIRouter,
     Depends,
@@ -30,6 +32,7 @@ def get_upcoming_lessons(
         db.query(m.StudentLesson)
         .filter(
             m.StudentLesson.student_id == student.id,
+            m.StudentLesson.appointment_time >= datetime.now(),
         )
         .all()
     )

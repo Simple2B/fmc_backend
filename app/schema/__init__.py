@@ -19,6 +19,8 @@ from .message import (
     ContactList,
     Contact,
     MessageCount,
+    ReviewMessage,
+    ReviewMessageList,
 )
 from .api_keys import GAPIKeysSchema
 from .user.reset_password import UserResetPasswordIn
@@ -28,3 +30,5 @@ from .lesson import Lesson, LessonList, UpcomingLessonList
 
 from .newsletter import NewsletterSubscription
 from .certificate import Certificate, CertificateList
+
+from .review import Review

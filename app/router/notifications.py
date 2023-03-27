@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends
 
 from sqlalchemy.orm import Session
@@ -7,6 +8,7 @@ from app.dependency import (
     get_current_coach,
     get_current_student,
 )
+
 from app.database import get_db
 import app.model as m
 import app.schema as s
@@ -25,6 +27,39 @@ def get_new_notifications_count_student(
     )
     log(log.INFO, "Student has [%s] undread messages", new_messages_count)
     return s.MessageCount(count=new_messages_count)
+
+
+@notifications_router.post(
+    "/student/reviews", response_model=s.ReviewMessageList
+)  # for student
+def get_review_notifications(
+    db: Session = Depends(get_db),
+    student: m.Student = Depends(get_current_student),
+):
+    lessons = db.query(m.StudentLesson).filter_by(student_id=student.id).all()
+    result = []
+    for lesson in lessons:
+        if lesson.appointment_time < datetime.now():  # TODO finish date logic
+            result.append(lesson)
+    review_notifications = []
+    for lesson in result:
+        message = m.Message(
+            message_type=m.MessageType.REVIEW_COACH, receiver_id=student.uuid
+        )
+        db.add(message)
+        db.commit()
+        db.refresh(message)
+        message = s.ReviewMessage(
+            uuid=message.uuid,
+            created_at=lesson.appointment_time,
+            student=student,
+            coach=lesson.coach,
+            is_read=message.is_read,
+            message_type=message.message_type,
+        )
+        review_notifications.append(message)
+
+    return s.ReviewMessageList(messages=review_notifications)
 
 
 @notifications_router.get("/coach/new", response_model=s.MessageCount)

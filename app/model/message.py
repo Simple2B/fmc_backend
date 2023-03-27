@@ -13,9 +13,9 @@ from .student import Student
 db = get_db().__next__()
 
 
-class MessageTypes(enum.Enum):
+class MessageType(enum.Enum):
     MESSAGE = "message"
-    NOTIFICATION = "notification"
+    REVIEW_COACH = "review"
 
 
 class Message(Base):
@@ -24,12 +24,14 @@ class Message(Base):
     id = Column(Integer, primary_key=True)
     uuid = Column(String(36), nullable=False, default=generate_uuid)
 
-    text = Column(String(1024), nullable=False)
+    text = Column(String(1024), nullable=False, default="")
 
-    author_id = Column(String(36), nullable=False)  # uuid of owner
+    author_id = Column(
+        String(36), nullable=True
+    )  # uuid of owner / not nullable because if its notification then it doesnt matter who is author
     receiver_id = Column(String(36), nullable=False)  # uuid of recepient
 
-    message_type = Column(Enum(MessageTypes), default=MessageTypes.MESSAGE)
+    message_type = Column(Enum(MessageType), default=MessageType.MESSAGE)
 
     is_read = Column(Boolean, default=False)
     read_at = Column(DateTime(timezone=True), default=datetime.max)

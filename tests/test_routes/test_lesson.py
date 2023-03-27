@@ -6,7 +6,7 @@ import app.model as m
 import app.schema as s
 from tests.conftest import get_test_settings
 from tests.fixture import TestData
-from tests.utils import create_student_lesson
+from tests.utils import create_upcoming_student_lesson
 
 settings: Settings = get_test_settings()
 
@@ -26,7 +26,7 @@ def test_lesson(
     assert student
     lesson = db.query(m.Lesson).first()
     assert lesson
-    create_student_lesson(db=db, student_id=student.id, lesson_id=lesson.id)
+    create_upcoming_student_lesson(db=db, student_id=student.id, lesson_id=lesson.id)
 
     response = client.get(
         "api/lesson/lessons/upcoming",

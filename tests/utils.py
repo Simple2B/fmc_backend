@@ -18,7 +18,7 @@ SPORTS_TYPES = [
 ]
 
 
-def create_student_lesson(db, student_id: int, lesson_id: int):
+def create_upcoming_student_lesson(db, student_id: int, lesson_id: int):
     student_lesson = (
         db.query(m.StudentLesson)
         .filter_by(student_id=student_id, lesson_id=lesson_id)
@@ -33,6 +33,25 @@ def create_student_lesson(db, student_id: int, lesson_id: int):
         )
         db.add(student_lesson)
     db.commit()
+    return student_lesson
+
+
+def create_past_student_lesson(db, student_id: int, lesson_id: int):
+    student_lesson = (
+        db.query(m.StudentLesson)
+        .filter_by(student_id=student_id, lesson_id=lesson_id)
+        .first()
+    )
+    if not student_lesson:
+        student_lesson = m.StudentLesson(
+            lesson_id=lesson_id,
+            student_id=student_id,
+            appointment_time=datetime.now() - timedelta(days=1),
+            date=datetime.now() - timedelta(days=1),
+        )
+        db.add(student_lesson)
+    db.commit()
+    return student_lesson
 
 
 def fill_db_by_test_data(db: Session, test_data: TestData):

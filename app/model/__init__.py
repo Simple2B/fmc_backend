@@ -5,7 +5,7 @@ from .lesson import Lesson
 from .location import Location
 from .sport_type import SportType
 from .coach_location import CoachLocation
-from .message import Message
+from .message import Message, MessageType
 from .coach_schedule import CoachSchedule
 from .coach_sport import CoachSport
 from .student_lesson import StudentLesson
