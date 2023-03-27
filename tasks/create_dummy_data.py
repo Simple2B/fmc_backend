@@ -1,4 +1,8 @@
+import random
+from datetime import datetime, timedelta
+
 from typing import Generator
+
 from invoke import task
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -8,8 +12,17 @@ from app.logger import log
 
 db: Session = get_db().__next__()
 
+
+SPORTS: list[m.SportType] = db.query(m.SportType).all()
+
+TEST_COACH_EMAIL = "coach1@gmail.com"
+TEST_COACH_TWO_EMAIL = "coach2@gmail.com"
+TEST_STUDENT_EMAIL = "student1@gmail.com"
+TEST_PASSWORD = "password"
+
 TEST_EMAIL = "user1@gmail.com"
 TEST_PASSWORD = "user1"
+
 TEST_FIRSTNAME = "John"
 TEST_LASTNAME = "Doe"
 
@@ -17,30 +30,59 @@ TEST_NEWSLETTER_NUMBER_TODAYS_NEW = 5
 TEST_NEWSLETTER_NUMBER_YESTERDAY_ACTIVE = 7
 
 
-@task
-def create_dummy_coach(_):
-    test_coach = db.query(m.Coach).filter_by(email=TEST_EMAIL).first()
+def create_dummy_coach():
+    test_coach = db.query(m.Coach).filter_by(email=TEST_COACH_EMAIL).first()
     if not test_coach:
         test_coach = m.Coach(
-            email=TEST_EMAIL,
+            email=TEST_COACH_EMAIL,
             password=TEST_PASSWORD,
-            username=TEST_EMAIL,
+            username=TEST_COACH_EMAIL,
             first_name=TEST_FIRSTNAME,
             last_name=TEST_LASTNAME,
             is_verified=True,
         )
         db.add(test_coach)
-        db.commit()
+
+        db.flush()
+        coach_sport = m.CoachSport(
+            coach_id=test_coach.id,
+            sport_id=random.randint(1, len(SPORTS)),
+            price=2000,
+        )
+        db.add(coach_sport)
+
+    db.commit()
 
 
-@task
-def create_dummy_student(_):
-    test_student = db.query(m.Student).filter_by(email=TEST_EMAIL).first()
+def create_second_dummy_coach():
+    test_coach = db.query(m.Coach).filter_by(email=TEST_COACH_TWO_EMAIL).first()
+    if not test_coach:
+        test_coach = m.Coach(
+            email=TEST_COACH_TWO_EMAIL,
+            password=TEST_PASSWORD,
+            username=TEST_COACH_TWO_EMAIL,
+            first_name=TEST_FIRSTNAME,
+            last_name=TEST_LASTNAME,
+            is_verified=True,
+        )
+        db.add(test_coach)
+        coach_sport = m.CoachSport(
+            coach_id=test_coach.id,
+            sport_id=random.randint(1, len(SPORTS)),
+            price=2000,
+        )
+        db.add(coach_sport)
+    db.commit()
+    print(f"{TEST_COACH_TWO_EMAIL} created")
+
+
+def create_dummy_student():
+    test_student = db.query(m.Student).filter_by(email=TEST_STUDENT_EMAIL).first()
     if not test_student:
         test_student = m.Student(
-            email=TEST_EMAIL,
+            email=TEST_STUDENT_EMAIL,
             password=TEST_PASSWORD,
-            username=TEST_EMAIL,
+            username=TEST_STUDENT_EMAIL,
             first_name=TEST_FIRSTNAME,
             last_name=TEST_LASTNAME,
             is_verified=True,
@@ -100,23 +142,18 @@ def create_dummy_locations():
         locations = [
             m.Location(
                 name="São Paulo Sport Hall",
-                address_line_1="Rua São Paulo",
-                address_line_2="123",
+                city="Rua São Paulo",
+                street="123",
             ),
             m.Location(
                 name="Rio de Janeiro Sport Hall",
-                address_line_1="Rua São Paulo",
-                address_line_2="124",
+                city="Rua São Paulo",
+                street="124",
             ),
             m.Location(
                 name="Rio de Janeiro Sport Hall #2",
-                address_line_1="Rua São Paulo",
-                address_line_2="125",
-            ),
-            m.Location(
-                name="Rio de Janeiro Sport Hall #3",
-                address_line_1="Rua São Paulo",
-                address_line_2="126",
+                city="Rua São Paulo",
+                street="125",
             ),
         ]
         db.add_all(locations)
@@ -156,6 +193,51 @@ def create_dummy_students():
             pass
         log(log.INFO, "Students created successfully")
     return students
+
+
+def create_dummy_lesson():
+    coach = db.query(m.Coach).filter_by(email=TEST_COACH_EMAIL).first()
+    location = db.query(m.Location).first()
+    lesson = db.query(m.Lesson).first()
+    student = db.query(m.Student).filter_by(email=TEST_STUDENT_EMAIL).first()
+    if not lesson:
+        lesson = m.Lesson(
+            coach_id=coach.id,
+            location_id=location.id,
+            sport_type_id=random.randint(1, len(SPORTS)),
+        )
+        db.add(lesson)
+        db.commit()
+    student_lesson = m.StudentLesson(
+        student_id=student.id,
+        lesson_id=lesson.id,
+        appointment_time=(datetime.now() + timedelta(days=1)),
+        date=datetime.now() + timedelta(days=1),
+    )
+    db.add(student_lesson)
+    db.commit()
+
+
+def create_dummy_messages():
+    coach = db.query(m.Coach).filter_by(email=TEST_COACH_EMAIL).first()
+    student = db.query(m.Student).filter_by(email=TEST_STUDENT_EMAIL).first()
+    # creating dumme messages
+    message_one = m.Message(
+        receiver_id=coach.uuid, author_id=student.uuid, text="Message from student"
+    )
+    db.add(message_one)
+    message_two = m.Message(
+        receiver_id=student.uuid, author_id=coach.uuid, text="Message from coach"
+    )
+    db.add(message_two)
+
+    second_coach = db.query(m.Coach).filter_by(email=TEST_COACH_TWO_EMAIL).first()
+    message_three = m.Message(
+        receiver_id=student.uuid, author_id=second_coach.uuid, text="Message from coach"
+    )
+    db.add(message_three)
+    db.commit()
+    print("Messages created")
 
 
 def gen_number_emails(num_emails: int) -> Generator[str, None, None]:
@@ -207,10 +289,18 @@ def create_dummy_newsletter_subscriptions(db: Session = db):
 
 @task
 def dummy_data(_):
+    # users
+    create_dummy_coach()
+    create_second_dummy_coach()
+    create_dummy_student()
+
+    create_dummy_locations()
     create_footbal_coach()
     create_boxing_coach()
-    # create_dummy_locations()
     create_dummy_students()
-    create_dummy_newsletter_subscriptions()
 
-    # todo create lessons
+    # lesson
+    create_dummy_lesson()
+    create_dummy_messages()
+
+    create_dummy_newsletter_subscriptions()

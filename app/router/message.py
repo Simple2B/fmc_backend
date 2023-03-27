@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -17,6 +18,7 @@ import app.schema as s
 message_router = APIRouter(prefix="/message", tags=["Messages"])
 
 
+# Routes for coach
 @message_router.post("/coach/create", response_model=s.Message)
 def coach_create_message(
     message_data: s.MessageData,
@@ -41,30 +43,39 @@ def coach_create_message(
     return message
 
 
-# get all messages with a specific user
-@message_router.get("/coach/list-of-contacts", response_model=s.UserList)
+@message_router.get("/coach/list-of-contacts", response_model=s.ContactList)
 def get_coach_list_of_contacts(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    # messages where coach is owner
+    contacts: list = []
+
+    # messages where student is owner
     messages: list[m.Message] = (
         db.query(m.Message).filter_by(author_id=coach.uuid).all()
     )
-    contacts: list = []
+
     for message in messages:
         student = db.query(m.Student).filter_by(uuid=message.receiver_id).first()
-        contacts.append(student)
-    # messages where coach is a recepeint
+        if student not in contacts:
+            contacts.append(student)
+    # messages where student is a recepeint
     messages = db.query(m.Message).filter_by(receiver_id=coach.uuid).all()
     for message in messages:
         student = db.query(m.Student).filter_by(uuid=message.author_id).first()
-        contacts.append(student)
-    contacts: list = list(set(contacts))
-    return s.UserList(users=contacts)
+        if student not in contacts:
+            contacts.append(student)
+
+    result = [
+        s.Contact(
+            message=m.Message.get_contact_latest_message(coach.uuid, student.uuid),
+            user=student,
+        )
+        for student in contacts
+    ]
+    return s.ContactList(contacts=result)
 
 
-# get messages for current dialogue
 @message_router.get(
     "/coach/messages/{student_uuid}",
     response_model=s.MessageList,
@@ -75,45 +86,36 @@ def get_coach_student_messages(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    messages: list[m.Message] = (
-        db.query(m.Message)
-        .filter_by(author_id=coach.uuid, receiver_id=student.uuid)
-        .order_by(m.Message.created_at.desc())
-        .all()
+    messages: list[m.Message] = m.Message.get_diaogue_messages(
+        db=db, coach_id=coach.uuid, student_id=student.uuid
     )
     log(log.INFO, "found [%d] messages", len(messages))
     return s.MessageList(messages=messages)
 
 
-@message_router.delete("/coach/messages/{student_uuid}", status_code=status.HTTP_200_OK)
-def delete_coach_student_messages(
+@message_router.post(
+    "/coach/messages/{student_uuid}/read",
+)
+def read_coach_student_messages(
     student_uuid: str,
     student: m.Student = Depends(get_student_by_uuid),
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    messages = (
-        db.query(m.Message)
-        .filter_by(author_id=coach.uuid, receiver_id=student.uuid)
-        .all()
+    messages: list[m.Message] = m.Message.get_diaogue_messages(
+        db=db, coach_id=coach.uuid, student_id=student.uuid
     )
+
     for message in messages:
-        message.is_deleted = True
-    try:
-        db.commit()
-    except SQLAlchemyError as e:
-        log(log.INFO, "Error while deleting messages - [%s]", e)
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Error occured while deleting messages",
-        )
-    log(log.INFO, "Messages deleted - [%d]", len(messages))
+        if message.author.uuid != coach.uuid:
+            if not message.is_read:
+                message.is_read = True
+    log(log.INFO, "Reading messages from coach to student")
+    db.commit()
     return status.HTTP_200_OK
 
 
 # Routes for students
-
-
 @message_router.post("/student/create", response_model=s.Message)
 def student_create_message(
     message_data: s.MessageData,
@@ -138,30 +140,45 @@ def student_create_message(
     return message
 
 
-# get all messages with a specific user
-@message_router.get("/student/list-of-contacts", response_model=s.UserList)
+@message_router.get("/student/list-of-contacts", response_model=s.ContactList)
 def get_student_list_of_contacts(
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
 ):
+    contacts: list = []
+
     # messages where coach is owner
     messages: list[m.Message] = (
         db.query(m.Message).filter_by(author_id=student.uuid).all()
     )
-    contacts: list = []
+
     for message in messages:
         coach = db.query(m.Coach).filter_by(uuid=message.receiver_id).first()
-        contacts.append(coach)
+        if coach not in contacts:
+            contacts.append(coach)
     # messages where coach is a recepeint
     messages = db.query(m.Message).filter_by(receiver_id=student.uuid).all()
     for message in messages:
         coach = db.query(m.Coach).filter_by(uuid=message.author_id).first()
-        contacts.append(coach)
-    contacts = list(set(contacts))
-    return s.UserList(users=contacts)
+        if coach not in contacts:
+            contacts.append(coach)
+
+    lessons = db.query(m.StudentLesson).filter_by(student_id=student.id).all()
+    for lesson in lessons:
+        coach = db.query(m.Coach).filter_by(id=lesson.coach.id).first()
+        if coach not in contacts:
+            contacts.append(coach)
+
+    result = [
+        s.Contact(
+            message=m.Message.get_contact_latest_message(coach.uuid, student.uuid),
+            user=coach,
+        )
+        for coach in contacts
+    ]
+    return s.ContactList(contacts=result)
 
 
-# get messages for current dialogue
 @message_router.get(
     "/student/messages/{coach_uuid}",
     response_model=s.MessageList,
@@ -172,37 +189,30 @@ def get_student_coach_messages(
     db: Session = Depends(get_db),
     student: m.Coach = Depends(get_current_student),
 ):
-    messages: list[m.Message] = (
-        db.query(m.Message)
-        .filter_by(author_id=student.uuid, receiver_id=coach.uuid)
-        .order_by(m.Message.created_at.desc())
-        .all()
+    messages: list[m.Message] = m.Message.get_diaogue_messages(
+        db=db, coach_id=coach.uuid, student_id=student.uuid
     )
     log(log.INFO, "found [%d] messages", len(messages))
     return s.MessageList(messages=messages)
 
 
-@message_router.delete("/student/messages/{coach_uuid}", status_code=status.HTTP_200_OK)
-def delete_student_coach_messages(
+@message_router.post(
+    "/student/messages/{coach_uuid}/read",
+)
+def read_student_coach_messages(
     coach_uuid: str,
     coach: m.Student = Depends(get_coach_by_uuid),
     db: Session = Depends(get_db),
-    student: m.Student = Depends(get_current_student),
+    student: m.Coach = Depends(get_current_student),
 ):
-    messages = (
-        db.query(m.Message)
-        .filter_by(author_id=student.uuid, receiver_id=coach.uuid)
-        .all()
+    messages: list[m.Message] = m.Message.get_diaogue_messages(
+        db=db, coach_id=coach.uuid, student_id=student.uuid
     )
     for message in messages:
-        message.is_deleted = True
-    try:
-        db.commit()
-    except SQLAlchemyError as e:
-        log(log.INFO, "Error while deleting messages - [%s]", e)
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Error occured while deleting messages",
-        )
-    log(log.INFO, "Messages deleted - [%d]", len(messages))
+        if message.author.uuid != student.uuid:
+            if not message.is_read:
+                message.is_read = True
+
+    db.commit()
+    log(log.INFO, "Reading messages from student to coach")
     return status.HTTP_200_OK

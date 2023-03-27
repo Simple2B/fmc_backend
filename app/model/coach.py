@@ -20,7 +20,7 @@ class Coach(Base):
     profile_picture = Column(String(256), nullable=True)
     google_open_id = Column(String(128), nullable=True)
 
-    about = Column(String(1024), nullable=True)
+    about = Column(String(1024), nullable=False, default="")
     certificate_url = Column(String(256), nullable=True)
 
     verification_token = Column(
@@ -36,6 +36,8 @@ class Coach(Base):
 
     # relationship
     sports = relationship("SportType", secondary="coaches_sports", viewonly=True)
+    certificates = relationship("Certificate", viewonly=True)
+    locations = relationship("Location", secondary="coaches_locations", viewonly=True)
 
     @property
     def password(self):

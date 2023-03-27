@@ -9,7 +9,3 @@ alembic upgrade head &&
 
 invoke create-sports
 invoke dummy-data
-
-echo Creating users
-invoke create-dummy-student
-invoke create-dummy-coach

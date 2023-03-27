@@ -45,5 +45,29 @@
             ],
             "justMyCode": true
         },
+        {
+            "name": "Send message to coach",
+            "type": "python",
+            "request": "launch",
+            "module": "invoke",
+            "args": [
+                "message-to-coach",
+                "--author=student1@gmail.com",
+                "--receiver=coach1@gmail.com",
+            ],
+            "justMyCode": true
+        },
+        {
+            "name": "Send message to student",
+            "type": "python",
+            "request": "launch",
+            "module": "invoke",
+            "args": [
+                "message-to-student",
+                "--author=coach2@gmail.com",
+                "--receiver=student1@gmail.com",
+            ],
+            "justMyCode": true
+        },
     ]
 }
