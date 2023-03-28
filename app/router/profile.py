@@ -83,7 +83,7 @@ async def update_coach_personal_info(
     settings: Settings = Depends(get_settings),
     s3=Depends(get_s3_conn),
 ):
-    if file:
+    if file or not file.filename:
         try:
             file.file.seek(0)
             s3.upload_fileobj(
