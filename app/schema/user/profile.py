@@ -1,6 +1,9 @@
-from pydantic import BaseModel, AnyHttpUrl, validator
+from pydantic import BaseModel, validator
+
 from .base import BaseUser
 from ..sport import SportType
+from ..certificate import Certificate
+from ..location import Location
 from app.config import get_settings, Settings
 
 settings: Settings = get_settings()
@@ -11,7 +14,7 @@ class User(BaseUser):
     first_name: str
     last_name: str
     is_verified: bool
-    profile_picture: AnyHttpUrl | None = settings.DEFAULT_AVATAR_URL
+    profile_picture: str | None = settings.DEFAULT_AVATAR_URL
     # profile_picture: str | None
 
     class Config:
@@ -24,9 +27,12 @@ class UserList(BaseModel):
 
 class Coach(User):
     about: str = ""
-    certificate_url: AnyHttpUrl | None
+    # TODO: must be check for frontend (this type AnyHttpUrl didn't work for frontend)
     is_for_adults: bool
     is_for_children: bool
+
+    locations: list[Location]
+    certificates: list[Certificate]
     sports: list[SportType] | None
 
     class Config:
@@ -35,7 +41,7 @@ class Coach(User):
     @validator("about")
     def check_about_length(cls, v):
         if len(v) > 1024:
-            raise ValueError("Length of 'about' couldnt be larger than 1024")
+            raise ValueError("Length of 'about' couldn't be larger than 1024")
         return v
 
 

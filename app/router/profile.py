@@ -25,14 +25,33 @@ profile_router = APIRouter(prefix="/profile", tags=["Profiles"])
 
 
 @profile_router.get(
-    "/coach",
+    "/info/coach",
     response_model=s.Coach,
+)
+def get_info_coach_profile(
+    db: Session = Depends(get_db),
+    coach: m.Coach = Depends(get_current_coach),
+):
+    return coach
+
+
+@profile_router.get(
+    "/coach",
+    response_model=s.User,
 )
 def get_coach_profile(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    return s.Coach(**coach.__dict__)
+    return s.User(
+        uuid=coach.uuid,
+        email=coach.email,
+        username=coach.username,
+        first_name=coach.first_name,
+        last_name=coach.last_name,
+        profile_picture=coach.profile_picture,
+        is_verified=coach.is_verified,
+    )
 
 
 @profile_router.get(
@@ -137,6 +156,7 @@ def update_coach_profile(
     sport_category: str = Form(None),
     about: str | None = Form(None),
     certificates: list[UploadFile] = Form(None),
+    deleted_certificates: str = Form(None),
     is_for_adult: bool | None = Form(None),
     is_for_children: bool | None = Form(None),
     locations: str | None = Form(None),
@@ -147,27 +167,23 @@ def update_coach_profile(
 ):
     if about:
         coach.about = about
-    if is_for_adult:
-        coach.is_for_adult = is_for_adult
-
-    if is_for_children:
-        coach.is_for_children = is_for_children
-
+    coach.is_for_adults = is_for_adult
+    coach.is_for_children = is_for_children
     if sport_category:
-        sport = db.query(m.SportType).filter_by(name=sport_category).first()
-        if not sport:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Sport Category was not found",
-            )
-        coach_sport = (
-            db.query(m.CoachSport)
-            .filter_by(coach_id=coach.id, sport_id=sport.id)
-            .first()
-        )
-        if not coach_sport:
+        parse_sport_category = json.loads(sport_category)
+        for sport_type in parse_sport_category:
+            sport = db.query(m.SportType).filter_by(name=sport_type).first()
+            if not sport:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Sport Category was not found",
+                )
+            coach_sports = db.query(m.CoachSport).filter_by(coach_id=coach.id).all()
+            for coach_sport in coach_sports:
+                db.delete(coach_sport)
+                db.flush()
             db.add(m.CoachSport(coach_id=coach.id, sport_id=sport.id))
-            db.flush()
+            log(log.INFO, "Coach sport created - [%s]", sport.name)
     if certificates:
         for certificate in certificates:
             try:
@@ -185,6 +201,40 @@ def update_coach_profile(
                 certificate.file.close()
             # save to db
             coach.certificate_url = f"{settings.AWS_S3_BUCKET_URL}user_profiles/certificates/coaches/{coach.uuid}/{certificate.filename}"  # noqa:E501
+            find_certificate = (
+                db.query(m.Certificate)
+                .filter_by(
+                    certificate_url=coach.certificate_url,
+                )
+                .first()
+            )
+            if not find_certificate:
+                db.add(
+                    m.Certificate(
+                        coach_id=coach.id, certificate_url=coach.certificate_url
+                    )
+                )
+                db.flush()
+    if deleted_certificates:
+        parse_deleted_certificates = json.loads(deleted_certificates)
+        log(log.INFO, "Deleted certificates - [%s]", parse_deleted_certificates)
+        for deleted_certificate in parse_deleted_certificates:
+            certificate = (
+                db.query(m.Certificate)
+                .filter_by(
+                    coach_id=coach.id,
+                    certificate_url=deleted_certificate,
+                )
+                .first()
+            )
+            if not certificate:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Certificate was not found",
+                )
+            certificate.is_deleted = True
+            db.add(certificate)
+            db.flush()
     if locations:
         parse_locations = json.loads(locations)
         for coach_location in parse_locations:
@@ -194,43 +244,41 @@ def update_coach_profile(
                     city=coach_location["city"],
                     street=coach_location["street"],
                     postal_code=coach_location["postal_code"],
-                )  # noqa:E501
+                )
                 .first()
             )
             if not location:
-                db.add(
-                    m.Location(
-                        city=coach_location["city"],
-                        street=coach_location["street"],
-                        postal_code=coach_location["postal_code"],
-                    )
+                location = m.Location(
+                    city=coach_location["city"],
+                    street=coach_location["street"],
+                    postal_code=coach_location["postal_code"],
                 )
+                db.add(location)
                 db.flush()
-                location = (
-                    db.query(m.Location)
-                    .filter_by(
-                        city=coach_location["city"],
-                        street=coach_location["street"],
-                        postal_code=coach_location["postal_code"],
-                    )
-                    .first()
-                )
-            db.add(m.CoachLocation(coach_id=coach.id, location_id=location.id))
-    try:
-        log(log.INFO, "Updating profile for coach - [%s]", coach.email)
-        db.commit()
-    except SQLAlchemyError as e:
-        log(
-            log.ERROR,
-            "Error occured while uploading coach`s profile - [%s]\n[%s]",
-            coach.email,
-            e,
-        )
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Error while updating profile",
-        )
+            coach_location = (
+                db.query(m.CoachLocation)
+                .filter_by(coach_id=coach.id, location_id=location.id)
+                .first()
+            )
+            if not coach_location:
+                db.add(m.CoachLocation(coach_id=coach.id, location_id=location.id))
+    db.commit()
+    log(log.INFO, "Updating profile for coach - [%s]", coach.email)
+    # try:
+    #     log(log.INFO, "Updating profile for coach - [%s]", coach.email)
+    #     db.commit()
+    # except SQLAlchemyError as e:
+    #     log(
+    #         log.ERROR,
+    #         "Error occured while uploading coach`s profile - [%s]\n[%s]",
+    #         coach.email,
+    #         e,
+    #     )
+    #     db.rollback()
+    #     raise HTTPException(
+    #         status_code=status.HTTP_409_CONFLICT,
+    #         detail="Error while updating profile",
+    #     )
     return status.HTTP_200_OK
 
 

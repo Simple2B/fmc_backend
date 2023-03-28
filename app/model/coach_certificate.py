@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime
 
 from app.database import Base
 from app.utils import generate_uuid
@@ -13,6 +13,9 @@ class Certificate(Base):
     coach_id = Column(Integer, ForeignKey("coaches.id"))
 
     certificate_url = Column(String(256), nullable=True)
+
+    is_deleted = Column(Boolean, nullable=False, default=False)
+
     created_at = Column(DateTime, default=datetime.now)
 
     def __repr__(self):

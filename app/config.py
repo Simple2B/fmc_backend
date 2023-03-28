@@ -52,6 +52,12 @@ class Settings(BaseSettings):
     COACH_SUBSCRIPTION_PRODUCT_ID: str
 
     STRIPE_WEBHOOK_SECRET: str = ""
+    # Redis
+    REDIS_URL: str = ""
+
+    # Scheduler
+    DAILY_REPORT_HOURS: int = 20
+    DAILY_REPORT_MINUTES: int = 0
 
     class Config:
         env_file = ".env"
