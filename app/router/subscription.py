@@ -29,7 +29,8 @@ def create_coach_subscription(
             customer = stripe.Customer.create(
                 email=coach.email, name=f"{coach.first_name} {coach.last_name}"
             )
-        except InvalidRequestError:
+        except InvalidRequestError as e:
+            log(log.INFO, "Error creating coach - customer - [%s]", e)
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Error while creating customer",
@@ -38,6 +39,7 @@ def create_coach_subscription(
         log(log.INFO, "Coach [%s] created a stripe customer", coach.email)
         db.commit()
     if coach.subscription:
+        log(log.INFO, "Coach [%s] already has a subscription", coach.email)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Coach already owns this subscription",

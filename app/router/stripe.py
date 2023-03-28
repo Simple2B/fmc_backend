@@ -14,7 +14,7 @@ from app.database import get_db
 stripe_router = APIRouter(prefix="/stripe", tags=["Stripe"])
 
 
-@stripe_router.get("/products", response_model=s.Product)
+@stripe_router.get("/coach/products", response_model=s.Product)
 def get_coach_stripe_product(
     db=Depends(get_db),
     settings: Settings = Depends(get_settings),
