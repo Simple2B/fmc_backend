@@ -236,6 +236,8 @@ def update_coach_profile(
             db.add(certificate)
             db.flush()
     if locations:
+        db.query(m.CoachLocation).filter_by(coach_id=coach.id).delete()
+        db.commit()
         parse_locations = json.loads(locations)
         for coach_location in parse_locations:
             location = (
@@ -255,30 +257,12 @@ def update_coach_profile(
                 )
                 db.add(location)
                 db.flush()
-            coach_location = (
-                db.query(m.CoachLocation)
-                .filter_by(coach_id=coach.id, location_id=location.id)
-                .first()
-            )
-            if not coach_location:
-                db.add(m.CoachLocation(coach_id=coach.id, location_id=location.id))
+            db.add(m.CoachLocation(coach_id=coach.id, location_id=location.id))
+            db.flush()
+
     db.commit()
     log(log.INFO, "Updating profile for coach - [%s]", coach.email)
-    # try:
-    #     log(log.INFO, "Updating profile for coach - [%s]", coach.email)
-    #     db.commit()
-    # except SQLAlchemyError as e:
-    #     log(
-    #         log.ERROR,
-    #         "Error occured while uploading coach`s profile - [%s]\n[%s]",
-    #         coach.email,
-    #         e,
-    #     )
-    #     db.rollback()
-    #     raise HTTPException(
-    #         status_code=status.HTTP_409_CONFLICT,
-    #         detail="Error while updating profile",
-    #     )
+
     return status.HTTP_200_OK
 
 
