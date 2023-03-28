@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from fastapi import APIRouter, Depends, status, HTTPException
 from stripe.error import InvalidRequestError
 
@@ -65,6 +67,9 @@ def create_coach_subscription(
                 },
             ],
             mode="subscription",
+            subscription_data={
+                "trial_end": (datetime.now() + timedelta(days=60)).timestamp(),
+            },
         )
     except InvalidRequestError as e:
         log(log.ERROR, "Error while creating a checkout session - [%s]", e)
