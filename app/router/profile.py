@@ -178,11 +178,7 @@ def update_coach_profile(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Sport Category was not found",
                 )
-            coach_sports = (
-                db.query(m.CoachSport)
-                .filter_by(coach_id=coach.id)
-                .all()
-            )
+            coach_sports = db.query(m.CoachSport).filter_by(coach_id=coach.id).all()
             for coach_sport in coach_sports:
                 db.delete(coach_sport)
                 db.flush()
@@ -205,14 +201,19 @@ def update_coach_profile(
                 certificate.file.close()
             # save to db
             coach.certificate_url = f"{settings.AWS_S3_BUCKET_URL}user_profiles/certificates/coaches/{coach.uuid}/{certificate.filename}"  # noqa:E501
-            find_certificate = db.query(m.Certificate).filter_by(
-                certificate_url=coach.certificate_url,
-            ).first()
+            find_certificate = (
+                db.query(m.Certificate)
+                .filter_by(
+                    certificate_url=coach.certificate_url,
+                )
+                .first()
+            )
             if not find_certificate:
-                db.add(m.Certificate(
-                    coach_id=coach.id,
-                    certificate_url=coach.certificate_url
-                ))
+                db.add(
+                    m.Certificate(
+                        coach_id=coach.id, certificate_url=coach.certificate_url
+                    )
+                )
                 db.flush()
     if deleted_certificates:
         parse_deleted_certificates = json.loads(deleted_certificates)
@@ -237,22 +238,6 @@ def update_coach_profile(
     if locations:
         parse_locations = json.loads(locations)
         for coach_location in parse_locations:
-            all_locations = (
-                db.query(m.CoachLocation)
-                .filter_by(coach_id=coach.id)
-                .all()
-            )
-            for location in all_locations:
-                db.delete(location)
-                db.flush()
-            db.add(
-                m.Location(
-                    city=coach_location["city"],
-                    street=coach_location["street"],
-                    postal_code=coach_location["postal_code"],
-                )
-            )
-            db.flush()
             location = (
                 db.query(m.Location)
                 .filter_by(
@@ -262,7 +247,21 @@ def update_coach_profile(
                 )
                 .first()
             )
-            db.add(m.CoachLocation(coach_id=coach.id, location_id=location.id))
+            if not location:
+                location = m.Location(
+                    city=coach_location["city"],
+                    street=coach_location["street"],
+                    postal_code=coach_location["postal_code"],
+                )
+                db.add(location)
+                db.flush()
+            coach_location = (
+                db.query(m.CoachLocation)
+                .filter_by(coach_id=coach.id, location_id=location.id)
+                .first()
+            )
+            if not coach_location:
+                db.add(m.CoachLocation(coach_id=coach.id, location_id=location.id))
     db.commit()
     log(log.INFO, "Updating profile for coach - [%s]", coach.email)
     # try:
