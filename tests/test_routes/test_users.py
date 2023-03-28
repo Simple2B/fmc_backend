@@ -48,6 +48,17 @@ def test_get_profile(
     assert student
     assert student.email == resp_obj.email
 
+    # getting subscription for coach
+    response = client.get(
+        "api/profile/coach/subscription",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response.status_code == 200
+    resp_obj = s.Subscription.parse_obj(response.json())
+    subscription = db.query(m.CoachSubscription).first()
+    assert subscription
+    assert resp_obj.stripe_subscription_id == subscription.stripe_subscription_id
+
 
 @mock_s3
 def test_save_personal_info(

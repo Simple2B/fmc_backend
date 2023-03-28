@@ -30,3 +30,4 @@ from .newsletter import NewsletterSubscription
 
 from .stripe import Price, Product, CheckoutSession
 from .certificate import Certificate, CertificateList
+from .subscription import Subscription

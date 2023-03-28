@@ -73,6 +73,28 @@ def get_student_profile(
     )
 
 
+@profile_router.get("/coach/subscription", response_model=s.Subscription)
+def get_coach_subscription(
+    db: Session = Depends(get_db),
+    coach: m.Student = Depends(get_current_coach),
+):
+    subscription = db.query(m.CoachSubscription).filter_by(coach_id=coach.id).first()
+    if not subscription:
+        log(log.INFO, "Subscription not found for coach - [%s]", coach.email)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Subscription not found"
+        )
+    return s.Subscription(
+        product=subscription.product,
+        stripe_subscription_id=subscription.stripe_subscription_id,
+        current_period_end=subscription.current_period_end,
+        current_period_start=subscription.current_period_start,
+        created=subscription.created,
+        status=subscription.status,
+        is_active=subscription.is_active,
+    )
+
+
 @profile_router.post("/coach/personal-info", status_code=status.HTTP_201_CREATED)
 async def update_coach_personal_info(
     file: UploadFile = File(None),
