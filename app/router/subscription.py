@@ -54,7 +54,9 @@ def create_coach_subscription(
     try:
         checkout_session = stripe.checkout.Session.create(
             customer=coach.stripe_customer_id,
-            success_url="https://example.com/success",
+            # http://localhost:3000/profiles/coach?my_appointments#success
+            success_url="https://findmycoach.co.uk/profiles/coach?my_appointments#success",
+            cancel_url="https://findmycoach.co.uk/cancel",
             line_items=[
                 {
                     "price": subscription_product.price.stripe_price_id,
