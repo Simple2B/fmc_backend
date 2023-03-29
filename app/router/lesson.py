@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 
@@ -45,9 +45,4 @@ def get_lesson(
     student: m.Student = Depends(get_current_student),
     lesson=Depends(get_lesson_by_uuid),
 ):
-    lesson = db.query(m.StudentLesson).filter_by(uuid=lesson.uuid).first()
-    if not lesson:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Lesson not found"
-        )
     return lesson

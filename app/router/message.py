@@ -18,10 +18,6 @@ import app.schema as s
 message_router = APIRouter(prefix="/message", tags=["Messages"])
 
 
-# Notification message
-# TODO 1.Create notification for celery task 2.Get all new messages
-
-
 # Routes for coach
 @message_router.post("/coach/create", response_model=s.Message)
 def coach_create_message(

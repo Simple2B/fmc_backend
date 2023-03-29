@@ -26,9 +26,7 @@ class Message(Base):
 
     text = Column(String(1024), nullable=False, default="")
 
-    author_id = Column(
-        String(36), nullable=True
-    )  # uuid of owner / not nullable because if its notification then it doesnt matter who is author
+    author_id = Column(String(36), nullable=True)  # uuid of author
     receiver_id = Column(String(36), nullable=False)  # uuid of recepient
 
     message_type = Column(Enum(MessageType), default=MessageType.MESSAGE)
