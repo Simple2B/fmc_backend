@@ -1,5 +1,28 @@
 version: "3.11"
 services:
+  redis:
+    restart: always
+    image: "redis:alpine"
+    ports:
+      - 127.0.0.1:${REDIS_PORT:-6379}:6379
+    environment:
+      - REDISCLI_AUTH=${REDIS_PASSWORD:-redis_pass}
+    command: >
+      --requirepass ${REDIS_PASSWORD:-redis_pass}
+
+  worker:
+    build: .
+    image: 270968290167.dkr.ecr.eu-west-2.amazonaws.com/fmc-backend:latest
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - DB_URI=postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@db/${DATABASE_NAME}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis
+    command: bash start_worker.sh
+    depends_on:
+      - db
+      - redis
 
   app:
     build: .
@@ -9,11 +32,14 @@ services:
       - .env
     environment:
       - DB_URI=postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@db/${DATABASE_NAME}
-    command: bash ./start_server.sh
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis
+    command: bash start_server.sh
     ports:
       - 127.0.0.1:8000:80
     depends_on:
       - db
+      - worker
+
   db:
     image: postgres:12
     volumes:

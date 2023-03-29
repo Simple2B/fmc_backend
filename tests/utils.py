@@ -54,6 +54,30 @@ def create_past_student_lesson(db, student_id: int, lesson_id: int):
     return student_lesson
 
 
+def create_coach_subscription(db: Session, test_data: TestData):
+    product = db.query(m.StripeProduct).first()
+    if not product:
+        exit()
+    coach = (
+        db.query(m.Coach)
+        .filter_by(email=test_data.test_authorized_coaches[0].email)
+        .first()
+    )
+    db.add(
+        m.CoachSubscription(
+            coach_id=coach.id,
+            stripe_subscription_id="sub_test",
+            product_id=product.id,
+            current_period_end=(datetime.now() + timedelta(days=30)).timestamp(),
+            current_period_start=(datetime.now()).timestamp(),
+            created=datetime.now().timestamp(),
+            status=m.SubscriptionStatus.ACTIVE.value,
+            is_active=True,
+        )
+    )
+    db.commit()
+
+
 def fill_db_by_test_data(db: Session, test_data: TestData):
     print("Filling up db with fake data")
 
@@ -79,6 +103,25 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
 
     locations = db.query(m.Location).all()
     sports = db.query(m.SportType).all()
+    price = m.StripeProductPrice(
+        stripe_price_id=test_data.test_subscription_price.stripe_price_id,
+        currency=test_data.test_subscription_price.currency,
+        created=datetime.now().timestamp(),
+        unit_amount=test_data.test_subscription_price.unit_amount,
+    )
+    db.add(price)
+    db.flush()
+    db.refresh(price)
+    db.add(
+        m.StripeProduct(
+            stripe_product_id=test_data.test_subscription_product.stripe_product_id,
+            price_id=price.id,
+            name=test_data.test_subscription_product.name,
+            description=test_data.test_subscription_product.description,
+            created=datetime.now().timestamp(),
+        )
+    )
+    db.commit()
 
     for c in test_data.test_coaches:
         coach = db.query(m.Coach).filter_by(email=c.email).first()
@@ -109,3 +152,4 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
         if not db.query(m.Student).filter_by(email=auth_student.email).first():
             db.add(m.Student(**auth_student.dict()))
             db.commit()
+    create_coach_subscription(db=db, test_data=test_data)

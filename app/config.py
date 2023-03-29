@@ -49,6 +49,18 @@ class Settings(BaseSettings):
 
     NEWSLETTER_REPORT_EMAIL: str = "info@findmycoach.co.uk"
 
+    COACH_SUBSCRIPTION_PRODUCT_ID: str
+
+    STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_SUCCESS_URL: str = ""
+    STRIPE_CANCEL_URL: str = ""
+    # Redis
+    REDIS_URL: str = ""
+
+    # Scheduler
+    DAILY_REPORT_HOURS: int = 20
+    DAILY_REPORT_MINUTES: int = 0
+
     class Config:
         env_file = ".env"
 
