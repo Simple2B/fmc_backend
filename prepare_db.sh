@@ -6,8 +6,7 @@ docker compose up -d db &&
 sleep 6
 echo Applying migrations
 alembic upgrade head &&
-
-invoke create-sports
-invoke dummy-data
-
+echo Creating data
 invoke get-coach-subscription
+invoke create-sports &&
+invoke dummy-data

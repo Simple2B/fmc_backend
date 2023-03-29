@@ -26,12 +26,13 @@ def test_get_profile(
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response
-    resp_obj = s.BaseUser.parse_obj(response.json())
+    resp_obj = s.Coach.parse_obj(response.json())
     coach = (
         db.query(m.Coach).filter_by(email="test_authorized_coach1@gmail.com").first()
     )
     assert coach
     assert coach.email == resp_obj.email
+
     # getting student profile
     response = client.get(
         "/api/profile/student",
@@ -46,6 +47,17 @@ def test_get_profile(
     )
     assert student
     assert student.email == resp_obj.email
+
+    # getting subscription for coach
+    response = client.get(
+        "api/profile/coach/subscription",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response.status_code == 200
+    resp_obj = s.Subscription.parse_obj(response.json())
+    subscription = db.query(m.CoachSubscription).first()
+    assert subscription
+    assert resp_obj.stripe_subscription_id == subscription.stripe_subscription_id
 
 
 @mock_s3

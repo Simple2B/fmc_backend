@@ -13,7 +13,7 @@ from .student_lesson_payment import StudentLessonPayment
 from .coach_certificate import Certificate
 from .contact import Contact
 from .superuser import SuperUser
-from .coach_subscription import CoachSubscription
+from .coach_subscription import CoachSubscription, SubscriptionStatus
 from .newsletter_subscription import NewsletterSubscription
 from .stripe_product import StripeProductPrice, StripeProduct
 from .coach_subscription import CoachSubscription

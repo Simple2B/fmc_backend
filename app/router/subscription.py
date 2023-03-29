@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from fastapi import APIRouter, Depends, status, HTTPException
 from stripe.error import InvalidRequestError
 
@@ -29,7 +31,8 @@ def create_coach_subscription(
             customer = stripe.Customer.create(
                 email=coach.email, name=f"{coach.first_name} {coach.last_name}"
             )
-        except InvalidRequestError:
+        except InvalidRequestError as e:
+            log(log.INFO, "Error creating coach - customer - [%s]", e)
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Error while creating customer",
@@ -38,6 +41,7 @@ def create_coach_subscription(
         log(log.INFO, "Coach [%s] created a stripe customer", coach.email)
         db.commit()
     if coach.subscription:
+        log(log.INFO, "Coach [%s] already has a subscription", coach.email)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Coach already owns this subscription",
@@ -54,9 +58,8 @@ def create_coach_subscription(
     try:
         checkout_session = stripe.checkout.Session.create(
             customer=coach.stripe_customer_id,
-            # http://localhost:3000/profiles/coach?my_appointments#success
-            success_url="https://findmycoach.co.uk/profiles/coach?my_appointments#success",
-            cancel_url="https://findmycoach.co.uk/profiles/coach?my_appointments#cancel",
+            success_url=settings.STRIPE_SUCCESS_URL,
+            cancel_url=settings.STRIPE_CANCEL_URL,
             line_items=[
                 {
                     "price": subscription_product.price.stripe_price_id,
@@ -64,6 +67,9 @@ def create_coach_subscription(
                 },
             ],
             mode="subscription",
+            subscription_data={
+                "trial_end": (datetime.now() + timedelta(days=60)).timestamp(),
+            },
         )
     except InvalidRequestError as e:
         log(log.ERROR, "Error while creating a checkout session - [%s]", e)

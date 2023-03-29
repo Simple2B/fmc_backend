@@ -1,8 +1,13 @@
 import enum
+
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
+from sqlalchemy.orm import Session
 
+from app.database import Base, get_db
+from .coach import Coach
+from .stripe_product import StripeProduct
 
-from app.database import Base
+db = get_db().__next__()
 
 
 class SubscriptionStatus(enum.Enum):  # stripe statuses
@@ -25,6 +30,14 @@ class CoachSubscription(Base):
 
     status = Column(String(32), default=SubscriptionStatus.ACTIVE.value)
     is_active = Column(Boolean, default=True)
+
+    @property
+    def coach(self, db: Session = db) -> Coach:
+        return db.query(Coach).filter_by(id=self.coach_id).first()
+
+    @property
+    def product(self, db: Session = db) -> StripeProduct:
+        return db.query(StripeProduct).filter_by(id=self.product_id).first()
 
     def __str__(self) -> str:
         return f"<{self.id}: {self.name}>"

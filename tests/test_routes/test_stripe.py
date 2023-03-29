@@ -15,7 +15,7 @@ def test_get_products(
     test_data: TestData,
     db: Session,
 ):
-    response = client.get("api/stripe/products")
+    response = client.get("api/stripe/coach/products")
     assert response
     resp_obj = s.Product.parse_obj(response.json())
     product = (
