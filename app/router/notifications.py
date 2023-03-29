@@ -23,7 +23,13 @@ def get_new_notifications_count_student(
     student: m.Student = Depends(get_current_student),
 ):
     new_messages_count: int = (
-        db.query(m.Message).filter_by(receiver_id=student.uuid, is_read=False).count()
+        db.query(m.Message)
+        .filter_by(
+            receiver_id=student.uuid,
+            is_read=False,
+            message_type=m.MessageType.REVIEW_COACH,
+        )
+        .count()
     )
     log(log.INFO, "Student has [%s] undread messages", new_messages_count)
     return s.MessageCount(count=new_messages_count)
@@ -36,6 +42,12 @@ def get_review_notifications(
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
 ):
+    # Give lessons without reviews !
+    #
+    #
+    #
+    #
+
     lessons = db.query(m.StudentLesson).filter_by(student_id=student.id).all()
     result = []
     for lesson in lessons:

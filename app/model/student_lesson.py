@@ -25,7 +25,10 @@ class StudentLesson(Base):
         nullable=True,
     )
     appointment_time = Column(DateTime(timezone=True), default=datetime.now)
-    date = Column(DateTime, nullable=False, default=datetime.now)
+    date = Column(
+        DateTime, nullable=False, default=datetime.now
+    )  # to do rename as created_at
+    review_id = Column(Integer, nullable=True)  # fake FK on revew
 
     @property
     def coach(self) -> Coach:

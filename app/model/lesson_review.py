@@ -12,14 +12,14 @@ class LessonReview(Base):
 
     id = Column(Integer, primary_key=True)
     uuid = Column(String(36), nullable=False, default=generate_uuid)
-    lesson_id = Column(Integer, ForeignKey("lessons.id"))  # todo lesson_id
+    student_lesson_id = Column(Integer, ForeignKey("students_lessons.id"))
     coach_id = Column(Integer, ForeignKey("coaches.id"))
 
     text = Column(String(36), nullable=True)
     rate = Column(Integer, nullable=False)
 
     created_at = Column(DateTime, nullable=False, default=datetime.now)
-    lesson = relationship("Lesson", viewonly=True)
+    student_lesson = relationship("StudentLesson", viewonly=True)
 
     def __repr__(self) -> str:
         return f"{self.id}"
