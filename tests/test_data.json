@@ -114,5 +114,15 @@
             "state": "test_state2",
             "postal_code": "test_zipcode2"
         }
-    ]
+    ],
+    "test_subscription_product":{
+        "name":"FMC Sub",
+        "stripe_product_id":"prod_123123",
+        "description":"FMC Subscription "
+    },
+    "test_subscription_price":{
+        "stripe_price_id":"price_testprice123",
+        "currency":"usd",
+        "unit_amount":1999
+    }
 }

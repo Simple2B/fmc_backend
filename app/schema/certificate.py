@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 class Certificate(BaseModel):
     certificate_url: str
+    is_deleted: bool
     created_at: datetime
 
     class Config:

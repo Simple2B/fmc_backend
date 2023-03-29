@@ -4,7 +4,6 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
         {
             "name": "Run app",
             "type": "python",
@@ -15,6 +14,7 @@
                 "--reload",
                 "--port",
                 "10003"
+
             ],
             "jinja": true,
             "justMyCode": true
@@ -44,6 +44,16 @@
             "module": "invoke",
             "args": [
                 "send-daily-report"
+            ],
+            "justMyCode": true
+        },
+        {
+            "name": "coach product",
+            "type": "python",
+            "request": "launch",
+            "module": "invoke",
+            "args": [
+                "get-coach-subscription"
             ],
             "justMyCode": true
         },

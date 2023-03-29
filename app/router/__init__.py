@@ -10,6 +10,8 @@ from .sport import sport_router
 from .message import message_router
 from .lesson import lesson_router
 from .newsletter import newsletter_router
+from .stripe import stripe_router
+from .subscription import subscription_router
 from .notifications import notifications_router
 from .review import review_router
 
@@ -24,6 +26,8 @@ router.include_router(sport_router)
 router.include_router(message_router)
 router.include_router(lesson_router)
 router.include_router(newsletter_router)
+router.include_router(stripe_router)
+router.include_router(subscription_router)
 router.include_router(notifications_router)
 router.include_router(review_router)
 

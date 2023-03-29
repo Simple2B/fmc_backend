@@ -31,11 +31,14 @@ class Coach(Base):
     is_verified = Column(Boolean, default=True)
     is_for_adults = Column(Boolean, default=True)
     is_for_children = Column(Boolean, default=False)
-
+    stripe_customer_id = Column(
+        String(32), nullable=True
+    )  # customer identifier in stripe system
     created_at = Column(DateTime, default=datetime.now)
 
     # relationship
     sports = relationship("SportType", secondary="coaches_sports", viewonly=True)
+    subscription = relationship("CoachSubscription", viewonly=True)
     certificates = relationship("Certificate", viewonly=True)
     locations = relationship("Location", secondary="coaches_locations", viewonly=True)
     reviews = relationship("LessonReview", viewonly=True)

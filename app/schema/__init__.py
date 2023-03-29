@@ -32,6 +32,8 @@ from .lesson import (
 )
 
 from .newsletter import NewsletterSubscription
-from .certificate import Certificate, CertificateList
 
+from .stripe import Price, Product, CheckoutSession
+from .certificate import Certificate, CertificateList
 from .review import Review
+from .subscription import Subscription
