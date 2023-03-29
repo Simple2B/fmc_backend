@@ -67,14 +67,9 @@ def create_coach_subscription(
                 },
             ],
             mode="subscription",
-            # TODO: Why we need this param ? (this needs to be double checked,
-            # it is necessary to check again whether we really need this parameter)
-            # trial_end is automatically displayed in the stripe console,
-            # if this parameter is displayed, an error occurs and the session does not log in
-            #
-            # subscription_data={
-            #     "trial_end": (datetime.now() + timedelta(days=60)).timestamp(),
-            # },
+            subscription_data={
+                "trial_end": int((datetime.now() + timedelta(days=61)).timestamp()),
+            },
         )
     except InvalidRequestError as e:
         log(log.ERROR, "Error while creating a checkout session - [%s]", e)
