@@ -68,7 +68,7 @@ def create_coach_subscription(
             ],
             mode="subscription",
             subscription_data={
-                "trial_end": int((datetime.now() + timedelta(days=60)).timestamp()),
+                "trial_end": int((datetime.now() + timedelta(days=61)).timestamp()),
             },
         )
     except InvalidRequestError as e:
