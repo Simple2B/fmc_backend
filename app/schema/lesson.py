@@ -24,14 +24,20 @@ class LessonList(BaseModel):
 
 
 class StudentLesson(BaseModel):
+    uuid: str
     coach: Coach
     lesson: Lesson
     appointment_time: datetime
-    date: datetime
+    date: datetime  # created at
 
     class Config:
         orm_mode = True
 
 
 class UpcomingLessonList(BaseModel):
+    lessons: list[StudentLesson]
+
+
+class UnreviewedLessonsList(BaseModel):
+    count: int
     lessons: list[StudentLesson]

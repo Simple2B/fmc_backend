@@ -18,15 +18,18 @@ from .message import (
     MessageList,
     ContactList,
     Contact,
-    MessageCount,
-    ReviewMessage,
-    ReviewMessageList,
 )
 from .api_keys import GAPIKeysSchema
 from .user.reset_password import UserResetPasswordIn
 
 from .location import Location, LocationList
-from .lesson import Lesson, LessonList, UpcomingLessonList
+from .lesson import (
+    Lesson,
+    LessonList,
+    UpcomingLessonList,
+    UnreviewedLessonsList,
+    StudentLesson,
+)
 
 from .newsletter import NewsletterSubscription
 from .certificate import Certificate, CertificateList

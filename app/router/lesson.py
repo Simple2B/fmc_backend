@@ -1,16 +1,12 @@
 from datetime import datetime
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    status,
-)
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 
 
 from app.logger import log
 
-from app.dependency import get_current_student
+from app.dependency import get_current_student, get_lesson_by_uuid
 from app.database import get_db
 import app.schema as s
 import app.model as m
@@ -27,7 +23,6 @@ def get_upcoming_lessons(
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
 ):
-    # TODO filter by date
     upcoming_lessons = (
         db.query(m.StudentLesson)
         .filter(
@@ -38,3 +33,21 @@ def get_upcoming_lessons(
     )
     log(log.INFO, "Total lessons found: %d", len(upcoming_lessons))
     return s.UpcomingLessonList(lessons=upcoming_lessons)
+
+
+@lesson_router.get(
+    "/{lesson_uuid}",
+    response_model=s.StudentLesson,
+    status_code=status.HTTP_200_OK,
+)
+def get_lesson(
+    db: Session = Depends(get_db),
+    student: m.Student = Depends(get_current_student),
+    lesson=Depends(get_lesson_by_uuid),
+):
+    lesson = db.query(m.StudentLesson).filter_by(uuid=lesson.uuid).first()
+    if not lesson:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Lesson not found"
+        )
+    return lesson

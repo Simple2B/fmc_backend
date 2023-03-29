@@ -46,7 +46,7 @@ def create_past_student_lesson(db, student_id: int, lesson_id: int):
         student_lesson = m.StudentLesson(
             lesson_id=lesson_id,
             student_id=student_id,
-            appointment_time=datetime.now() - timedelta(days=1),
+            appointment_time=datetime.now() - timedelta(days=1, hours=12),
             date=datetime.now() - timedelta(days=1),
         )
         db.add(student_lesson)

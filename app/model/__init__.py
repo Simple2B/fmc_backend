@@ -13,7 +13,7 @@ from .student_lesson_payment import StudentLessonPayment
 from .coach_certificate import Certificate
 from .contact import Contact
 from .superuser import SuperUser
-
+from .lesson_review import LessonReview
 from .newsletter_subscription import NewsletterSubscription
 
 

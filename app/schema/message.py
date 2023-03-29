@@ -44,17 +44,3 @@ class Contact(BaseModel):
 
 class ContactList(BaseModel):
     contacts: list[Contact]
-
-
-class MessageCount(BaseModel):
-    count: int
-
-
-class ReviewMessage(BaseMessage):
-    student: User
-    coach: User
-    created_at: datetime
-
-
-class ReviewMessageList(BaseModel):
-    messages: list[ReviewMessage]

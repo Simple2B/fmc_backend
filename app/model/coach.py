@@ -38,7 +38,7 @@ class Coach(Base):
     sports = relationship("SportType", secondary="coaches_sports", viewonly=True)
     certificates = relationship("Certificate", viewonly=True)
     locations = relationship("Location", secondary="coaches_locations", viewonly=True)
-    # reviews = relationship("LessonReview", viewonly=True)
+    reviews = relationship("LessonReview", viewonly=True)
 
     @property
     def password(self):
@@ -60,10 +60,14 @@ class Coach(Base):
         if user is not None and hash_verify(password, user.password):
             return user
 
-    # @property
-    # def rate(self) -> float:
-    #     review_count = len(self.reviews)
-    #     return sum([review.rate for review in self.reviews]) / review_count
+    @property
+    def total_rate(self) -> float:
+        review_count = len(self.reviews)
+        try:
+            rate = sum([review.rate for review in self.reviews]) / review_count
+        except ZeroDivisionError:
+            return 0
+        return rate
 
     def __repr__(self):
         return f"<{self.id}: {self.email}>"

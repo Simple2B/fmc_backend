@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
 
-from app.dependency.user import get_current_student
+from app.dependency import get_current_student, get_lesson_by_uuid
 
 from app.logger import log
 from app.database import get_db
@@ -13,24 +13,21 @@ import app.model as m
 review_router = APIRouter(prefix="/review", tags=["Reviews"])
 
 
-@review_router.post("/{session_uuid}")
+@review_router.post("/{lesson_uuid}")
 def create_review(
-    session_uuid: str,
     data: s.Review,
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
+    lesson=Depends(get_lesson_by_uuid),
 ):
-    student_lesson = db.query(m.StudentLesson).filter_by(uuid=session_uuid).first()
-    if not student_lesson:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Student lesson not found"
-        )
     review = m.LessonReview(
-        student_lesson_id=student_lesson.uuid,
+        student_lesson_id=lesson.id,
         text=data.text,
         rate=data.rate,
     )
     db.add(review)
+    db.flush()
+    lesson.review_id = review.id
     # TODO logic for rewards - 1. Get price of session calcuate reward 2.Get rate and calculate reward
     try:
         db.commit()
@@ -40,4 +37,5 @@ def create_review(
             status_code=status.HTTP_409_CONFLICT,
             detail="Error occured while creating review",
         )
+    log(log.INFO, "Review has been created for lesson - [%s]", lesson.id)
     return status.HTTP_200_OK
