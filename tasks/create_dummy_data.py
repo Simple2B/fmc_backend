@@ -40,6 +40,7 @@ def create_dummy_coach():
             first_name=TEST_FIRSTNAME,
             last_name=TEST_LASTNAME,
             is_verified=True,
+            profile_picture="https://find-my-coach-eu.s3.eu-west-2.amazonaws.com/assets/test_coach_avatar.png",
         )
         db.add(test_coach)
 

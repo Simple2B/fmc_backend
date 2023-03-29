@@ -24,6 +24,7 @@ def create_review(
         student_lesson_id=lesson.id,
         text=data.text,
         rate=data.rate,
+        coach_id=lesson.coach.id,
     )
     db.add(review)
     db.flush()
