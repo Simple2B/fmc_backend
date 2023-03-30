@@ -29,6 +29,7 @@ class Coach(User):
     # TODO: must be check for frontend (this type AnyHttpUrl didn't work for frontend)
     is_for_adults: bool
     is_for_children: bool
+    about: str | None
 
     locations: list[Location]
     certificates: list[Certificate]
