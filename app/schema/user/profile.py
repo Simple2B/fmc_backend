@@ -44,14 +44,5 @@ class Coach(User):
         return v
 
 
-class Location(BaseUser):
-    city: str
-    street: str
-    postal_code: str
-
-    class Config:
-        orm_mode = True
-
-
-class Locations(BaseUser):
-    locations: list[Location]
+class CoachList(BaseModel):
+    coaches: list[Coach]

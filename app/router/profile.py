@@ -342,3 +342,12 @@ def student_change_password(
         )
     log(log.INFO, "Changing password for coach - [%s]", student.email)
     return status.HTTP_200_OK
+
+
+@profile_router.get(
+    "/coach/profiles/cards", status_code=status.HTTP_200_OK, response_model=s.CoachList
+)
+def get_coach_cards(
+    db: Session = Depends(get_db),
+):
+    return s.CoachList(coaches=db.query(m.Coach).filter_by(is_verified=True).all())
