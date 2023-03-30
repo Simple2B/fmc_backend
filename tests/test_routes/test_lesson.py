@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 import app.model as m
 import app.schema as s
 from tests.fixture import TestData
-from tests.utils import create_student_lesson
+from tests.utils import create_upcoming_student_lesson
 
 
 def test_lesson(
@@ -22,7 +22,7 @@ def test_lesson(
     assert student
     lesson = db.query(m.Lesson).first()
     assert lesson
-    create_student_lesson(db=db, student_id=student.id, lesson_id=lesson.id)
+    create_upcoming_student_lesson(db=db, student_id=student.id, lesson_id=lesson.id)
 
     response = client.get(
         "api/lesson/lessons/upcoming",

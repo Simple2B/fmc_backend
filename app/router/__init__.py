@@ -13,6 +13,7 @@ from .newsletter import newsletter_router
 from .stripe import stripe_router
 from .subscription import subscription_router
 from .notifications import notifications_router
+from .review import review_router
 
 router = APIRouter(prefix="/api")
 router.include_router(student_auth_router)
@@ -28,6 +29,7 @@ router.include_router(newsletter_router)
 router.include_router(stripe_router)
 router.include_router(subscription_router)
 router.include_router(notifications_router)
+router.include_router(review_router)
 
 
 @router.get("/list-endpoints/")

@@ -18,16 +18,22 @@ from .message import (
     MessageList,
     ContactList,
     Contact,
-    MessageCount,
 )
 from .api_keys import GAPIKeysSchema
 from .user.reset_password import UserResetPasswordIn
 
 from .location import Location, LocationList
-from .lesson import Lesson, LessonList, UpcomingLessonList
+from .lesson import (
+    Lesson,
+    LessonList,
+    UpcomingLessonList,
+    UnreviewedLessonsList,
+    StudentLesson,
+)
 
 from .newsletter import NewsletterSubscription
 
 from .stripe import Price, Product, CheckoutSession
 from .certificate import Certificate, CertificateList
+from .review import Review
 from .subscription import Subscription

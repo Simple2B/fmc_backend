@@ -3,6 +3,8 @@ from pydantic import BaseModel
 
 from .user.profile import User
 
+import app.model as m
+
 
 class MessageData(BaseModel):
     text: str
@@ -11,16 +13,17 @@ class MessageData(BaseModel):
 
 class BaseMessage(BaseModel):
     uuid: str
-    text: str
+    text: str | None
     created_at: datetime
     is_read: bool
+    message_type: str | m.MessageType
 
     class Config:
         orm_mode = True
 
 
 class Message(BaseMessage):
-    author: User
+    author: User | None
     receiver: User
 
     class Config:
@@ -41,7 +44,3 @@ class Contact(BaseModel):
 
 class ContactList(BaseModel):
     contacts: list[Contact]
-
-
-class MessageCount(BaseModel):
-    count: int

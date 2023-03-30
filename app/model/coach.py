@@ -41,6 +41,7 @@ class Coach(Base):
     subscription = relationship("CoachSubscription", viewonly=True)
     certificates = relationship("Certificate", viewonly=True)
     locations = relationship("Location", secondary="coaches_locations", viewonly=True)
+    reviews = relationship("LessonReview", viewonly=True)
 
     @property
     def password(self):
@@ -61,6 +62,14 @@ class Coach(Base):
         )
         if user is not None and hash_verify(password, user.password):
             return user
+
+    @property
+    def total_rate(self) -> float:
+        review_count = len(self.reviews)
+        if not review_count:
+            return 0
+        rate = sum([review.rate for review in self.reviews]) / review_count
+        return rate
 
     def __repr__(self):
         return f"<{self.id}: {self.email}>"
