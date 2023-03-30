@@ -7,6 +7,7 @@ from app.logger import log
 from app.dependency import get_current_student, get_coach_by_uuid
 from app.database import get_db
 import app.model as m
+import app.schema as s
 
 like_router = APIRouter(prefix="/like", tags=["Like"])
 
@@ -28,3 +29,17 @@ def like_coach(
             status_code=status.HTTP_409_CONFLICT, detail="Error while liking a coach"
         )
     return status.HTTP_201_CREATED
+
+
+@like_router.get("/coach/coaches", response_model=s.CoachList)
+def list_liked_coached(
+    db: Session = Depends(get_db),
+    student: m.Student = Depends(get_current_student),
+):
+    coaches = (
+        db.query(m.Coach)
+        .join(m.StudentFavouriteCoach)
+        .filter_by(student_id=student.id)
+        .all()
+    )
+    return s.CoachList(coaches=coaches)
