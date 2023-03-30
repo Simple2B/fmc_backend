@@ -351,3 +351,25 @@ def get_coach_cards(
     db: Session = Depends(get_db),
 ):
     return s.CoachList(coaches=db.query(m.Coach).filter_by(is_verified=True).all())
+
+
+@profile_router.get(
+    "/student/profiles/cards",
+    status_code=status.HTTP_200_OK,
+    response_model=s.FavoriteCoachList,
+)
+def authorized_get_coach_cards(
+    db: Session = Depends(get_db), student: m.Student = Depends(get_current_student)
+):
+    favourite_coaches: list[m.Coach] = (
+        db.query(m.Coach).join(m.StudentFavouriteCoach).all()
+    )
+    coaches = db.query(m.Coach).filter_by(is_verified=True).all()
+    result = [
+        s.FavouriteCoach(
+            **coach.__dict__,
+            is_favourite=True if coach in favourite_coaches else False,
+        )
+        for coach in coaches
+    ]
+    return s.FavoriteCoachList(coaches=result)
