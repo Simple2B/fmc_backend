@@ -12,15 +12,18 @@ import app.model as m
 search_router = APIRouter(prefix="/search", tags=["Search"])
 
 
-@search_router.get("/", status_code=status.HTTP_200_OK)
+@search_router.get(
+    "/coaches", status_code=status.HTTP_200_OK, response_model=s.CoachList
+)
 def search_coaches(
-    first_name: str | None,
+    name: str = "",
     db: Session = Depends(get_db),
 ):
     query = db.query(m.Coach)
-    if first_name:
-        query.filter(
-            or_(m.Coach.first_name.icontains(first_name)),
-            (m.Coach.last_name.icontains(first_name)),
+    query.filter(
+        or_(
+            m.Coach.last_name.ilike(f"%{name}%"),
+            m.Coach.first_name.ilike(f"%{name}%"),
         )
-    return query.all()
+    )
+    return s.CoachList(coaches=query.all())
