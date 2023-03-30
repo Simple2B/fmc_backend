@@ -66,10 +66,9 @@ class Coach(Base):
     @property
     def total_rate(self) -> float:
         review_count = len(self.reviews)
-        try:
-            rate = sum([review.rate for review in self.reviews]) / review_count
-        except ZeroDivisionError:
+        if not review_count:
             return 0
+        rate = sum([review.rate for review in self.reviews]) / review_count
         return rate
 
     def __repr__(self):

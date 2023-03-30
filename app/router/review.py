@@ -13,7 +13,7 @@ import app.model as m
 review_router = APIRouter(prefix="/review", tags=["Reviews"])
 
 
-@review_router.post("/{lesson_uuid}")
+@review_router.post("/{lesson_uuid}", status_code=status.HTTP_201_CREATED)
 def create_review(
     data: s.Review,
     db: Session = Depends(get_db),
@@ -39,4 +39,4 @@ def create_review(
             detail="Error occured while creating review",
         )
     log(log.INFO, "Review has been created for lesson - [%s]", lesson.id)
-    return status.HTTP_200_OK
+    return status.HTTP_201_CREATED

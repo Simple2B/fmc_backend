@@ -50,7 +50,7 @@ def test_leave_review(
             "Authorization": f"Bearer {authorized_student_tokens[0].access_token}"
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert db.query(m.LessonReview).all() is not None
 
     # making sure that review exists for this lesson

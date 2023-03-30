@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 
 from app.dependency.user import get_current_student
-
+from app.logger import log
 from app.database import get_db
 import app.model as m
 
@@ -17,6 +17,7 @@ def get_lesson_by_uuid(
         db.query(m.StudentLesson).filter_by(uuid=lesson_uuid).first()
     )
     if not lesson:
+        log(log.INFO, "Lesson with this uuid does not exist - [%s]", lesson_uuid)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Lesson does not exist",
