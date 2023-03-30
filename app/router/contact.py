@@ -41,7 +41,7 @@ async def send_contact_request(
         )
     try:
         await mail_client.send_email(
-            settings.ADMIN_EMAIL,
+            settings.BUSINESS_EMAIL,
             "Contact question:",
             "contact_question.html",
             {

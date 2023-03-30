@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: str = "admin@admin.com"
 
     # Mail settings
+    BUSINESS_EMAIL: str = "help@findmycoach.co.uk"
     MAIL_USERNAME: str = "test_mail_username"
     MAIL_PASSWORD: str = "test_mail_password"
     MAIL_FROM: str = "chairlift@simple2b.com"

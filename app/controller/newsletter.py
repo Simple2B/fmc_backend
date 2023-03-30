@@ -29,7 +29,7 @@ def send_daily_report():
 
         try:
             await mail.send_email(
-                settings.NEWSLETTER_REPORT_EMAIL,
+                settings.BUSINESS_EMAIL,
                 "New Newsletter Subscriptions",
                 "daily_report.html",
                 {"subscriptions": new_subscriptions, "len": len},
@@ -46,7 +46,7 @@ def send_daily_report():
         log(
             log.INFO,
             "Newsletter Subscriptions Report sent to [%s]",
-            settings.NEWSLETTER_REPORT_EMAIL,
+            settings.BUSINESS_EMAIL,
         )
 
     loop = asyncio.get_event_loop()
