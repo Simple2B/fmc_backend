@@ -345,22 +345,25 @@ def student_change_password(
 
 
 @profile_router.get(
-    "/coach/profiles/cards", status_code=status.HTTP_200_OK, response_model=s.CoachList
+    "/profiles/cards", status_code=status.HTTP_200_OK, response_model=s.CoachList
 )
 def get_coach_cards(
     db: Session = Depends(get_db),
 ):
+    # TODO search logic
     return s.CoachList(coaches=db.query(m.Coach).filter_by(is_verified=True).all())
 
 
 @profile_router.get(
-    "/student/profiles/cards",
+    "/profiles/cards",
     status_code=status.HTTP_200_OK,
     response_model=s.FavoriteCoachList,
 )
 def authorized_get_coach_cards(
-    db: Session = Depends(get_db), student: m.Student = Depends(get_current_student)
+    db: Session = Depends(get_db),
+    student: m.Student = Depends(get_current_student),
 ):
+    # TODO search logic
     favourite_coaches: list[m.Coach] = (
         db.query(m.Coach).join(m.StudentFavouriteCoach).all()
     )
