@@ -350,7 +350,7 @@ def student_change_password(
 @profile_router.get(
     "/profiles/search/cards", status_code=status.HTTP_200_OK, response_model=s.CoachList
 )
-def get_scoach_cards(
+def get_coach_cards(
     name: str = Query(default=None),
     sport: str = Query(default=None),
     city: str = Query(default=None),
@@ -358,12 +358,13 @@ def get_scoach_cards(
     db: Session = Depends(get_db),
 ):
     # TODO search logic
+    print()
     query = db.query(m.Coach)
     if name:
         query = query.filter(
             or_(
-                m.Coach.last_name.ilike(f"{name}"),
-                m.Coach.first_name.ilike(f"{name}"),
+                m.Coach.last_name.icontains(f"{name}"),
+                m.Coach.first_name.icontains(f"{name}"),
             )
         )
     if sport:
