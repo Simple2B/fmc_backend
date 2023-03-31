@@ -180,7 +180,7 @@ def create_dummy_coach_lessons():
         )
         db.add(coach_lesson)
     db.commit()
-    log(log.INFO, "Created [%d] coach lessons", len(db.query(m.Lesson).all()))
+    log(log.INFO, "Created [%d] coach lessons", db.query(m.Lesson).count())
 
 
 def create_lessons():
@@ -198,7 +198,7 @@ def create_lessons():
         db.add(lesson)
         db.flush()
     db.commit()
-    log(log.INFO, "Created [%d] lessons", db.query(m.StudentLesson).all())
+    log(log.INFO, "Created [%d] lessons", db.query(m.StudentLesson).count())
 
 
 def create_dummy_messages():

@@ -1,4 +1,5 @@
 import json
+
 from fastapi import (
     APIRouter,
     Depends,
@@ -7,10 +8,12 @@ from fastapi import (
     status,
     HTTPException,
     Form,
+    Query,
 )
 from sqlalchemy.orm import Session
 from botocore.exceptions import ClientError
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import or_
 
 from app.logger import log
 from app.dependency import get_current_coach, get_current_student, get_s3_conn
@@ -345,12 +348,38 @@ def student_change_password(
 
 
 @profile_router.get(
-    "/profiles/cards", status_code=status.HTTP_200_OK, response_model=s.CoachList
+    "/profiles/search/cards", status_code=status.HTTP_200_OK, response_model=s.CoachList
 )
 def get_coach_cards(
+    name: str = Query(default=None),
+    sport: str = Query(default=None),
+    city: str = Query(default=None),
+    postal_code: str = Query(default=None),
     db: Session = Depends(get_db),
 ):
     # TODO search logic
+    query = db.query(m.Coach).filter_by(is_verified=True)
+    if name:
+        query.filter(
+            or_(
+                m.Coach.first_name.ilike(f"%{name}%"),
+                m.Coach.last_name.ilike(f"%{name}%"),
+            )
+        )
+    if sport:
+        query.join(m.SportType).filter(m.SportType.name.ilike(f"%{sport}%"))
+    if city:
+        location = (
+            db.query(m.Location).filter(m.Location.city.ilike(f"%{city}%")).first()
+        )
+        query.join(m.CoachLocation).filter(m.CoachLocation.location_id == location.id)
+    if postal_code:
+        location = (
+            db.query(m.Location)
+            .filter(m.Location.city.ilike(f"%{postal_code}%"))
+            .first()
+        )
+        query.join(m.CoachLocation).filter(m.CoachLocation.location_id == location.id)
     return s.CoachList(coaches=db.query(m.Coach).filter_by(is_verified=True).all())
 
 
