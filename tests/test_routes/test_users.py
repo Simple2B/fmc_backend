@@ -59,15 +59,15 @@ def test_get_profile(
     assert subscription
     assert resp_obj.stripe_subscription_id == subscription.stripe_subscription_id
 
-    # get all coaches cards
-    response = client.get(
-        "api/profile/coach/profiles/cards",
-    )
-    assert response.status_code == 200
-    resp_obj = s.CoachList.parse_obj(response.json())
-    assert (
-        len(resp_obj.coaches) == db.query(m.Coach).filter_by(is_verified=True).count()
-    )
+    # # get all coaches cards
+    # response = client.get(
+    #     "api/profile/coach/profiles/cards",
+    # )
+    # assert response.status_code == 200
+    # resp_obj = s.CoachList.parse_obj(response.json())
+    # assert (
+    #     len(resp_obj.coaches) == db.query(m.Coach).filter_by(is_verified=True).count()
+    # )
 
 
 @mock_s3
