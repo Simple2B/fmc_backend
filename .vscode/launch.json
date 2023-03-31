@@ -81,5 +81,15 @@
             ],
             "justMyCode": true
         },
+        {
+            "name": "Real coaches",
+            "type": "python",
+            "request": "launch",
+            "module": "invoke",
+            "args": [
+                "create-real-coaches-data"
+            ],
+            "justMyCode": true
+        }
     ]
 }

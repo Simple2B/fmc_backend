@@ -7,6 +7,7 @@ sleep 6
 echo Applying migrations
 alembic upgrade head &&
 echo Creating data
-invoke get-coach-subscription
 invoke create-sports &&
+invoke get-coach-subscription
 invoke dummy-data
+invoke create-real-coaches-data
