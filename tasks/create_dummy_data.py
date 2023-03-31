@@ -113,11 +113,10 @@ def create_dummy_student():
 
 
 def create_dummy_coaches():
-    coaches = db.query(m.Coach).count()
     locations = db.query(m.Location).all()
     sports = db.query(m.SportType).all()
-    if coaches <= 2:
-        for _ in range(1, 200):
+    for _ in range(1, 200):
+        if not db.query(m.Coach).filter_by(email=fake.email()).first():
             coach = m.Coach(
                 first_name=fake.first_name(),
                 last_name=fake.last_name(),
@@ -126,64 +125,62 @@ def create_dummy_coaches():
                 profile_picture=settings.DEFAULT_AVATAR_URL,
                 about=fake.sentence(),
                 password_hash=fake.email(),
-                is_verified=random.choice([True, False]),
                 is_for_adults=random.choice([True, False]),
                 is_for_children=random.choice([True, False]),
             )
             db.add(coach)
             db.flush()
-            # attaching sport to coach
-            coach_sport = m.CoachSport(
+        # attaching sport to coach
+        coach_sport = m.CoachSport(
+            coach_id=coach.id,
+            sport_id=random.randint(1, len(sports)),
+        )
+        db.add(coach_sport)
+        # creating couple locations for the coach
+        for _ in range(random.randint(0, 3)):
+            coach_location = m.CoachLocation(
                 coach_id=coach.id,
-                sport_id=random.randint(1, len(sports)),
+                location_id=random.randint(
+                    1,
+                    len(locations),
+                ),
             )
-            db.add(coach_sport)
-            # creating couple locations for the coach
-            for _ in range(random.randint(0, 3)):
-                coach_location = m.CoachLocation(
-                    coach_id=coach.id,
-                    location_id=random.randint(
-                        1,
-                        len(locations),
-                    ),
-                )
-                db.add(coach_location)
-        db.commit()
-        log(log.INFO, "Created [%d] students", db.query(m.Coach).count())
+            db.add(coach_location)
+    db.commit()
+    log(log.INFO, "Created [%d] coaches", db.query(m.Coach).count())
 
 
 def create_dummy_students():
-    students = db.query(m.Student).all()
-    if not students:
-        for _ in range(0, 300):
+    for _ in range(0, 300):
+        if not db.query(m.Student).filter_by(email=fake.email()).first():
             student = m.Student(
                 first_name=fake.first_name(),
                 last_name=fake.last_name(),
                 email=fake.email(),
-                username=fake.username(),
+                username=fake.user_name(),
                 profile_picture=settings.DEFAULT_AVATAR_URL,
+                password_hash=fake.email(),
             )
             db.add(student)
-            db.flush()
         db.commit()
-        log(log.INFO, "Created [%d] students", db.query(m.Student).count())
+    log(log.INFO, "Created [%d] students", db.query(m.Student).count())
 
 
 def create_dummy_coach_lessons():
     # TODO
-    if not db.query(m.Lesson).all():
-        coaches = db.query(m.Coach).all()
-        locations = db.query(m.Location).all()
-        sports = db.query(m.SportType).all()
-        for _ in range(0, 50):
-            coach_lesson = m.Lesson(
-                coach_id=random.randint(1, len(coaches)),
-                location_id=random.randint(1, len(locations)),
-                sport_type_id=random.randint(1, len(sports)),
-            )
-            db.add(coach_lesson)
-        db.commit()
-        log(log.INFO, "Created [%d] coach lessons", len(db.query(m.Lesson).all()))
+
+    coaches = db.query(m.Coach).all()
+    locations = db.query(m.Location).all()
+    sports = db.query(m.SportType).all()
+    for _ in range(0, 50):
+        coach_lesson = m.Lesson(
+            coach_id=random.randint(1, len(coaches)),
+            location_id=random.randint(1, len(locations)),
+            sport_type_id=random.randint(1, len(sports)),
+        )
+        db.add(coach_lesson)
+    db.commit()
+    log(log.INFO, "Created [%d] coach lessons", len(db.query(m.Lesson).all()))
 
 
 def create_lessons():
@@ -205,7 +202,6 @@ def create_lessons():
 
 
 def create_dummy_messages():
-    # TODO
     coaches = db.query(m.Coach).all()
     students = db.query(m.Student).all()
     for _ in range(0, 100):
@@ -229,7 +225,8 @@ def create_dummy_messages():
             receiver_id=receiver_id,
         )
         db.add(message)
-    db.flush()
+    db.commit()
+    log(log.INFO, "Created [%d] messages", db.query(m.Message).count())
 
 
 def create_fake_reviews():
