@@ -59,16 +59,6 @@ def test_get_profile(
     assert subscription
     assert resp_obj.stripe_subscription_id == subscription.stripe_subscription_id
 
-    # # get all coaches cards
-    # response = client.get(
-    #     "api/profile/coach/profiles/cards",
-    # )
-    # assert response.status_code == 200
-    # resp_obj = s.CoachList.parse_obj(response.json())
-    # assert (
-    #     len(resp_obj.coaches) == db.query(m.Coach).filter_by(is_verified=True).count()
-    # )
-
 
 @mock_s3
 def test_save_personal_info(
@@ -181,3 +171,42 @@ def test_change_profile_password(
     )
     assert coach
     assert hash_verify(TEST_NEW_PASSWORD, coach.password)
+
+
+def test_search_profiles(
+    client: TestClient,
+    test_data: TestData,
+    db: Session,
+    authorized_student_tokens: list,
+):
+    # searching without any inputs
+    response = client.get("api/profile/profiles/search/cards")
+    assert response.status_code == 200
+    resp_obj = s.CoachList.parse_obj(response.json())
+    assert resp_obj
+    assert len(resp_obj.coaches) == db.query(m.Coach).count()
+
+    # searching by coach name
+    coach_name = test_data.test_coaches[0].first_name
+    assert coach_name
+    response = client.get(f"api/profile/profiles/search/cards?name={coach_name}")
+    assert response.status_code == 200
+    resp_obj = s.CoachList.parse_obj(response.json())
+    assert resp_obj.coaches[0].first_name == coach_name
+
+    # search by location
+    coach: m.Coach = (
+        db.query(m.Coach).filter_by(email=test_data.test_coaches[0].email).first()
+    )
+    assert coach
+    response = client.get(
+        f"api/profile/profiles/search/cards?name={coach_name}&sport={coach.sports[0].name}"
+    )
+    assert response.status_code == 200
+    resp_obj = s.CoachList.parse_obj(response.json())
+    assert resp_obj
+    sport = db.query(m.SportType).filter_by(name=coach.sports[0].name).first()
+    # check if sport name matches
+    assert sport.name in [
+        sport.name for coach in resp_obj.coaches for sport in coach.sports
+    ]

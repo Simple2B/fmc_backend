@@ -1,6 +1,8 @@
 {
     "test_coaches": [
         {
+            "first_name":"Eric",
+            "last_name":"Brown",
             "email": "testcoach1@gmail.com",
             "password": "1234",
             "username": "testcoach1",
@@ -9,6 +11,8 @@
             "google_open_id": "3e45yrtherggrefv"
         },
         {
+            "first_name":"John",
+            "last_name":"Johnson",
             "email": "testcoach2@gmail.com",
             "password": "1234",
             "username": "testcoach2",
@@ -16,6 +20,8 @@
             "google_open_id": "6t45yrthr23rwfe"
         },
         {
+            "first_name":"Tyler",
+            "last_name":"Durden",
             "email": "testcoach3@gmail.com",
             "password": "1234",
             "username": "testcoach3",
@@ -67,7 +73,7 @@
             "password": "1234",
             "username": "test_authorized_coach1",
             "is_verified": true,
-            "first_name": "Jane",
+            "first_name": "John",
             "last_name": "Doe",
             "profile_picture": "http://path.to.picture"
         },
