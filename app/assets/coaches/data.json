@@ -1,0 +1,28 @@
+{
+  "coaches": [
+    {
+      "first_name": "Oliver",
+      "last_name": "Dixon",
+      "email": "oliverdixon.tennis@gmail.com",
+      "profile_picture": "https://find-my-coach-eu.s3.eu-west-2.amazonaws.com/assets/oliver_dixon_tennis.jpg",
+      "sport": "Tennis",
+      "city": "London"
+    },
+    {
+      "first_name": "Adam",
+      "last_name": "Miller",
+      "email": "nxtgen_coaching@outlook.com",
+      "profile_picture": "https://find-my-coach-eu.s3.eu-west-2.amazonaws.com/assets/adam_miller_football.jpg",
+      "sport": "Football",
+      "city": "Birmingham "
+    },
+    {
+      "first_name": "Jack",
+      "last_name": "Gallagher",
+      "email": "jacksgallagher97@gmail.com,",
+      "profile_picture": "https://find-my-coach-eu.s3.eu-west-2.amazonaws.com/assets/jack_gallagher.jpg",
+      "sport": "Fitness",
+      "city": "Stourport-on-Severn"
+    }
+  ]
+}

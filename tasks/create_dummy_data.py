@@ -1,12 +1,9 @@
 import random
 from datetime import datetime, timedelta
-
 from typing import Generator
 
 from invoke import task
-
 from faker import Faker
-
 
 from app.config import Settings, get_settings
 from app.database import get_db, Session
