@@ -345,7 +345,7 @@ def student_change_password(
 
 
 @profile_router.get(
-    "/profiles/cards", status_code=status.HTTP_200_OK, response_model=s.CoachList
+    "/cards", status_code=status.HTTP_200_OK, response_model=s.CoachList
 )
 def get_coach_cards(
     db: Session = Depends(get_db),
@@ -355,7 +355,7 @@ def get_coach_cards(
 
 
 @profile_router.get(
-    "/profiles/cards",
+    "/cards_with_like",
     status_code=status.HTTP_200_OK,
     response_model=s.FavoriteCoachList,
 )
