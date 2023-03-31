@@ -59,5 +59,22 @@ def create_real_coaches_data(_):
                 )
                 db.add(coach_location)
                 db.flush()
+            sport = (
+                db.query(m.SportType)
+                .filter(m.SportType.name.ilike(f"{data.sport}"))
+                .first()
+            )
+            if not sport:
+                sport = m.SportType(name=data.sport)
+                db.add(sport)
+                db.flush()
+                db.refresh(sport)
+            if not (
+                db.query(m.CoachSport)
+                .filter_by(coach_id=coach.id, sport_id=sport.id)
+                .first()
+            ):
+                db.add(m.CoachSport(coach_id=coach.id, sport_id=sport.id))
+
         db.commit()
         log(log.INFO, "Coach %s %s created", coach.first_name, coach.last_name)
