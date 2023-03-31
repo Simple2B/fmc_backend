@@ -357,8 +357,8 @@ def get_coach_cards(
     postal_code: str = Query(default=None),
     db: Session = Depends(get_db),
 ):
+    """Returns all cards for UNauthorized user"""
     # TODO search logic
-    print()
     query = db.query(m.Coach)
     if name:
         query = query.filter(
@@ -374,7 +374,7 @@ def get_coach_cards(
 
 
 @profile_router.get(
-    "/student/profiles/cards",
+    "/profiles/cards/authorized",
     status_code=status.HTTP_200_OK,
     response_model=s.FavoriteCoachList,
 )
@@ -386,13 +386,13 @@ def authorized_get_coach_cards(
     city: str = Query(default=None),
     postal_code: str = Query(default=None),
 ):
-    # TODO search logic
+    """Returns all cards for AUTHorized user.If coach is favourite then returns extra bool flag"""
     query = db.query(m.Coach)
     if name:
         query = query.filter(
             or_(
-                m.Coach.last_name.ilike(f"{name}"),
-                m.Coach.first_name.ilike(f"{name}"),
+                m.Coach.last_name.icontains(f"{name}"),
+                m.Coach.first_name.icontains(f"{name}"),
             )
         )
     if sport:
