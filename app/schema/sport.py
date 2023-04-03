@@ -2,6 +2,7 @@ from pydantic import BaseModel
 
 
 class SportType(BaseModel):
+    id: int
     uuid: str
     name: str
 

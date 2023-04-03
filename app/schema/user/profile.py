@@ -25,15 +25,15 @@ class UserList(BaseModel):
 
 
 class Coach(User):
+    total_rate: float
     about: str = ""
-    # TODO: must be check for frontend (this type AnyHttpUrl didn't work for frontend)
     is_for_adults: bool
     is_for_children: bool
     about: str | None
 
     locations: list[Location]
     certificates: list[Certificate]
-    sports: list[SportType] | None
+    sports: list[SportType]
 
     class Config:
         orm_mode = True

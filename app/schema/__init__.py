@@ -4,7 +4,12 @@ from .user.base import BaseUser
 from .user.login import UserGoogleLogin
 from .user.profile import User
 from .user.signup import UserSignUp
-from .user.profile import User, UserList, Coach, CoachList
+from .user.profile import (
+    User,
+    UserList,
+    Coach,
+    CoachList,
+)
 from .user.change_password import ProfileChangePasswordIn
 
 from .token import Token, TokenData

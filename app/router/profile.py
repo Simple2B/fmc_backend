@@ -1,4 +1,5 @@
 import json
+
 from fastapi import (
     APIRouter,
     Depends,
@@ -8,6 +9,7 @@ from fastapi import (
     HTTPException,
     Form,
 )
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from botocore.exceptions import ClientError
 from sqlalchemy.exc import SQLAlchemyError
@@ -345,9 +347,29 @@ def student_change_password(
 
 
 @profile_router.get(
-    "/coach/profiles/cards", status_code=status.HTTP_200_OK, response_model=s.CoachList
+    "/profiles/search/cards", status_code=status.HTTP_200_OK, response_model=s.CoachList
 )
 def get_coach_cards(
+    name: str | None = None,
+    sport_ids: list[str] | None = None,
+    city: str | None = None,
+    postal_code: str | None = None,
     db: Session = Depends(get_db),
 ):
-    return s.CoachList(coaches=db.query(m.Coach).filter_by(is_verified=True).all())
+    """Returns all cards for UNauthorized user"""
+    # TODO search logic
+    query = db.query(m.Coach)
+    if name:
+        query = query.filter(
+            or_(
+                m.Coach.last_name.icontains(f"{name}"),
+                m.Coach.first_name.icontains(f"{name}"),
+            )
+        )
+    if sport_ids:
+        coach_sports = (
+            db.query(m.CoachSport).filter(m.CoachSport.sport_id.in_(sport_ids)).all()
+        )
+        coach_ids = [cs.coach_id for cs in coach_sports]
+        query = query.filter(m.Coach.id.in_(coach_ids))
+    return s.CoachList(coaches=query.all())

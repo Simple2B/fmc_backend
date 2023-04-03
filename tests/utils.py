@@ -139,6 +139,18 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
             )
             db.add(lesson)
             db.commit()
+        if not coach.sports:
+            sport = (
+                db.query(m.SportType)
+                .filter_by(id=randint(1, len(SPORTS_TYPES)))
+                .first()
+            )
+            coach_sport = m.CoachSport(
+                coach_id=coach.id,
+                sport_id=sport.id,
+            )
+            db.add(coach_sport)
+        db.commit()
 
     for s in test_data.test_students:
         if not db.query(m.Student).filter_by(email=s.email).first():

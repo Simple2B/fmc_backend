@@ -1,5 +1,6 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, func
+from sqlalchemy.orm import relationship
 
 from app.hash_utils import make_hash, hash_verify
 from app.database import Base, Session
@@ -28,6 +29,10 @@ class Student(Base):
     profile_picture = Column(String(256), nullable=True)
 
     created_at = Column(DateTime, default=datetime.now)
+
+    favourites = relationship(
+        "Coach", secondary="student_favourite_coaches"
+    )  # favourite coaches
 
     @property
     def password(self):

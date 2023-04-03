@@ -18,5 +18,6 @@ from .coach_subscription import CoachSubscription, SubscriptionStatus
 from .newsletter_subscription import NewsletterSubscription
 from .stripe_product import StripeProductPrice, StripeProduct
 from .coach_subscription import CoachSubscription
+from .student_favourite_coach import StudentFavouriteCoach
 
 from app.database import Base
