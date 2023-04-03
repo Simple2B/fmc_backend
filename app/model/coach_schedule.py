@@ -1,22 +1,22 @@
 import enum
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum
+from sqlalchemy.orm import relationship
 
 from app.database import Base
 from app.utils import generate_uuid
 
 
-class WeekDay(enum.Enum):
-    monday = "Monday"
-    tuesday = "Tuesday"
-    wednesday = "Wednesday"
-    thursday = "Thursday"
-    friday = "Friday"
-    saturday = "Saturday"
-    sunday = "Sunday"
-
-
 class CoachSchedule(Base):
+    class WeekDay(enum.Enum):
+        monday = "Monday"
+        tuesday = "Tuesday"
+        wednesday = "Wednesday"
+        thursday = "Thursday"
+        friday = "Friday"
+        saturday = "Saturday"
+        sunday = "Sunday"
+
     __tablename__ = "coach_schedules"
 
     id = Column(Integer, primary_key=True)
@@ -30,6 +30,15 @@ class CoachSchedule(Base):
     begin = Column(DateTime, nullable=False)
     end = Column(DateTime, nullable=False)
     created_at = Column(DateTime(), default=datetime.now)
+
+    coach = relationship(
+        "Coach",
+        viewonly=True,
+    )
+    location = relationship(
+        "Location",
+        viewonly=True,
+    )
 
     def __repr__(self):
         return f"<CoachSchedule {self.id}>"

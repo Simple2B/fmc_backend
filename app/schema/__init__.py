@@ -15,7 +15,7 @@ from .user.change_password import ProfileChangePasswordIn
 from .token import Token, TokenData
 from .sport import ListSportType
 from .contact import ContactDataIn
-
+from .schedule import Schedule, ScheduleList, BaseSchedule
 
 from .message import (
     MessageData,
