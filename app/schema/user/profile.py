@@ -4,6 +4,7 @@ from .base import BaseUser
 from ..sport import SportType
 from ..certificate import Certificate
 from ..location import Location
+from ..review import Review
 from app.config import get_settings, Settings
 
 settings: Settings = get_settings()
@@ -34,6 +35,7 @@ class Coach(User):
     locations: list[Location]
     certificates: list[Certificate]
     sports: list[SportType]
+    reviews: list[Review]
 
     class Config:
         orm_mode = True
