@@ -95,7 +95,7 @@ def get_coach_subscription(
     subscription = db.query(m.CoachSubscription).filter_by(coach_id=coach.id).first()
     if not subscription:
         log(log.INFO, "Subscription not found for coach - [%s]", coach.email)
-        raise JSONResponse(status_code=status.HTTP_200_OK, content="Not found")
+        return JSONResponse(status_code=status.HTTP_200_OK, content="Not found")
     return s.Subscription(
         product=subscription.product,
         stripe_subscription_id=subscription.stripe_subscription_id,
