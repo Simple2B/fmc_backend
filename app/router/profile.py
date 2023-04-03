@@ -1,8 +1,10 @@
 import json
+from typing import Annotated
 
 from fastapi import (
     APIRouter,
     Depends,
+    Query,
     UploadFile,
     File,
     status,
@@ -361,7 +363,7 @@ def student_change_password(
 )
 def get_coach_cards(
     name: str | None = None,
-    sport_ids: list[str] | None = None,
+    sport_ids: list[int] | None = Query(None),
     city: str | None = None,
     postal_code: str | None = None,
     db: Session = Depends(get_db),
