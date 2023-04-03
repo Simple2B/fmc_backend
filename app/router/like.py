@@ -28,6 +28,7 @@ def like_coach(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Error while liking a coach"
         )
+    return status.HTTP_201_CREATED
 
 
 @like_router.get("/coach/coaches", response_model=s.CoachList)
