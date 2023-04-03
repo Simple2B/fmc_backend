@@ -10,7 +10,7 @@ from fastapi import (
     HTTPException,
     Form,
 )
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
 from botocore.exceptions import ClientError
 from sqlalchemy.exc import SQLAlchemyError
@@ -373,12 +373,28 @@ def get_coach_cards(
     # TODO search logic
     query = db.query(m.Coach)
     if name:
-        query = query.filter(
-            or_(
-                m.Coach.last_name.icontains(f"{name}"),
-                m.Coach.first_name.icontains(f"{name}"),
+        if " " in name:
+            first_name = name.split(" ")[0]
+            last_name = name.split(" ")[1]
+            query = query.filter(
+                or_(
+                    and_(
+                        m.Coach.last_name.icontains(f"{first_name}"),
+                        m.Coach.first_name.icontains(f"{last_name}"),
+                    ),
+                    and_(
+                        m.Coach.last_name.icontains(f"{last_name}"),
+                        m.Coach.first_name.icontains(f"{first_name}"),
+                    ),
+                )
             )
-        )
+        else:
+            query = query.filter(
+                or_(
+                    m.Coach.last_name.icontains(f"{name}"),
+                    m.Coach.first_name.icontains(f"{name}"),
+                )
+            )
     if sport_ids:
         coach_sports = (
             db.query(m.CoachSport).filter(m.CoachSport.sport_id.in_(sport_ids)).all()
