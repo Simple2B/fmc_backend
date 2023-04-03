@@ -10,7 +10,6 @@ from fastapi import (
     HTTPException,
     Form,
 )
-from fastapi.responses import JSONResponse
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from botocore.exceptions import ClientError
