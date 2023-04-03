@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, Request, Header, HTTPException, status
 from sqlalchemy.orm import Session
+from stripe.error import InvalidRequestError
 
+from app.dependency.controller import get_stripe
+from app.dependency.user import get_current_student
 from app.logger import log
 from app.dependency.controller import get_stripe
 from app.config import get_settings, Settings
@@ -23,6 +26,41 @@ def get_coach_stripe_product(
         db.query(m.StripeProduct)
         .filter_by(stripe_product_id=settings.COACH_SUBSCRIPTION_PRODUCT_ID)
         .first()
+    )
+
+
+@stripe_router("/student/reserve")
+def reserve_booking(
+    db=Depends(get_db),
+    student: m.Student = Depends(get_current_student),
+    stripe=Depends(get_stripe),
+):
+    if not student.stripe_customer_id:
+        try:
+            customer = stripe.Customer.create(
+                email=student.email, name=f"{student.first_name} {student.last_name}"
+            )
+        except InvalidRequestError as e:
+            log(log.INFO, "Error creating student - customer - [%s]", e)
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Error while creating student - customer",
+            )
+        student.stripe_customer_id = customer.id
+        log(log.INFO, "Student [%s] created as a stripe customer", student.email)
+        db.commit()
+
+    # TODO
+
+    stripe.checkout.Session.create(
+        success_url="https://example.com/success",
+        line_items=[
+            {
+                "price": "price_H5ggYwtDq4fbrJ",
+                "quantity": 2,
+            },
+        ],
+        mode="payment",
     )
 
 
