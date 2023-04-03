@@ -56,6 +56,16 @@ def get_coach_profile(
     )
 
 
+@profile_router.get("/coach/{coach_uuid}", response_model=s.Coach)
+def get_coach_by_uuid(
+    coach_uuid: str,
+    db: Session = Depends(get_db),
+    student: m.Student = Depends(get_current_student),
+):
+    coach = db.query(m.Coach).filter_by(uuid=coach_uuid).first()
+    return coach
+
+
 @profile_router.get(
     "/student",
     response_model=s.User,
@@ -75,7 +85,7 @@ def get_student_profile(
     )
 
 
-@profile_router.get("/coach/subscription", response_model=s.Subscription | None)
+@profile_router.get("/coach/subscription/info", response_model=s.Subscription | None)
 def get_coach_subscription(
     db: Session = Depends(get_db),
     coach: m.Student = Depends(get_current_coach),

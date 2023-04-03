@@ -50,7 +50,7 @@ def test_get_profile(
 
     # getting subscription for coach
     response = client.get(
-        "api/profile/coach/subscription",
+        "api/profile/coach/subscription/info",
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response.status_code == 200
@@ -58,6 +58,15 @@ def test_get_profile(
     subscription = db.query(m.CoachSubscription).first()
     assert subscription
     assert resp_obj.stripe_subscription_id == subscription.stripe_subscription_id
+
+    # test get single profile by uuid
+    coach = db.query(m.Coach).first()
+    assert coach
+    response = client.get(
+        f"/api/profile/coach/{coach.uuid}",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response
 
 
 @mock_s3
