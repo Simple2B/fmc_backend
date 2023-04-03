@@ -12,4 +12,4 @@ class StudentFavouriteCoach(Base):
     student_id = Column(Integer, ForeignKey("students.id"))
 
     def __repr__(self):
-        return f"<Coach - {self.id}>"
+        return f"<Coach {self.coach_id} - Student {self.student_id}>"

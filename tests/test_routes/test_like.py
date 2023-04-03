@@ -35,15 +35,3 @@ def test_likes(
     coach = db.query(m.Coach).first()
     assert coach
     assert resp_obj.coaches[0].email == coach.email
-
-    # search for favourite coaches
-    response = client.get(
-        "api/profile/profiles/cards/authorized",
-        headers={
-            "Authorization": f"Bearer {authorized_student_tokens[0].access_token}"
-        },
-    )
-    assert response.status_code == 200
-    resp_obj = s.FavoriteCoachList.parse_obj(response.json())
-    assert resp_obj
-    assert resp_obj.coaches[0].is_favourite

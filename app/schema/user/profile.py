@@ -25,14 +25,15 @@ class UserList(BaseModel):
 
 
 class Coach(User):
+    total_rate: float
     about: str = ""
     is_for_adults: bool
     is_for_children: bool
     about: str | None
 
-    locations: list[Location] | None
-    certificates: list[Certificate] | None
-    sports: list[SportType] | None
+    locations: list[Location]
+    certificates: list[Certificate]
+    sports: list[SportType]
 
     class Config:
         orm_mode = True
@@ -44,16 +45,5 @@ class Coach(User):
         return v
 
 
-class FavouriteCoach(Coach):
-    is_favourite: bool
-
-    class Config:
-        orm_mode = True
-
-
 class CoachList(BaseModel):
     coaches: list[Coach]
-
-
-class FavoriteCoachList(BaseModel):
-    coaches: list[FavouriteCoach]

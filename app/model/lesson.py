@@ -1,11 +1,11 @@
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 
 from app.database import Base, get_db
 from app.utils import generate_uuid
 
 from .location import Location
-from .coach import Coach
 from .sport_type import SportType
 from .coach_sport import CoachSport
 
@@ -25,13 +25,11 @@ class Lesson(Base):
 
     created_at = Column(DateTime, default=datetime.now)
 
+    coach = relationship("Coach", foreign_keys="Lesson.coach_id", viewonly=True)
+
     @property
     def name(self) -> str:
         return f"1-on-1 {self.sport.name} Lesson with {self.coach.first_name}"
-
-    @property
-    def coach(self) -> Coach:
-        return db.query(Coach).filter_by(id=self.coach_id).first()
 
     @property
     def location(self) -> Location:

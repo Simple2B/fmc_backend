@@ -8,7 +8,6 @@ from fastapi import (
     status,
     HTTPException,
     Form,
-    Query,
 )
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
@@ -351,10 +350,10 @@ def student_change_password(
     "/profiles/search/cards", status_code=status.HTTP_200_OK, response_model=s.CoachList
 )
 def get_coach_cards(
-    name: str = Query(default=None),
-    sport: str = Query(default=None),
-    city: str = Query(default=None),
-    postal_code: str = Query(default=None),
+    name: str | None = None,
+    sport_ids: list[str] | None = None,
+    city: str | None = None,
+    postal_code: str | None = None,
     db: Session = Depends(get_db),
 ):
     """Returns all cards for UNauthorized user"""
@@ -367,47 +366,10 @@ def get_coach_cards(
                 m.Coach.first_name.icontains(f"{name}"),
             )
         )
-    if sport:
-        sport = db.query(m.SportType).filter(m.SportType.name.ilike(f"{sport}")).first()
-        query = query.filter(m.Coach.sports.any(id=sport.id))
+    if sport_ids:
+        coach_sports = (
+            db.query(m.CoachSport).filter(m.CoachSport.sport_id.in_(sport_ids)).all()
+        )
+        coach_ids = [cs.coach_id for cs in coach_sports]
+        query = query.filter(m.Coach.id.in_(coach_ids))
     return s.CoachList(coaches=query.all())
-
-
-@profile_router.get(
-    "/profiles/cards/authorized",
-    status_code=status.HTTP_200_OK,
-    response_model=s.FavoriteCoachList,
-)
-def authorized_get_coach_cards(
-    db: Session = Depends(get_db),
-    student: m.Student = Depends(get_current_student),
-    name: str = Query(default=None),
-    sport: str = Query(default=None),
-    city: str = Query(default=None),
-    postal_code: str = Query(default=None),
-):
-    """Returns all cards for AUTHorized user.If coach is favourite then returns extra bool flag"""
-    query = db.query(m.Coach)
-    if name:
-        query = query.filter(
-            or_(
-                m.Coach.last_name.icontains(f"{name}"),
-                m.Coach.first_name.icontains(f"{name}"),
-            )
-        )
-    if sport:
-        sport = db.query(m.SportType).filter(m.SportType.name.ilike(f"{sport}")).first()
-        query = query.filter(m.Coach.sports.any(id=sport.id))
-
-    coaches = query.all()
-    favourite_coaches: list[m.Coach] = (
-        db.query(m.Coach).join(m.StudentFavouriteCoach).all()
-    )
-    result = [
-        s.FavouriteCoach(
-            **coach.__dict__,
-            is_favourite=True if coach in favourite_coaches else False,
-        )
-        for coach in coaches
-    ]
-    return s.FavoriteCoachList(coaches=result)

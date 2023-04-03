@@ -9,8 +9,6 @@ from .user.profile import (
     UserList,
     Coach,
     CoachList,
-    FavouriteCoach,
-    FavoriteCoachList,
 )
 from .user.change_password import ProfileChangePasswordIn
 

@@ -28,7 +28,6 @@ def like_coach(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Error while liking a coach"
         )
-    return status.HTTP_201_CREATED
 
 
 @like_router.get("/coach/coaches", response_model=s.CoachList)
@@ -36,10 +35,4 @@ def list_liked_coached(
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
 ):
-    coaches = (
-        db.query(m.Coach)
-        .join(m.StudentFavouriteCoach)
-        .filter_by(student_id=student.id)
-        .all()
-    )
-    return s.CoachList(coaches=coaches)
+    return s.CoachList(coaches=student.favourites)

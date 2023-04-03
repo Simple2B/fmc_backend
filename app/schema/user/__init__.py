@@ -5,4 +5,4 @@ from .change_password import ProfileChangePasswordIn
 from .login import UserGoogleLogin
 from .reset_password import UserResetPasswordIn
 from .signup import UserSignUp
-from .profile import Coach, CoachList, FavouriteCoach, FavoriteCoachList
+from .profile import Coach, CoachList
