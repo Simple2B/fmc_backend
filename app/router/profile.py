@@ -10,6 +10,7 @@ from fastapi import (
     HTTPException,
     Form,
 )
+from fastapi.responses import JSONResponse
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from botocore.exceptions import ClientError
@@ -86,7 +87,7 @@ def get_student_profile(
     )
 
 
-@profile_router.get("/coach/subscription/info", response_model=s.Subscription | None)
+@profile_router.get("/coach/subscription/info", response_model=s.Subscription)
 def get_coach_subscription(
     db: Session = Depends(get_db),
     coach: m.Student = Depends(get_current_coach),
@@ -94,7 +95,7 @@ def get_coach_subscription(
     subscription = db.query(m.CoachSubscription).filter_by(coach_id=coach.id).first()
     if not subscription:
         log(log.INFO, "Subscription not found for coach - [%s]", coach.email)
-        return
+        raise JSONResponse(status_code=status.HTTP_200_OK, content="Not found")
     return s.Subscription(
         product=subscription.product,
         stripe_subscription_id=subscription.stripe_subscription_id,
