@@ -27,8 +27,10 @@ def get_review_notifications(
         .filter(
             m.StudentLesson.student_id == student.id,
             m.StudentLesson.review_id == None,  # noqa:flake8 E711
-            m.StudentLesson.appointment_time <= datetime.now() + timedelta(days=2),
+            m.StudentLesson.appointment_time <= datetime.now(),
+            m.StudentLesson.appointment_time >= datetime.now() - timedelta(days=3),
         )
+        .order_by(m.StudentLesson.appointment_time.desc())
         .all()
     )
     log(log.INFO, "Lessons waiting for review - [%d]", len(student_lessons))

@@ -169,7 +169,7 @@ def create_dummy_coach_lessons():
     coaches = db.query(m.Coach).all()
     locations = db.query(m.Location).all()
     sports = db.query(m.SportType).all()
-    for _ in range(0, 50):
+    for _ in range(0, 1500):
         coach_lesson = m.Lesson(
             coach_id=random.randint(1, len(coaches)),
             location_id=random.randint(1, len(locations)),
@@ -183,7 +183,7 @@ def create_dummy_coach_lessons():
 def create_lessons():
     students = db.query(m.Student).all()
     coach_lessons = db.query(m.Lesson).all()
-    for _ in range(0, 200):
+    for _ in range(0, 1500):
         lesson = m.StudentLesson(
             student_id=random.randint(1, len(students)),
             lesson_id=random.randint(1, len(coach_lessons)),
@@ -201,7 +201,7 @@ def create_lessons():
 def create_dummy_messages():
     coaches = db.query(m.Coach).all()
     students = db.query(m.Student).all()
-    for _ in range(0, 100):
+    for _ in range(0, 1500):
         author_id: str = db.query(m.Coach).get(random.randint(1, len(coaches))).uuid
         receiver_id: str = (
             db.query(m.Student).get(random.randint(1, len(students))).uuid
@@ -213,7 +213,7 @@ def create_dummy_messages():
         )
         db.add(message)
     db.flush()
-    for _ in range(0, 100):
+    for _ in range(0, 1500):
         author_id: str = db.query(m.Student).get(random.randint(1, len(students))).uuid
         receiver_id: str = db.query(m.Coach).get(random.randint(1, len(coaches))).uuid
         message = m.Message(
@@ -227,8 +227,19 @@ def create_dummy_messages():
 
 
 def create_fake_reviews():
-    # TODO
-    ...
+    student_lessons = db.query(m.StudentLesson).count()
+    coach = db.query(m.Coach).count()
+    for _ in range(0, 500):
+        db.add(
+            m.LessonReview(
+                student_lesson_id=random.randint(1, student_lessons),
+                coach_id=random.randint(1, coach),
+                text=fake.sentence(),
+                rate=random.randint(1, 5),
+            )
+        )
+    db.commit()
+    log(log.INFO, "Reviews created [%d]", db.query(m.LessonReview).count())
 
 
 def gen_number_emails(num_emails: int) -> Generator[str, None, None]:
@@ -290,5 +301,34 @@ def dummy_data(_):
     # just lessons
     create_lessons()
     create_dummy_messages()
-
+    create_fake_reviews()
     create_dummy_newsletter_subscriptions()
+
+
+@task
+def create_sessions(_):
+    """Create sessions between known users"""
+    student = db.query(m.Student).filter_by(email=TEST_STUDENT_EMAIL).first()
+    coach = db.query(m.Coach).filter_by(email=TEST_COACH_EMAIL).first()
+    coach_lessons_ids = [
+        lesson.id for lesson in db.query(m.Lesson).filter_by(coach_id=coach.id).all()
+    ]
+    for _ in range(0, 200):
+        start_date = datetime.now() - timedelta(days=5)
+        end_date = datetime.now() + timedelta(days=14)
+        db.add(
+            m.StudentLesson(
+                student_id=student.id,
+                lesson_id=random.randint(1, len(coach_lessons_ids)),
+                appointment_time=fake.date_between(
+                    start_date=start_date, end_date=end_date
+                ),
+            )
+        )
+    db.commit()
+    log(
+        log.INFO,
+        "Session created for [%s] -:[%d]",
+        TEST_STUDENT_EMAIL,
+        db.query(m.StudentLesson).filter_by(student_id=student.id).count(),
+    )

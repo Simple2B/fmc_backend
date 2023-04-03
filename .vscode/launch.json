@@ -90,6 +90,16 @@
                 "create-real-coaches-data"
             ],
             "justMyCode": true
+        },
+        {
+            "name": "Create sessions",
+            "type": "python",
+            "request": "launch",
+            "module": "invoke",
+            "args": [
+                "create-sessions"
+            ],
+            "justMyCode": true
         }
     ]
 }
