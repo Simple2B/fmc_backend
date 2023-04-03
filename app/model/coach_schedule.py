@@ -27,8 +27,8 @@ class CoachSchedule(Base):
     notes = Column(String(256), nullable=True)
 
     week_day = Column(Enum(WeekDay), default=WeekDay.monday)
-    begin = Column(DateTime, nullable=False)
-    end = Column(DateTime, nullable=False)
+    begin = Column(String(32), nullable=False)  # e.g. 17:32
+    end = Column(String(32), nullable=False)  # e.g. 18:32
     created_at = Column(DateTime(), default=datetime.now)
 
     coach = relationship(

@@ -37,8 +37,8 @@ def create_coach_schedule(
         location_id=data.location_id,
         notes=data.notes,
         week_day=data.week_day,
-        begin=datetime(datetime.strptime(data.begin, "%H:%M").time()),
-        end=datetime(datetime.strptime(data.end, "%H:%M").time()),
+        begin=data.begin,
+        end=data.end,
     )
 
     db.add(schedule)
@@ -49,6 +49,7 @@ def create_coach_schedule(
         raise HTTPException(
             status_code=status.HTTP_200_OK, detail="Error creating schedule"
         )
+    return status.HTTP_201_CREATED
 
 
 @schedule_router.get(

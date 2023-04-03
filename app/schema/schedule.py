@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 # from .user import Coach
 from .location import Location
@@ -13,6 +13,10 @@ class BaseSchedule(BaseModel):
     week_day: str | m.CoachSchedule.WeekDay
     begin: str
     end: str
+
+    @validator("begin", "end")
+    def check_time(value):
+        ...
 
 
 class Schedule(BaseSchedule):
