@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -13,7 +11,7 @@ schedule_router = APIRouter(prefix="/schedule", tags=["Coach Schedule"])
 
 
 @schedule_router.get(
-    "/coach",
+    "/schedules",
     status_code=status.HTTP_200_OK,
     response_model=s.ScheduleList,
 )
@@ -21,7 +19,7 @@ def get_current_coach_schedules(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    return coach.schedules
+    return s.ScheduleList(schedules=coach.schedules)
 
 
 @schedule_router.post("/create", status_code=status.HTTP_201_CREATED)
@@ -53,7 +51,7 @@ def create_coach_schedule(
 
 
 @schedule_router.get(
-    "/coach/{schedule_uuid}",
+    "/{schedule_uuid}",
     status_code=status.HTTP_200_OK,
     response_model=s.Schedule,
 )

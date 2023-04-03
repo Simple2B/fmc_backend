@@ -1,6 +1,6 @@
 import enum
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -26,7 +26,7 @@ class CoachSchedule(Base):
     location_id = Column(Integer, ForeignKey("locations.id"))
     notes = Column(String(256), nullable=True)
 
-    week_day = Column(Enum(WeekDay), default=WeekDay.monday)
+    week_day = Column(String(32), default=WeekDay.monday.value)
     begin = Column(String(32), nullable=False)  # e.g. 17:32
     end = Column(String(32), nullable=False)  # e.g. 18:32
     created_at = Column(DateTime(), default=datetime.now)

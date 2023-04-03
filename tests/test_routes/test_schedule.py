@@ -28,3 +28,22 @@ def test_schedule(
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response
+    assert db.query(m.CoachSchedule).count()
+
+    # getting list of coach schedules
+    response = client.get(
+        "/api/schedule/schedules",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response.status_code == 200
+    resp_obj = s.ScheduleList.parse_obj(response.json())
+    assert db.query(m.CoachSchedule).filter_by(uuid=resp_obj.schedules[0].uuid).first()
+
+    # getting single schedule by uuid
+    response = client.get(
+        f"/api/schedule/{resp_obj.schedules[0].uuid}",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response.status_code == 200
+    resp_obj = s.Schedule.parse_obj(response.json())
+    assert resp_obj.uuid == db.query(m.CoachSchedule).first().uuid

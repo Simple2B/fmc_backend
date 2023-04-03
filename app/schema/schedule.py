@@ -15,8 +15,11 @@ class BaseSchedule(BaseModel):
     end: str
 
     @validator("begin", "end")
-    def check_time(value):
-        ...
+    def check_time(cls, v):
+        # check if its valid format
+        if not datetime.strptime(v, "%H:%M").time():
+            raise ValueError("Bad time format")
+        return v
 
 
 class Schedule(BaseSchedule):
