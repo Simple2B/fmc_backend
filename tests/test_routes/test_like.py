@@ -24,7 +24,7 @@ def test_likes(
     assert db.query(m.StudentFavouriteCoach).count() > 0
 
     response = client.get(
-        "api/like/coach/coaches",
+        "api/like/student/favourites",
         headers={
             "Authorization": f"Bearer {authorized_student_tokens[0].access_token}"
         },

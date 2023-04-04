@@ -54,7 +54,7 @@ def unlike_coach(
     return status.HTTP_201_CREATED
 
 
-@like_router.get("/coach/coaches", response_model=s.CoachList)
+@like_router.get("/student/favourites", response_model=s.CoachList)
 def list_liked_coached(
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
