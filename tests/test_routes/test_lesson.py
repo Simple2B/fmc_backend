@@ -25,7 +25,7 @@ def test_lesson(
     create_upcoming_student_lesson(db=db, student_id=student.id, lesson_id=lesson.id)
 
     response = client.get(
-        "api/lesson/lessons/upcoming",
+        "api/lesson/lessons/student/upcoming",
         headers={
             "Authorization": f"Bearer {authorized_student_tokens[0].access_token}"
         },
