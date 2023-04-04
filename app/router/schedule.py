@@ -33,7 +33,7 @@ def create_coach_schedule(
         db.query(m.CoachSchedule)
         .filter_by(
             coach_id=coach.id,
-            week_day=m.CoachSchedule.WeekDay(data.week_day),
+            week_day=data.week_day,
             begin_hours=data.begin_hours,
             begin_minutes=data.begin_minutes,
         )
@@ -46,7 +46,7 @@ def create_coach_schedule(
     schedule = m.CoachSchedule(
         coach_id=coach.id,
         location_id=data.location_id,
-        week_day=m.CoachSchedule.WeekDay(data.week_day),
+        week_day=data.week_day,
         begin_hours=data.begin_hours,
         begin_minutes=data.begin_minutes,
         duration=data.duration,

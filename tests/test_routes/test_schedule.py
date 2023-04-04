@@ -15,7 +15,7 @@ def test_schedule(
     # creating a new schedule for coach
     request_data = s.BaseSchedule(
         location_id=1,
-        week_day=m.CoachSchedule.WeekDay.FRIDAY,
+        week_day=m.WeekDay.FRIDAY.value,
         begin_hours=18,
         begin_minutes=30,
     ).dict()
