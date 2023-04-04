@@ -365,8 +365,7 @@ def student_change_password(
 def get_coach_cards(
     name: str | None = None,
     sport_ids: list[int] | None = Query(None),
-    city: str | None = None,
-    postal_code: str | None = None,
+    address: str | None = None,
     db: Session = Depends(get_db),
 ):
     """Returns all cards for UNauthorized user"""
@@ -400,5 +399,16 @@ def get_coach_cards(
             db.query(m.CoachSport).filter(m.CoachSport.sport_id.in_(sport_ids)).all()
         )
         coach_ids = [cs.coach_id for cs in coach_sports]
+        query = query.filter(m.Coach.id.in_(coach_ids))
+    if address:
+        # main filtration # TODO
+        # search by numbers if postal code
+        location = (
+            db.query(m.Location).filter(m.Location.city.icontains(f"{address}")).first()
+        )
+        coach_ids = [
+            cl.coach_id
+            for cl in db.query(m.CoachLocation).filter_by(location_id=location.id).all()
+        ]
         query = query.filter(m.Coach.id.in_(coach_ids))
     return s.CoachList(coaches=query.all())
