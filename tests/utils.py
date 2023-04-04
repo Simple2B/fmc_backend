@@ -160,6 +160,28 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
         if not db.query(m.Coach).filter_by(email=auth_coach.email).first():
             db.add(m.Coach(**auth_coach.dict()))
             db.commit()
+            coach: m.Coach = db.query(m.Coach).filter_by(email=auth_coach.email).first()
+            if not db.query(m.Lesson).filter_by(coach_id=coach.id).first():
+                lesson = m.Lesson(
+                    coach_id=coach.id,
+                    location_id=randint(1, len(locations)),
+                    sport_type_id=randint(1, len(sports)),
+                )
+                db.add(lesson)
+                db.commit()
+            if not coach.sports:
+                sport = (
+                    db.query(m.SportType)
+                    .filter_by(id=randint(1, len(SPORTS_TYPES)))
+                    .first()
+                )
+                coach_sport = m.CoachSport(
+                    coach_id=coach.id,
+                    sport_id=sport.id,
+                )
+                db.add(coach_sport)
+            db.commit()
+
     for auth_student in test_data.test_authorized_students:
         if not db.query(m.Student).filter_by(email=auth_student.email).first():
             db.add(m.Student(**auth_student.dict()))

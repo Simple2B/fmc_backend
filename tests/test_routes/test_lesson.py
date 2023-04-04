@@ -12,6 +12,7 @@ def test_lesson(
     test_data: TestData,
     db: Session,
     authorized_student_tokens,
+    authorized_coach_tokens,
 ):
     # creatong appointment
     student = (
@@ -20,7 +21,13 @@ def test_lesson(
         .first()
     )
     assert student
-    lesson = db.query(m.Lesson).first()
+    coach = (
+        db.query(m.Coach)
+        .filter_by(email=test_data.test_authorized_coaches[0].email)
+        .first()
+    )
+    assert coach
+    lesson = db.query(m.Lesson).filter_by(coach_id=coach.id).first()
     assert lesson
     create_upcoming_student_lesson(db=db, student_id=student.id, lesson_id=lesson.id)
 
@@ -41,3 +48,18 @@ def test_lesson(
     assert student
     upc_lessons = db.query(m.StudentLesson).filter_by(student_id=student.id).all()
     assert len(upc_lessons) == len(resp_obj.lessons)
+
+    # getting upcoming appointments for coach
+    response = client.get(
+        "api/lesson/lessons/coach/upcoming",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response
+    resp_obj = s.UpcomingLessonList.parse_obj(response.json())
+    assert (
+        resp_obj.lessons[0].coach.email
+        == db.query(m.Coach)
+        .filter_by(email=test_data.test_authorized_coaches[0].email)
+        .first()
+        .email
+    )

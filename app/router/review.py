@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
 
-from app.dependency import get_current_student, get_lesson_by_uuid
+from app.dependency import get_current_student, get_current_coach, get_lesson_by_uuid
 
 from app.logger import log
 from app.database import get_db
@@ -40,3 +40,13 @@ def create_review(
         )
     log(log.INFO, "Review has been created for lesson - [%s]", lesson.id)
     return status.HTTP_201_CREATED
+
+
+@review_router.get(
+    "/reviews", status_code=status.HTTP_201_CREATED, response_model=s.ReviewList
+)
+def coach_reviews_list(
+    db: Session = Depends(get_db),
+    coach: m.Coach = Depends(get_current_coach),
+):
+    return s.ReviewList(reviews=coach.reviews)
