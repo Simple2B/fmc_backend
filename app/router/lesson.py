@@ -15,7 +15,7 @@ lesson_router = APIRouter(prefix="/lesson", tags=["Lesson"])
 
 
 @lesson_router.get(
-    "/lessons/upcoming",
+    "/lessons/student/upcoming",
     response_model=s.UpcomingLessonList,
     status_code=status.HTTP_200_OK,
 )
