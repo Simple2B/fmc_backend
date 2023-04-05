@@ -6,7 +6,8 @@
       "email": "oliverdixon.tennis@gmail.com",
       "profile_picture": "https://find-my-coach-eu.s3.eu-west-2.amazonaws.com/assets/oliver_dixon_tennis.jpg",
       "sport": "Tennis",
-      "city": "London"
+      "city": "London",
+      "postal_code": "W14 0TJ"
     },
     {
       "first_name": "Adam",
@@ -14,7 +15,8 @@
       "email": "nxtgen_coaching@outlook.com",
       "profile_picture": "https://find-my-coach-eu.s3.eu-west-2.amazonaws.com/assets/adam_miller_football.jpg",
       "sport": "Football",
-      "city": "Birmingham "
+      "city": "Birmingham ",
+      "postal_code": "TN12 6BF"
     },
     {
       "first_name": "Jack",
@@ -22,7 +24,8 @@
       "email": "jacksgallagher97@gmail.com,",
       "profile_picture": "https://find-my-coach-eu.s3.eu-west-2.amazonaws.com/assets/jack_gallagher.jpg",
       "sport": "Fitness",
-      "city": "Stourport-on-Severn"
+      "city": "Stourport-on-Severn",
+      "postal_code": "E1 2NN"
     }
   ]
 }

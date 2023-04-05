@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.logger import log
 
-from app.dependency import get_current_student, get_lesson_by_uuid
+from app.dependency import get_current_student, get_lesson_by_uuid, get_current_coach
 from app.database import get_db
 import app.schema as s
 import app.model as m
@@ -15,7 +15,7 @@ lesson_router = APIRouter(prefix="/lesson", tags=["Lesson"])
 
 
 @lesson_router.get(
-    "/lessons/upcoming",
+    "/lessons/student/upcoming",
     response_model=s.UpcomingLessonList,
     status_code=status.HTTP_200_OK,
 )
@@ -32,6 +32,28 @@ def get_upcoming_lessons(
         .all()
     )
     log(log.INFO, "Total lessons found: %d", len(upcoming_lessons))
+    return s.UpcomingLessonList(lessons=upcoming_lessons)
+
+
+@lesson_router.get(
+    "/lessons/coach/upcoming",
+    response_model=s.UpcomingLessonList,
+    status_code=status.HTTP_200_OK,
+)
+def get_upcoming_appointments(
+    db: Session = Depends(get_db),
+    coach: m.Coach = Depends(get_current_coach),
+):
+    upcoming_lessons = (
+        db.query(m.StudentLesson)
+        .join(m.Lesson)
+        .filter_by(coach_id=coach.id)
+        .filter(
+            m.StudentLesson.appointment_time >= datetime.now(),
+        )
+        .all()
+    )
+    log(log.INFO, "Total appointments found: %d", len(upcoming_lessons))
     return s.UpcomingLessonList(lessons=upcoming_lessons)
 
 

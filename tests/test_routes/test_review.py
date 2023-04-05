@@ -21,7 +21,13 @@ def test_leave_review(
         .first()
     )
     assert student
-    lesson = db.query(m.Lesson).first()
+    coach = (
+        db.query(m.Coach)
+        .filter_by(email=test_data.test_authorized_coaches[0].email)
+        .first()
+    )
+    assert coach
+    lesson = db.query(m.Lesson).filter_by(coach_id=coach.id).first()
     assert lesson
     create_past_student_lesson(db=db, student_id=student.id, lesson_id=lesson.id)
     # TODO
@@ -34,7 +40,13 @@ def test_leave_review(
     assert response
     resp_obj = s.UnreviewedLessonsList.parse_obj(response.json())
     assert resp_obj
-    lesson = db.query(m.Lesson).first()
+    coach = (
+        db.query(m.Coach)
+        .filter_by(email=test_data.test_authorized_coaches[0].email)
+        .first()
+    )
+    assert coach
+    lesson = db.query(m.Lesson).filter_by(coach_id=coach.id).first()
     assert lesson
     # making sure its the right coach for this lesson
     assert resp_obj.lessons[0].coach.uuid == lesson.coach.uuid
@@ -55,3 +67,14 @@ def test_leave_review(
 
     # making sure that review exists for this lesson
     assert db.query(m.StudentLesson).filter_by(uuid=lesson_uuid).first().review_id
+
+    # getting list of reviews for coach
+    response = client.get(
+        "api/review/reviews",
+        headers={
+            "Authorization": f"Bearer {authorized_student_tokens[0].access_token}"
+        },
+    )
+    assert response
+    resp_obj = s.ReviewList.parse_obj(response.json())
+    assert resp_obj.reviews

@@ -7,3 +7,7 @@ class Review(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class ReviewList(BaseModel):
+    reviews: list[Review]

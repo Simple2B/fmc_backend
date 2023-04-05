@@ -24,7 +24,7 @@ def test_likes(
     assert db.query(m.StudentFavouriteCoach).count() > 0
 
     response = client.get(
-        "api/like/coach/coaches",
+        "api/like/student/favourites",
         headers={
             "Authorization": f"Bearer {authorized_student_tokens[0].access_token}"
         },
@@ -35,3 +35,15 @@ def test_likes(
     coach = db.query(m.Coach).first()
     assert coach
     assert resp_obj.coaches[0].email == coach.email
+
+    # unliking coach
+    coach = db.query(m.Coach).first()
+    assert coach
+    response = client.post(
+        f"api/like/coach/unlike/{coach.uuid}",
+        headers={
+            "Authorization": f"Bearer {authorized_student_tokens[0].access_token}"
+        },
+    )
+    assert response.status_code == 201
+    assert not db.query(m.StudentFavouriteCoach).count()

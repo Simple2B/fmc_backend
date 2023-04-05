@@ -1,15 +1,16 @@
 import json
-
+import re
 from fastapi import (
     APIRouter,
     Depends,
+    Query,
     UploadFile,
     File,
     status,
     HTTPException,
     Form,
 )
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session
 from botocore.exceptions import ClientError
 from sqlalchemy.exc import SQLAlchemyError
@@ -85,7 +86,7 @@ def get_student_profile(
     )
 
 
-@profile_router.get("/coach/subscription/info", response_model=s.Subscription | None)
+@profile_router.get("/coach/subscription/info", response_model=s.Subscription)
 def get_coach_subscription(
     db: Session = Depends(get_db),
     coach: m.Student = Depends(get_current_coach),
@@ -93,7 +94,9 @@ def get_coach_subscription(
     subscription = db.query(m.CoachSubscription).filter_by(coach_id=coach.id).first()
     if not subscription:
         log(log.INFO, "Subscription not found for coach - [%s]", coach.email)
-        return
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Subscription not found"
+        )
     return s.Subscription(
         product=subscription.product,
         stripe_subscription_id=subscription.stripe_subscription_id,
@@ -361,25 +364,111 @@ def student_change_password(
 )
 def get_coach_cards(
     name: str | None = None,
-    sport_ids: list[str] | None = None,
-    city: str | None = None,
-    postal_code: str | None = None,
+    sport_ids: list[int] | None = Query(None),
+    address: str | None = None,
     db: Session = Depends(get_db),
 ):
     """Returns all cards for UNauthorized user"""
     # TODO search logic
     query = db.query(m.Coach)
     if name:
-        query = query.filter(
-            or_(
-                m.Coach.last_name.icontains(f"{name}"),
-                m.Coach.first_name.icontains(f"{name}"),
+        if " " in name:
+            first_name = name.split(" ")[0]
+            last_name = name.split(" ")[1]
+            query = query.filter(
+                or_(
+                    and_(
+                        m.Coach.last_name.icontains(f"{first_name}"),
+                        m.Coach.first_name.icontains(f"{last_name}"),
+                    ),
+                    and_(
+                        m.Coach.last_name.icontains(f"{last_name}"),
+                        m.Coach.first_name.icontains(f"{first_name}"),
+                    ),
+                )
             )
-        )
+        else:
+            query = query.filter(
+                or_(
+                    m.Coach.last_name.icontains(f"{name}"),
+                    m.Coach.first_name.icontains(f"{name}"),
+                )
+            )
     if sport_ids:
         coach_sports = (
             db.query(m.CoachSport).filter(m.CoachSport.sport_id.in_(sport_ids)).all()
         )
         coach_ids = [cs.coach_id for cs in coach_sports]
+        query = query.filter(m.Coach.id.in_(coach_ids))
+    if address:
+        if re.match(
+            r"([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]?))))\s?[0-9][A-Za-z]{2})",  # noqa E501
+            address,
+        ):
+            locations = (
+                db.query(m.Location)
+                .filter(
+                    or_(
+                        m.Location.postal_code.icontains(f"{address}"),
+                    )
+                )
+                .all()
+            )
+
+        elif " " in address:
+            address_line1 = address.split(" ")[0]
+            address_line2 = address.split(" ")[1]
+            locations = (
+                db.query(m.Location)
+                .filter(
+                    or_(
+                        and_(
+                            m.Location.city.icontains(f"{address_line1}"),
+                            m.Location.street.icontains(f"{address_line2}"),
+                        ),
+                        # e.g. we have multiple words in CITY name
+                        and_(
+                            m.Location.city.icontains(
+                                f"{address_line1} {address_line2}"
+                            ),
+                        ),
+                        # e.g. we have multiple words in STREET name
+                        and_(
+                            m.Location.street.icontains(
+                                f"{address_line1} {address_line2}"
+                            ),
+                        ),
+                        and_(
+                            m.Location.city.icontains(f"{address_line1}"),
+                            m.Location.street.icontains(f"{address_line1}"),
+                        ),
+                    )
+                )
+                .all()
+            )
+
+        else:
+            locations = (
+                db.query(m.Location)
+                .filter(
+                    or_(
+                        m.Location.city.icontains(f"{address}"),
+                        m.Location.street.icontains(f"{address}"),
+                    )
+                )
+                .all()
+            )
+
+        location_ids = [location.id for location in locations]
+        if not location_ids:
+            coach_ids = []
+        else:
+            coach_ids = [
+                cl.coach_id
+                for cl in db.query(m.CoachLocation)
+                .filter(m.CoachLocation.location_id.in_(location_ids))
+                .all()
+            ]
+
         query = query.filter(m.Coach.id.in_(coach_ids))
     return s.CoachList(coaches=query.all())
