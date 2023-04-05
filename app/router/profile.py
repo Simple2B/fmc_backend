@@ -401,7 +401,10 @@ def get_coach_cards(
         coach_ids = [cs.coach_id for cs in coach_sports]
         query = query.filter(m.Coach.id.in_(coach_ids))
     if address:
-        if re.match(r"^([\s\d]+)$", address):
+        if re.match(
+            r"([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]?))))\s?[0-9][A-Za-z]{2})",
+            address,
+        ):
             locations = (
                 db.query(m.Location)
                 .filter(
