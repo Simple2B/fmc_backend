@@ -29,7 +29,7 @@ def get_coach_stripe_product(
     )
 
 
-@stripe_router("/student/reserve")
+@stripe_router.post("/student/reserve")
 def reserve_booking(
     db=Depends(get_db),
     student: m.Student = Depends(get_current_student),

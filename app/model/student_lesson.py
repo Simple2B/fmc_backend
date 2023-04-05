@@ -11,14 +11,15 @@ from .coach import Coach
 db = get_db().__next__()
 
 
-class StudentLesson(Base):
+class StudentLesson(Base):  # Booking
     __tablename__ = "students_lessons"
 
     id = Column(Integer, primary_key=True)
     uuid = Column(String(64), nullable=False, default=generate_uuid)
 
     student_id = Column(Integer, ForeignKey("students.id"))
-    lesson_id = Column(Integer, ForeignKey("lessons.id"))
+    lesson_id = Column(Integer, ForeignKey("lessons.id"))  # we need schedule
+
     student_lesson_payment_id = Column(
         Integer,
         ForeignKey("student_lesson_payments.id"),
