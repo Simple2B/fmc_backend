@@ -219,3 +219,45 @@ def test_search_profiles(
     assert sport.name in [
         sport.name for coach in resp_obj.coaches for sport in coach.sports
     ]
+
+    # search by address(city)
+    coach = db.query(m.Coach).filter_by(email=test_data.test_coaches[0].email).first()
+    assert coach
+    assert coach.locations
+    response = client.get(
+        f"api/profile/profiles/search/cards?name={coach_name}&address={coach.locations[0].city}"
+    )
+    assert response.status_code == 200
+    resp_obj = s.CoachList.parse_obj(response.json())
+    assert resp_obj.coaches[0].locations[0].city == coach.locations[0].city
+    # search by address(city + street)
+    coach = db.query(m.Coach).filter_by(email=test_data.test_coaches[0].email).first()
+    assert coach
+    assert coach.locations
+    response = client.get(
+        f"api/profile/profiles/search/cards?name={coach_name}&address={coach.locations[0].city} {coach.locations[0].street}"
+    )
+    assert response.status_code == 200
+    resp_obj = s.CoachList.parse_obj(response.json())
+    assert resp_obj.coaches[0].locations[0].city == coach.locations[0].city
+    assert resp_obj.coaches[0].locations[0].street == coach.locations[0].street
+    # search by postal code
+    coach = db.query(m.Coach).filter_by(email=test_data.test_coaches[0].email).first()
+    assert coach
+    assert coach.locations
+    response = client.get(
+        f"api/profile/profiles/search/cards?name={coach_name}&address={coach.locations[0].postal_code}"
+    )
+    assert response.status_code == 200
+    resp_obj = s.CoachList.parse_obj(response.json())
+    assert (
+        resp_obj.coaches[0].locations[0].postal_code == coach.locations[0].postal_code
+    )
+
+    # bad search
+    response = client.get(
+        f"api/profile/profiles/search/cards?name={coach_name}&address=random_data_232222"
+    )
+    assert response.status_code == 200
+    resp_obj = s.CoachList.parse_obj(response.json())
+    assert not resp_obj.coaches

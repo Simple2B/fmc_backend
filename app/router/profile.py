@@ -1,5 +1,5 @@
 import json
-
+import re
 from fastapi import (
     APIRouter,
     Depends,
@@ -401,14 +401,55 @@ def get_coach_cards(
         coach_ids = [cs.coach_id for cs in coach_sports]
         query = query.filter(m.Coach.id.in_(coach_ids))
     if address:
-        # main filtration # TODO
-        # search by numbers if postal code
-        location = (
-            db.query(m.Location).filter(m.Location.city.icontains(f"{address}")).first()
-        )
-        coach_ids = [
-            cl.coach_id
-            for cl in db.query(m.CoachLocation).filter_by(location_id=location.id).all()
-        ]
+        if re.match(r"^([\s\d]+)$", address):
+            location = (
+                db.query(m.Location)
+                .filter(
+                    or_(
+                        m.Location.postal_code.icontains(f"{address}"),
+                    )
+                )
+                .first()
+            )
+
+        elif " " in address:
+            address_line1 = address.split(" ")[0]
+            address_line2 = address.split(" ")[1]
+            location = (
+                db.query(m.Location)
+                .filter(
+                    or_(
+                        and_(
+                            m.Location.city.icontains(f"{address_line1}"),
+                            m.Location.street.icontains(f"{address_line2}"),
+                        ),
+                        and_(
+                            m.Location.city.icontains(f"{address_line1}"),
+                            m.Location.street.icontains(f"{address_line1}"),
+                        ),
+                    )
+                )
+                .first()
+            )
+
+        else:
+            location = (
+                db.query(m.Location)
+                .filter(
+                    or_(
+                        m.Location.city.icontains(f"{address}"),
+                        m.Location.street.icontains(f"{address}"),
+                    )
+                )
+                .first()
+            )
+        if not location:
+            coach_ids = []
+        else:
+            coach_ids = [
+                cl.coach_id
+                for cl in db.query(m.CoachLocation).filter_by(location_id=location.id).all()
+            ]
+
         query = query.filter(m.Coach.id.in_(coach_ids))
     return s.CoachList(coaches=query.all())

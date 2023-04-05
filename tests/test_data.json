@@ -1,134 +1,134 @@
 {
-    "test_coaches": [
-        {
-            "first_name":"Eric",
-            "last_name":"Brown",
-            "email": "testcoach1@gmail.com",
-            "password": "1234",
-            "username": "testcoach1",
-            "is_verified": true,
-            "profile_picture": "http://path.to.picture",
-            "google_open_id": "3e45yrtherggrefv"
-        },
-        {
-            "first_name":"John",
-            "last_name":"Johnson",
-            "email": "testcoach2@gmail.com",
-            "password": "1234",
-            "username": "testcoach2",
-            "is_verified": true,
-            "google_open_id": "6t45yrthr23rwfe"
-        },
-        {
-            "first_name":"Tyler",
-            "last_name":"Durden",
-            "email": "testcoach3@gmail.com",
-            "password": "1234",
-            "username": "testcoach3",
-            "is_verified": true,
-            "google_open_id": "3e67ujywefdswfcasv"
-        }
-    ],
-    "test_students": [
-        {
-            "email": "test_student1@gmail.com",
-            "password": "1234",
-            "username": "test_student1",
-            "is_verified": true,
-            "profile_picture": "http://path.to.picture",
-            "google_open_id": "3e2rwfr23wef43erfv"
-        },
-        {
-            "email": "test_student2@gmail.com",
-            "password": "1234",
-            "username": "test_student2",
-            "is_verified": true,
-            "google_open_id": "8tyrhgwge3r2v"
-        },
-        {
-            "email": "test_student3@gmail.com",
-            "password": "1234",
-            "username": "test_student3",
-            "is_verified": true,
-            "google_open_id": "3p09kiurtgefwe"
-        }
-    ],
-    "test_coach": {
-        "email": "test_new_coach@gmail.com",
-        "password": "1234",
-        "username": "test_new_coach",
-        "profile_picture": "http://path.to.picture",
-        "google_open_id": "rijwroinwiqpoqkp[2qepo"
+  "test_coaches": [
+    {
+      "first_name": "Eric",
+      "last_name": "Brown",
+      "email": "testcoach1@gmail.com",
+      "password": "1234",
+      "username": "testcoach1",
+      "is_verified": true,
+      "profile_picture": "http://path.to.picture",
+      "google_open_id": "3e45yrtherggrefv"
     },
-    "test_student": {
-        "email": "test_new_student@gmail.com",
-        "password": "1234",
-        "username": "test_new_student",
-        "profile_picture": "http://path.to.picture",
-        "google_open_id": "efkpowefiojweifo"
+    {
+      "first_name": "John",
+      "last_name": "Johnson",
+      "email": "testcoach2@gmail.com",
+      "password": "1234",
+      "username": "testcoach2",
+      "is_verified": true,
+      "google_open_id": "6t45yrthr23rwfe"
     },
-    "test_authorized_coaches": [
-        {
-            "email": "test_authorized_coach1@gmail.com",
-            "password": "1234",
-            "username": "test_authorized_coach1",
-            "is_verified": true,
-            "first_name": "John",
-            "last_name": "Doe",
-            "profile_picture": "http://path.to.picture"
-        },
-        {
-            "email": "test_authorized_coach2@gmail.com",
-            "password": "1234",
-            "username": "test_authorized_coach2",
-            "is_verified": true,
-            "first_name": "Jane",
-            "last_name": "Doe"
-        }
-    ],
-    "test_authorized_students": [
-        {
-            "email": "test_authorized_student1@gmail.com",
-            "password": "1234",
-            "username": "test_authorized_student1",
-            "is_verified": true,
-            "first_name": "John",
-            "last_name": "Doe",
-            "profile_picture": "http://path.to.picture"
-        },
-        {
-            "email": "test_authorized_student2@gmail.com",
-            "password": "1234",
-            "username": "test_authorized_student",
-            "is_verified": true,
-            "first_name": "Jane",
-            "last_name": "Doe"
-        }
-    ],
-    "test_locations": [
-        {
-            "name": "test_location1",
-            "street": "test_address1",
-            "city": "test_city1",
-            "state": "test_state1",
-            "postal_code": "test_zipcode1"
-        },
-        {
-            "name": "test_location2",
-            "street": "test_address2",
-            "city": "test_city2",
-            "state": "test_state2",
-            "postal_code": "test_zipcode2"
-        }
-    ],
-    "test_subscription_product":{
-        "name":"FMC Sub",
-        "stripe_product_id":"prod_123123",
-        "description":"FMC Subscription "
-    },
-    "test_subscription_price":{
-        "stripe_price_id":"price_testprice123",
-        "currency":"usd",
-        "unit_amount":1999
+    {
+      "first_name": "Tyler",
+      "last_name": "Durden",
+      "email": "testcoach3@gmail.com",
+      "password": "1234",
+      "username": "testcoach3",
+      "is_verified": true,
+      "google_open_id": "3e67ujywefdswfcasv"
     }
+  ],
+  "test_students": [
+    {
+      "email": "test_student1@gmail.com",
+      "password": "1234",
+      "username": "test_student1",
+      "is_verified": true,
+      "profile_picture": "http://path.to.picture",
+      "google_open_id": "3e2rwfr23wef43erfv"
+    },
+    {
+      "email": "test_student2@gmail.com",
+      "password": "1234",
+      "username": "test_student2",
+      "is_verified": true,
+      "google_open_id": "8tyrhgwge3r2v"
+    },
+    {
+      "email": "test_student3@gmail.com",
+      "password": "1234",
+      "username": "test_student3",
+      "is_verified": true,
+      "google_open_id": "3p09kiurtgefwe"
+    }
+  ],
+  "test_coach": {
+    "email": "test_new_coach@gmail.com",
+    "password": "1234",
+    "username": "test_new_coach",
+    "profile_picture": "http://path.to.picture",
+    "google_open_id": "rijwroinwiqpoqkp[2qepo"
+  },
+  "test_student": {
+    "email": "test_new_student@gmail.com",
+    "password": "1234",
+    "username": "test_new_student",
+    "profile_picture": "http://path.to.picture",
+    "google_open_id": "efkpowefiojweifo"
+  },
+  "test_authorized_coaches": [
+    {
+      "email": "test_authorized_coach1@gmail.com",
+      "password": "1234",
+      "username": "test_authorized_coach1",
+      "is_verified": true,
+      "first_name": "John",
+      "last_name": "Doe",
+      "profile_picture": "http://path.to.picture"
+    },
+    {
+      "email": "test_authorized_coach2@gmail.com",
+      "password": "1234",
+      "username": "test_authorized_coach2",
+      "is_verified": true,
+      "first_name": "Jane",
+      "last_name": "Doe"
+    }
+  ],
+  "test_authorized_students": [
+    {
+      "email": "test_authorized_student1@gmail.com",
+      "password": "1234",
+      "username": "test_authorized_student1",
+      "is_verified": true,
+      "first_name": "John",
+      "last_name": "Doe",
+      "profile_picture": "http://path.to.picture"
+    },
+    {
+      "email": "test_authorized_student2@gmail.com",
+      "password": "1234",
+      "username": "test_authorized_student",
+      "is_verified": true,
+      "first_name": "Jane",
+      "last_name": "Doe"
+    }
+  ],
+  "test_locations": [
+    {
+      "name": "test_location1",
+      "street": "test_address1",
+      "city": "test_city1",
+      "state": "test_state1",
+      "postal_code": "12345"
+    },
+    {
+      "name": "test_location2",
+      "street": "test_address2",
+      "city": "test_city2",
+      "state": "test_state2",
+      "postal_code": "54321"
+    }
+  ],
+  "test_subscription_product": {
+    "name": "FMC Sub",
+    "stripe_product_id": "prod_123123",
+    "description": "FMC Subscription "
+  },
+  "test_subscription_price": {
+    "stripe_price_id": "price_testprice123",
+    "currency": "usd",
+    "unit_amount": 1999
+  }
 }
