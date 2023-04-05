@@ -111,14 +111,14 @@
       "street": "test_address1",
       "city": "test_city1",
       "state": "test_state1",
-      "postal_code": "12345"
+      "postal_code": "W14 0TJ"
     },
     {
       "name": "test_location2",
       "street": "test_address2",
       "city": "test_city2",
       "state": "test_state2",
-      "postal_code": "54321"
+      "postal_code": "TN12 6BF"
     }
   ],
   "test_subscription_product": {
