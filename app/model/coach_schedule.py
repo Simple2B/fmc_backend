@@ -1,5 +1,5 @@
 import enum
-from datetime import datetime
+from datetime import datetime, timedelta
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -7,14 +7,14 @@ from app.database import Base
 from app.utils import generate_uuid
 
 
-class WeekDay(enum.IntEnum):
-    MONDAY = 0
-    TUESDAY = 1
-    WENDESDAY = 2
-    THURSDAY = 3
-    FRIDAY = 4
-    SATURDAY = 5
-    SUNDAY = 6
+def get_default_end_dateime():
+    return datetime.now() + timedelta(minutes=60)
+
+
+class ReccurencyType(enum.Enum):
+    NO_REPEAT = 0
+    WEEKLY = 1
+    MONTHLY = 2
 
 
 class CoachSchedule(Base):
@@ -23,24 +23,19 @@ class CoachSchedule(Base):
     id = Column(Integer, primary_key=True)
     uuid = Column(String(64), nullable=False, default=generate_uuid)
 
-    coach_id = Column(Integer, ForeignKey("coaches.id"))
-    location_id = Column(Integer, ForeignKey("locations.id"))
+    lesson_id = Column(Integer, ForeignKey("lessons.id"), nullable=False)
+    coach_id = Column(Integer, ForeignKey("coaches.id"), nullable=False)
 
-    week_day = Column(Integer, default=WeekDay.FRIDAY.value)
-    begin_hours = Column(Integer, nullable=False)
-    begin_minutes = Column(Integer, nullable=False)
-    duration = Column(Integer, default=60)
+    reccurence = Column(Integer, nullable=False, default=ReccurencyType.NO_REPEAT.value)
+    start_datetime = Column(DateTime, nullable=False, default=datetime.now)
+    end_datetime = Column(Integer, nullable=False, default=get_default_end_dateime)
 
     created_at = Column(DateTime(), default=datetime.now)
 
-    coach = relationship(
-        "Coach",
-        viewonly=True,
+    lesson = relationship(
+        "Lesson", foreign_keys="CoachSchedule.lesson_id", viewonly=True
     )
-    location = relationship(
-        "Location",
-        viewonly=True,
-    )
+    coach = relationship("Coach", foreign_keys="CoachSchedule.coach_id", viewonly=True)
 
     def __repr__(self):
         return f"<CoachSchedule {self.id}>"

@@ -27,9 +27,11 @@ def test_lesson(
         .first()
     )
     assert coach
-    lesson = db.query(m.Lesson).filter_by(coach_id=coach.id).first()
-    assert lesson
-    create_upcoming_student_lesson(db=db, student_id=student.id, lesson_id=lesson.id)
+    schedule = db.query(m.CoachSchedule).filter_by(coach_id=coach.id).first()
+    assert schedule
+    create_upcoming_student_lesson(
+        db=db, student_id=student.id, schedule_id=schedule.id
+    )
 
     response = client.get(
         "api/lesson/lessons/student/upcoming",
@@ -57,7 +59,7 @@ def test_lesson(
     assert response
     resp_obj = s.UpcomingLessonList.parse_obj(response.json())
     assert (
-        resp_obj.lessons[0].coach.email
+        resp_obj.lessons[0].schedule.coach.email
         == db.query(m.Coach)
         .filter_by(email=test_data.test_authorized_coaches[0].email)
         .first()

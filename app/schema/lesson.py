@@ -1,10 +1,9 @@
-from datetime import datetime
 from pydantic import BaseModel
 
 from app.config import get_settings
-from .user import Coach
 from .location import Location
 from .sport import SportType
+
 
 settings = get_settings()
 
@@ -21,23 +20,3 @@ class Lesson(BaseModel):
 
 class LessonList(BaseModel):
     lessons: list[Lesson]
-
-
-class StudentLesson(BaseModel):
-    uuid: str
-    coach: Coach
-    lesson: Lesson
-    appointment_time: datetime
-    date: datetime  # created at
-
-    class Config:
-        orm_mode = True
-
-
-class UpcomingLessonList(BaseModel):
-    lessons: list[StudentLesson]
-
-
-class UnreviewedLessonsList(BaseModel):
-    count: int
-    lessons: list[StudentLesson]

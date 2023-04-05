@@ -323,7 +323,6 @@ def create_dummy_schedules():
                     location_id=random.choice(location_ids),
                     begin_hours=random.randint(0, 60),
                     begin_minutes=random.randint(0, 60),
-                    week_day=random.choice(list(m.WeekDay)).value,
                 )
                 db.add(coach_schedule)
             db.flush()

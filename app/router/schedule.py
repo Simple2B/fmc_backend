@@ -32,24 +32,22 @@ def create_coach_schedule(
     if (
         db.query(m.CoachSchedule)
         .filter_by(
-            coach_id=coach.id,
-            week_day=data.week_day,
-            begin_hours=data.begin_hours,
-            begin_minutes=data.begin_minutes,
+            lesson_id=data.lesson_id,
+            coach_id=data.coach_id,
+            start_datetime=data.start_datetime,
+            end_datetime=data.end_datetime,
         )
         .first()
     ):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Schedule already exists on this time",
+            detail="Schedule already exists on this date",
         )
     schedule = m.CoachSchedule(
-        coach_id=coach.id,
-        location_id=data.location_id,
-        week_day=data.week_day,
-        begin_hours=data.begin_hours,
-        begin_minutes=data.begin_minutes,
-        duration=data.duration,
+        lesson_id=data.lesson_id,
+        coach_id=data.coach_id,
+        start_datetime=data.start_datetime,
+        end_datetime=data.end_datetime,
     )
 
     db.add(schedule)

@@ -31,10 +31,8 @@ from .location import Location, LocationList
 from .lesson import (
     Lesson,
     LessonList,
-    UpcomingLessonList,
-    UnreviewedLessonsList,
-    StudentLesson,
 )
+from .student_lesson import StudentLesson, UpcomingLessonList, UnreviewedLessonsList
 
 from .newsletter import NewsletterSubscription
 

@@ -12,20 +12,33 @@ from .coach_sport import CoachSport
 db = get_db().__next__()
 
 
-class Lesson(Base):
+class Lesson(Base):  # Package
     __tablename__ = "lessons"
 
     id = Column(Integer, primary_key=True)
     uuid = Column(String(36), nullable=False, default=generate_uuid)
 
-    coach_id = Column(Integer, ForeignKey("coaches.id"))
+    name = Column(String(64), nullable=False, default="")
 
+    coach_id = Column(Integer, ForeignKey("coaches.id"))
     location_id = Column(Integer, ForeignKey("locations.id"))
     sport_type_id = Column(Integer, ForeignKey("sport_types.id"))
 
+    about = Column(String(512), default="")
+    max_people = Column(Integer, default=1)
+    price = Column(Integer, default=999)
+
     created_at = Column(DateTime, default=datetime.now)
 
+    # relationships
     coach = relationship("Coach", foreign_keys="Lesson.coach_id", viewonly=True)
+    location = relationship(
+        "Location", foreign_keys="Lesson.location_id", viewonly=True
+    )
+
+    @property
+    def is_personal(self):
+        return self.max_people and self.max_people == 1
 
     @property
     def name(self) -> str:
