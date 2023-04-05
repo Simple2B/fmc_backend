@@ -1,6 +1,7 @@
 from random import randint
 from datetime import datetime, timedelta
 
+
 from sqlalchemy.orm import Session
 
 import app.model as m
@@ -150,6 +151,14 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
                 sport_id=sport.id,
             )
             db.add(coach_sport)
+        if not coach.locations:
+            locations = db.query(m.Location).all()
+            for _ in range(0, 3):
+                coach_location = m.CoachLocation(
+                    coach_id=coach.id, location_id=randint(1, len(locations))
+                )
+                db.add(coach_location)
+
         db.commit()
 
     for s in test_data.test_students:

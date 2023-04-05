@@ -21,6 +21,7 @@ class RealCoach(BaseModel):
     profile_picture: str
     sport: str
     city: str
+    postal_code: str
 
 
 class RealCoachList(BaseModel):
@@ -50,7 +51,7 @@ def create_real_coaches_data(_):
                 location = m.Location(
                     city=data.city,
                     street=fake.street_name(),
-                    postal_code=fake.postcode(),
+                    postal_code=data.postal_code,
                 )
                 db.add(location)
                 db.flush()
