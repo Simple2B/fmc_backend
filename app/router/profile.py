@@ -402,20 +402,20 @@ def get_coach_cards(
         query = query.filter(m.Coach.id.in_(coach_ids))
     if address:
         if re.match(r"^([\s\d]+)$", address):
-            location = (
+            locations = (
                 db.query(m.Location)
                 .filter(
                     or_(
                         m.Location.postal_code.icontains(f"{address}"),
                     )
                 )
-                .first()
+                .all()
             )
 
         elif " " in address:
             address_line1 = address.split(" ")[0]
             address_line2 = address.split(" ")[1]
-            location = (
+            locations = (
                 db.query(m.Location)
                 .filter(
                     or_(
@@ -423,17 +423,29 @@ def get_coach_cards(
                             m.Location.city.icontains(f"{address_line1}"),
                             m.Location.street.icontains(f"{address_line2}"),
                         ),
+                        # e.g. we have multiple words in CITY name
+                        and_(
+                            m.Location.city.icontains(
+                                f"{address_line1} {address_line2}"
+                            ),
+                        ),
+                        # e.g. we have multiple words in STREET name
+                        and_(
+                            m.Location.street.icontains(
+                                f"{address_line1} {address_line2}"
+                            ),
+                        ),
                         and_(
                             m.Location.city.icontains(f"{address_line1}"),
                             m.Location.street.icontains(f"{address_line1}"),
                         ),
                     )
                 )
-                .first()
+                .all()
             )
 
         else:
-            location = (
+            locations = (
                 db.query(m.Location)
                 .filter(
                     or_(
@@ -441,14 +453,18 @@ def get_coach_cards(
                         m.Location.street.icontains(f"{address}"),
                     )
                 )
-                .first()
+                .all()
             )
-        if not location:
+
+        location_ids = [location.id for location in locations]
+        if not location_ids:
             coach_ids = []
         else:
             coach_ids = [
                 cl.coach_id
-                for cl in db.query(m.CoachLocation).filter_by(location_id=location.id).all()
+                for cl in db.query(m.CoachLocation)
+                .filter(m.CoachLocation.location_id.in_(location_ids))
+                .all()
             ]
 
         query = query.filter(m.Coach.id.in_(coach_ids))

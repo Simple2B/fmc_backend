@@ -235,7 +235,7 @@ def test_search_profiles(
     assert coach
     assert coach.locations
     response = client.get(
-        f"api/profile/profiles/search/cards?name={coach_name}&address={coach.locations[0].city} {coach.locations[0].street}"
+        f"api/profile/profiles/search/cards?name={coach_name}&address={coach.locations[0].city} {coach.locations[0].street}"  # noqa E501
     )
     assert response.status_code == 200
     resp_obj = s.CoachList.parse_obj(response.json())
