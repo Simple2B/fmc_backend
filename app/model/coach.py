@@ -43,6 +43,7 @@ class Coach(Base):
     locations = relationship("Location", secondary="coaches_locations", viewonly=True)
     reviews = relationship("LessonReview", viewonly=True)
     schedules = relationship("CoachSchedule", viewonly=True)
+    lessons = relationship("Lesson", viewonly=True)
 
     @property
     def password(self):

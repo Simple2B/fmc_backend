@@ -2,8 +2,10 @@ import random
 from datetime import datetime, timedelta
 from typing import Generator
 
+from sqlalchemy.exc import SQLAlchemyError
 from invoke import task
 from faker import Faker
+
 
 from app.config import Settings, get_settings
 from app.database import get_db, Session
@@ -126,7 +128,10 @@ def create_dummy_coaches():
                 is_for_children=random.choice([True, False]),
             )
             db.add(coach)
-            db.flush()
+            try:
+                db.flush()
+            except SQLAlchemyError:
+                db.rollback()
         # attaching sport to coach
         coach_sport = m.CoachSport(
             coach_id=coach.id,
@@ -143,85 +148,103 @@ def create_dummy_coaches():
                 ),
             )
             db.add(coach_location)
+            try:
+                db.flush()
+            except SQLAlchemyError:
+                db.rollback()
     db.commit()
     log(log.INFO, "Created [%d] coaches", db.query(m.Coach).count())
 
 
 def create_dummy_students():
-    for _ in range(0, 300):
-        if not db.query(m.Student).filter_by(email=fake.email()).first():
-            student = m.Student(
-                first_name=fake.first_name(),
-                last_name=fake.last_name(),
-                email=fake.email(),
-                username=fake.user_name(),
-                profile_picture=settings.DEFAULT_AVATAR_URL,
-                password_hash=fake.email(),
-            )
-            db.add(student)
-        db.commit()
+    if db.query(m.Student).count() < 100:
+        for _ in range(0, 300):
+            if not db.query(m.Student).filter_by(email=fake.email()).first():
+                student = m.Student(
+                    first_name=fake.first_name(),
+                    last_name=fake.last_name(),
+                    email=fake.email(),
+                    username=fake.user_name(),
+                    profile_picture=settings.DEFAULT_AVATAR_URL,
+                    password_hash=fake.email(),
+                )
+                db.add(student)
+                try:
+                    db.flush()
+                except SQLAlchemyError:
+                    db.rollback()
+    db.commit()
     log(log.INFO, "Created [%d] students", db.query(m.Student).count())
 
 
 def create_dummy_coach_lessons():
-    # TODO
-
     coaches = db.query(m.Coach).all()
-    locations = db.query(m.Location).all()
-    sports = db.query(m.SportType).all()
-    for _ in range(0, 1500):
-        coach_lesson = m.Lesson(
-            coach_id=random.randint(1, len(coaches)),
-            location_id=random.randint(1, len(locations)),
-            sport_type_id=random.randint(1, len(sports)),
-        )
-        db.add(coach_lesson)
+    for coach in coaches:
+        sport_ids = [sport.id for sport in coach.sports]
+        location_ids = [location.id for location in coach.locations]
+        if location_ids:
+            for _ in range(1, 10):
+                coach_lesson = m.Lesson(
+                    coach_id=random.randint(1, len(coaches)),
+                    location_id=random.choice(location_ids),
+                    sport_type_id=random.choice(sport_ids),
+                )
+                db.add(coach_lesson)
+                try:
+                    db.flush()
+                except SQLAlchemyError:
+                    db.rollback()
     db.commit()
+
     log(log.INFO, "Created [%d] coach lessons", db.query(m.Lesson).count())
 
 
 def create_lessons():
     students = db.query(m.Student).all()
-    coach_lessons = db.query(m.Lesson).all()
-    for _ in range(0, 1500):
-        lesson = m.StudentLesson(
-            student_id=random.randint(1, len(students)),
-            lesson_id=random.randint(1, len(coach_lessons)),
-            appointment_time=fake.date_between(
-                start_date=datetime.now() - timedelta(days=5),
-                end_date=datetime.now() + timedelta(days=7),
-            ),
-        )
-        db.add(lesson)
-        db.flush()
+    coaches = db.query(m.Coach).all()
+    for coach in coaches:
+        for _ in range(10, 25):
+            coach_lessons_ids = [lesson.id for lesson in coach.lessons]
+            if coach_lessons_ids:
+                lesson = m.StudentLesson(
+                    student_id=random.randint(1, len(students)),
+                    lesson_id=random.choice(coach_lessons_ids),
+                    appointment_time=fake.date_between(
+                        start_date=datetime.now() - timedelta(days=5),
+                        end_date=datetime.now() + timedelta(days=7),
+                    ),
+                )
+                db.add(lesson)
+            try:
+                db.flush()
+            except SQLAlchemyError:
+                db.rollback()
     db.commit()
     log(log.INFO, "Created [%d] lessons", db.query(m.StudentLesson).count())
 
 
 def create_dummy_messages():
-    coaches = db.query(m.Coach).all()
-    students = db.query(m.Student).all()
-    for _ in range(0, 1500):
-        author_id: str = db.query(m.Coach).get(random.randint(1, len(coaches))).uuid
-        receiver_id: str = (
-            db.query(m.Student).get(random.randint(1, len(students))).uuid
-        )
+    lessons = db.query(m.StudentLesson).all()
+    for lesson in lessons:
+        author = db.query(m.Coach).filter_by(id=lesson.coach.id).first()
+        receiver = db.query(m.Student).filter_by(id=lesson.student_id).first()
         message = m.Message(
             text=fake.sentence(),
-            author_id=author_id,
-            receiver_id=receiver_id,
+            author_id=author.uuid,
+            receiver_id=receiver.uuid,
         )
         db.add(message)
-    db.flush()
-    for _ in range(0, 1500):
-        author_id: str = db.query(m.Student).get(random.randint(1, len(students))).uuid
-        receiver_id: str = db.query(m.Coach).get(random.randint(1, len(coaches))).uuid
+        db.flush()
+    for lesson in lessons:
+        author = db.query(m.Student).filter_by(id=lesson.student_id).first()
+        receiver = db.query(m.Coach).filter_by(id=lesson.coach.id).first()
         message = m.Message(
             text=fake.sentence(),
-            author_id=author_id,
-            receiver_id=receiver_id,
+            author_id=author.uuid,
+            receiver_id=receiver.uuid,
         )
         db.add(message)
+        db.flush()
     db.commit()
     log(log.INFO, "Created [%d] messages", db.query(m.Message).count())
 
@@ -238,6 +261,10 @@ def create_fake_reviews():
                 rate=random.randint(1, 5),
             )
         )
+        try:
+            db.flush()
+        except SQLAlchemyError:
+            db.rollback()
     db.commit()
     log(log.INFO, "Reviews created [%d]", db.query(m.LessonReview).count())
 
@@ -285,6 +312,25 @@ def create_dummy_newsletter_subscriptions(db: Session = db):
     log(log.INFO, "Newsletter Subscriptions created successfully")
 
 
+def create_dummy_schedules():
+    coaches = db.query(m.Coach).all()
+    for coach in coaches:
+        location_ids = [location.id for location in coach.locations]
+        if location_ids:
+            for _ in range(0, 4):
+                coach_schedule = m.CoachSchedule(
+                    coach_id=coach.id,
+                    location_id=random.choice(location_ids),
+                    begin_hours=random.randint(0, 60),
+                    begin_minutes=random.randint(0, 60),
+                    week_day=random.choice(list(m.WeekDay)).value,
+                )
+                db.add(coach_schedule)
+            db.flush()
+    db.commit()
+    log(log.INFO, "Created - [%d] schedules", db.query(m.CoachSchedule).count())
+
+
 @task
 def dummy_data(_):
     # locations
@@ -303,6 +349,7 @@ def dummy_data(_):
     create_dummy_messages()
     create_fake_reviews()
     create_dummy_newsletter_subscriptions()
+    create_dummy_schedules()
 
 
 @task

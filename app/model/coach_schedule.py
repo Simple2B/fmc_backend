@@ -7,16 +7,17 @@ from app.database import Base
 from app.utils import generate_uuid
 
 
-class CoachSchedule(Base):
-    class WeekDay(enum.Enum):
-        monday = "Monday"
-        tuesday = "Tuesday"
-        wednesday = "Wednesday"
-        thursday = "Thursday"
-        friday = "Friday"
-        saturday = "Saturday"
-        sunday = "Sunday"
+class WeekDay(enum.IntEnum):
+    MONDAY = 0
+    TUESDAY = 1
+    WENDESDAY = 2
+    THURSDAY = 3
+    FRIDAY = 4
+    SATURDAY = 5
+    SUNDAY = 6
 
+
+class CoachSchedule(Base):
     __tablename__ = "coach_schedules"
 
     id = Column(Integer, primary_key=True)
@@ -24,11 +25,12 @@ class CoachSchedule(Base):
 
     coach_id = Column(Integer, ForeignKey("coaches.id"))
     location_id = Column(Integer, ForeignKey("locations.id"))
-    notes = Column(String(256), nullable=True)
 
-    week_day = Column(String(32), default=WeekDay.monday.value)
-    begin = Column(String(32), nullable=False)  # e.g. 17:32
-    end = Column(String(32), nullable=False)  # e.g. 18:32
+    week_day = Column(Integer, default=WeekDay.FRIDAY.value)
+    begin_hours = Column(Integer, nullable=False)
+    begin_minutes = Column(Integer, nullable=False)
+    duration = Column(Integer, default=60)
+
     created_at = Column(DateTime(), default=datetime.now)
 
     coach = relationship(
