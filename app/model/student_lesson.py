@@ -6,6 +6,9 @@ from sqlalchemy.orm import relationship
 from app.database import Base, get_db
 from app.utils import generate_uuid
 
+from .coach import Coach
+from .coach_schedule import CoachSchedule
+
 db = get_db().__next__()
 
 
@@ -41,9 +44,10 @@ class StudentLesson(Base):  # booking
         "CoachSchedule", foreign_keys="StudentLesson.schedule_id", viewonly=True
     )
 
-    # @property
-    # def schedule(self) -> Lesson:
-    #     return db.query(Lesson).filter_by(id=self.lesson_id).first()
+    @property
+    def coach(self) -> Coach:
+        schedule: CoachSchedule = db.query(CoachSchedule).get(self.schedule_id)
+        return db.query(Coach).filter_by(id=schedule.coach_id).first()
 
     def __repr__(self):
         return f"<StudentLesson {self.id}>"

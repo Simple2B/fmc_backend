@@ -28,7 +28,7 @@ class CoachSchedule(Base):
 
     reccurence = Column(Integer, nullable=False, default=ReccurencyType.NO_REPEAT.value)
     start_datetime = Column(DateTime, nullable=False, default=datetime.now)
-    end_datetime = Column(Integer, nullable=False, default=get_default_end_dateime)
+    end_datetime = Column(DateTime, nullable=False, default=get_default_end_dateime)
 
     created_at = Column(DateTime(), default=datetime.now)
 
