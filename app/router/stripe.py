@@ -1,11 +1,10 @@
-from fastapi import APIRouter, Depends, Request, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Query, Request, Header, HTTPException, status
 from sqlalchemy.orm import Session
 from stripe.error import InvalidRequestError
 
 from app.dependency.controller import get_stripe
 from app.dependency.user import get_current_student
 from app.logger import log
-from app.dependency.controller import get_stripe
 from app.config import get_settings, Settings
 import app.model as m
 import app.schema as s
@@ -31,10 +30,19 @@ def get_coach_stripe_product(
 
 @stripe_router.post("/student/reserve")
 def reserve_booking(
+    schedule_uuids: list[int] | None = Query(None),
     db=Depends(get_db),
     student: m.Student = Depends(get_current_student),
+    settings: Settings = Depends(get_settings),
     stripe=Depends(get_stripe),
 ):
+    schedules: list[m.CoachSchedule] = (
+        db.query(m.CoachSchedule).filter(m.CoachSchedule.uuid.in_(schedule_uuids)).all()
+    )
+    if not schedules:
+        raise HTTPException(
+            status=status.HTTP_409_CONFLICT, detail="Schedules was not found"
+        )
     if not student.stripe_customer_id:
         try:
             customer = stripe.Customer.create(
@@ -50,18 +58,26 @@ def reserve_booking(
         log(log.INFO, "Student [%s] created as a stripe customer", student.email)
         db.commit()
 
-    # TODO
-
-    stripe.checkout.Session.create(
+    # pass list of uuids to metadata in order to handle multiple schedule
+    checkout = stripe.checkout.Session.create(
         success_url="https://example.com/success",
         line_items=[
             {
-                "price": "price_H5ggYwtDq4fbrJ",
-                "quantity": 2,
-            },
+                "name": "Test appointment",
+                "images": [
+                    settings.DEFAULT_AVATAR_URL,
+                ],
+                "amount": 19999,
+                "currency": "usd",
+                "quantity": 1,
+            }
         ],
+        payment_intent_data={
+            "metadata": {"test_data": "some really test data"},
+        },
         mode="payment",
     )
+    return checkout.url
 
 
 @stripe_router.post("/webhook")
@@ -82,6 +98,7 @@ async def stripe_webhook(
     except Exception as e:
         log(log.ERROR, "Error - [%s]", e)
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"{e}")
+
     if event["type"] == "customer.subscription.created":
         subscription = event["data"]["object"]
         coach: m.Coach = (
@@ -106,3 +123,6 @@ async def stripe_webhook(
         db.commit()
         log(log.INFO, "Coach subscription created")
         return status.HTTP_200_OK
+    if event.type == "checkout.session.completed":
+        data = event["data"]["object"]
+        print(data)

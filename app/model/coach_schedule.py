@@ -34,10 +34,8 @@ class CoachSchedule(Base):
 
     created_at = Column(DateTime(), default=datetime.now)
 
-    lesson = relationship(
-        "Lesson", foreign_keys="CoachSchedule.lesson_id", viewonly=True
-    )
-    coach = relationship("Coach", foreign_keys="CoachSchedule.coach_id", viewonly=True)
+    lesson = relationship("Lesson", viewonly=True)
+    coach = relationship("Coach", viewonly=True)
 
     def __repr__(self):
         return f"<CoachSchedule {self.id}>"
