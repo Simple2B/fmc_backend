@@ -19,7 +19,9 @@ SPORTS_TYPES = [
 ]
 
 
-def create_upcoming_student_lesson(db, student_id: int, schedule_id: int):
+def create_upcoming_student_lesson(
+    db, student_id: int, schedule_id: int, coach_id: int
+):
     student_lesson = (
         db.query(m.StudentLesson)
         .filter_by(student_id=student_id, schedule_id=schedule_id)
@@ -28,6 +30,7 @@ def create_upcoming_student_lesson(db, student_id: int, schedule_id: int):
     if not student_lesson:
         student_lesson = m.StudentLesson(
             schedule_id=schedule_id,
+            coach_id=coach_id,
             student_id=student_id,
             appointment_time=datetime.now() + timedelta(days=1),
             created_at=datetime.now() + timedelta(days=1),
@@ -37,7 +40,7 @@ def create_upcoming_student_lesson(db, student_id: int, schedule_id: int):
     return student_lesson
 
 
-def create_past_student_lesson(db, student_id: int, schedule_id: int):
+def create_past_student_lesson(db, student_id: int, schedule_id: int, coach_id: int):
     student_lesson = (
         db.query(m.StudentLesson)
         .filter_by(student_id=student_id, schedule_id=schedule_id)
@@ -47,6 +50,7 @@ def create_past_student_lesson(db, student_id: int, schedule_id: int):
         student_lesson = m.StudentLesson(
             schedule_id=schedule_id,
             student_id=student_id,
+            coach_id=coach_id,
             appointment_time=datetime.now() - timedelta(days=1),
             created_at=datetime.now() - timedelta(days=1),
         )

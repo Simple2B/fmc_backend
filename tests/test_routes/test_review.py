@@ -29,7 +29,9 @@ def test_leave_review(
     assert coach
     schedule = db.query(m.CoachSchedule).filter_by(coach_id=coach.id).first()
     assert schedule
-    create_past_student_lesson(db=db, student_id=student.id, schedule_id=schedule.id)
+    create_past_student_lesson(
+        db=db, student_id=student.id, schedule_id=schedule.id, coach_id=coach.id
+    )
     response = client.get(
         "api/notification/student/reviews",
         headers={

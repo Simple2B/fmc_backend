@@ -37,6 +37,7 @@ class Lesson(Base):  # Package
 
     @property
     def is_personal(self):
+        """Check if current package is personal"""
         return self.max_people and self.max_people == 1
 
     @property
