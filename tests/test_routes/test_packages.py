@@ -23,7 +23,7 @@ def test_packages(
         title="Package #1",
         location=coach.locations[0],
         sport=coach.sports[0],
-        price=2999,
+        price=29.99,
         max_people=5,
         about="Cool package",
     ).dict()
