@@ -472,3 +472,25 @@ def get_coach_cards(
 
         query = query.filter(m.Coach.id.in_(coach_ids))
     return s.CoachList(coaches=query.all())
+
+
+@profile_router.get(
+    "/coach/locations/info",
+    status_code=status.HTTP_200_OK,
+    response_model=s.LocationList,
+)
+def coach_locations(
+    db: Session = Depends(get_db),
+    coach: m.Coach = Depends(get_current_coach),
+):
+    return s.LocationList(locations=coach.locations)
+
+
+@profile_router.get(
+    "/coach/sports/info", status_code=status.HTTP_200_OK, response_model=s.ListSportType
+)
+def coach_sports(
+    db: Session = Depends(get_db),
+    coach: m.Coach = Depends(get_current_coach),
+):
+    return s.ListSportType(sport_types=coach.sports)

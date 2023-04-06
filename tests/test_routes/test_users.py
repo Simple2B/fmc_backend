@@ -16,6 +16,7 @@ settings: Settings = get_test_settings()
 
 
 def test_get_profile(
+    test_data: TestData,
     client: TestClient,
     db: Session,
     authorized_coach_tokens: list,
@@ -67,6 +68,34 @@ def test_get_profile(
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response
+
+    # test get coach sports
+    response = client.get(
+        "/api/profile/coach/sports/info",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response.status_code == 200
+    resp_obj = s.ListSportType.parse_obj(response.json())
+    coach = (
+        db.query(m.Coach)
+        .filter_by(email=test_data.test_authorized_coaches[0].email)
+        .first()
+    )
+    assert resp_obj.sport_types[0].uuid == coach.sports[0].uuid
+
+    # test get coach locations
+    response = client.get(
+        "/api/profile/coach/locations/info",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response.status_code == 200
+    resp_obj = s.LocationList.parse_obj(response.json())
+    coach = (
+        db.query(m.Coach)
+        .filter_by(email=test_data.test_authorized_coaches[0].email)
+        .first()
+    )
+    assert resp_obj.locations[0].name == coach.locations[0].name
 
 
 @mock_s3

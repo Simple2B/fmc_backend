@@ -11,3 +11,4 @@ invoke create-sports &&
 invoke get-coach-subscription
 invoke dummy-data
 invoke create-real-coaches-data
+invoke create-sessions
