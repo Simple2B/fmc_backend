@@ -16,6 +16,7 @@ from .notifications import notifications_router
 from .review import review_router
 from .like import like_router
 from .schedule import schedule_router
+from .package import package_router
 
 router = APIRouter(prefix="/api")
 router.include_router(student_auth_router)
@@ -34,6 +35,7 @@ router.include_router(notifications_router)
 router.include_router(review_router)
 router.include_router(like_router)
 router.include_router(schedule_router)
+router.include_router(package_router)
 
 
 @router.get("/list-endpoints/")

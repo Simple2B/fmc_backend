@@ -46,7 +46,7 @@ def get_upcoming_appointments(
 ):
     upcoming_lessons = (
         db.query(m.StudentLesson)
-        .join(m.Lesson)
+        .join(m.CoachSchedule)
         .filter_by(coach_id=coach.id)
         .filter(
             m.StudentLesson.appointment_time >= datetime.now(),

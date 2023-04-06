@@ -1,23 +1,25 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
-# from .user import Coach
-from .location import Location
+from .user import Coach
+from .lesson import Lesson
 
 
 class BaseSchedule(BaseModel):
-    location_id: int
-    week_day: int
-    begin_hours: int
-    begin_minutes: int
-    duration: int | None
-
-    class Config:
-        orm_mode = True
+    lesson_id: int
+    coach_id: int
+    start_datetime: datetime | str
+    end_datetime: datetime | str
 
 
-class Schedule(BaseSchedule):
+class Schedule(BaseModel):
     uuid: str
-    location: Location
+    lesson_id: int
+    lesson: Lesson
+    coach_id: int
+    coach: Coach
+    reccurence: int
 
     class Config:
         orm_mode = True
