@@ -2,6 +2,7 @@ from pydantic import BaseModel
 
 
 class Location(BaseModel):
+    uuid: str
     name: str | None
     city: str
     street: str

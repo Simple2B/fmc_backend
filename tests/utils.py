@@ -149,6 +149,7 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
                 sport_id=sport.id,
             )
             db.add(coach_sport)
+            db.flush()
         if not coach.locations:
             locations = db.query(m.Location).all()
             for _ in range(0, 3):
@@ -197,6 +198,7 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
                         sport_id=sport.id,
                     )
                     db.add(coach_sport)
+                    db.flush()
             db.commit()
             if not coach.locations:
                 locations = db.query(m.Location).all()
