@@ -28,10 +28,7 @@ from .api_keys import GAPIKeysSchema
 from .user.reset_password import UserResetPasswordIn
 
 from .location import Location, LocationList
-from .lesson import (
-    Lesson,
-    LessonList,
-)
+from .lesson import Lesson, LessonList, BaseLesson
 from .student_lesson import StudentLesson, UpcomingLessonList, UnreviewedLessonsList
 
 from .newsletter import NewsletterSubscription
