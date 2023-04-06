@@ -26,7 +26,9 @@ class CoachSchedule(Base):
     lesson_id = Column(Integer, ForeignKey("lessons.id"), nullable=False)
     coach_id = Column(Integer, ForeignKey("coaches.id"), nullable=False)
 
-    reccurence = Column(Integer, nullable=False, default=ReccurencyType.NO_REPEAT.value)
+    reccurence = Column(
+        Integer, nullable=False, default=ReccurencyType.NO_REPEAT.value
+    )  # TODO switch to enum
     start_datetime = Column(
         DateTime, nullable=False, default=datetime.now
     )  # maybe we should make it unique ????
@@ -34,10 +36,12 @@ class CoachSchedule(Base):
 
     created_at = Column(DateTime(), default=datetime.now)
 
-    lesson = relationship(
-        "Lesson", foreign_keys="CoachSchedule.lesson_id", viewonly=True
-    )
-    coach = relationship("Coach", foreign_keys="CoachSchedule.coach_id", viewonly=True)
+    lesson = relationship("Lesson", viewonly=True)
+    coach = relationship("Coach", viewonly=True)
 
     def __repr__(self):
-        return f"<CoachSchedule {self.id}>"
+        return f"<CoachSchedule {self.id}:{self.start_datetime}:{self.lesson}>"
+
+    @property
+    def duration(self):
+        return self.end_datetime - self.start_datetime
