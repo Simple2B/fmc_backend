@@ -27,7 +27,9 @@ class CoachSchedule(Base):
     coach_id = Column(Integer, ForeignKey("coaches.id"), nullable=False)
 
     reccurence = Column(Integer, nullable=False, default=ReccurencyType.NO_REPEAT.value)
-    start_datetime = Column(DateTime, nullable=False, default=datetime.now)
+    start_datetime = Column(
+        DateTime, nullable=False, default=datetime.now
+    )  # maybe we should make it unique ????
     end_datetime = Column(DateTime, nullable=False, default=get_default_end_dateime)
 
     created_at = Column(DateTime(), default=datetime.now)

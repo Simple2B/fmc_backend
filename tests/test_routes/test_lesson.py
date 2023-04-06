@@ -30,7 +30,10 @@ def test_lesson(
     schedule = db.query(m.CoachSchedule).filter_by(coach_id=coach.id).first()
     assert schedule
     create_upcoming_student_lesson(
-        db=db, student_id=student.id, schedule_id=schedule.id
+        db=db,
+        student_id=student.id,
+        schedule_id=schedule.id,
+        coach_id=coach.id,
     )
 
     response = client.get(

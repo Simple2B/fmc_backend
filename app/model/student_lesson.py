@@ -6,9 +6,6 @@ from sqlalchemy.orm import relationship
 from app.database import Base, get_db
 from app.utils import generate_uuid
 
-from .coach import Coach
-from .coach_schedule import CoachSchedule
-
 db = get_db().__next__()
 
 
@@ -18,8 +15,9 @@ class StudentLesson(Base):  # booking
     id = Column(Integer, primary_key=True)
     uuid = Column(String(64), nullable=False, default=generate_uuid)
 
-    student_id = Column(Integer, ForeignKey("students.id"))
-    schedule_id = Column(Integer, ForeignKey("coach_schedules.id"))
+    student_id = Column(Integer, ForeignKey("students.id"), nullable=False)
+    schedule_id = Column(Integer, ForeignKey("coach_schedules.id"), nullable=False)
+    coach_id = Column(Integer, ForeignKey("coaches.id"), nullable=False)
 
     student_lesson_payment_id = Column(
         Integer,
@@ -31,9 +29,7 @@ class StudentLesson(Base):  # booking
         DateTime(timezone=True), nullable=False
     )  # This field shouldnt be nullable , since we get it from the frontend
 
-    created_at = Column(
-        DateTime, nullable=False, default=datetime.now
-    )  # to do rename as created_at
+    created_at = Column(DateTime, nullable=False, default=datetime.now)
     review_id = Column(Integer, nullable=True)  # fake FK on review
 
     # relationships
@@ -43,11 +39,7 @@ class StudentLesson(Base):  # booking
     schedule = relationship(
         "CoachSchedule", foreign_keys="StudentLesson.schedule_id", viewonly=True
     )
-
-    @property
-    def coach(self) -> Coach:
-        schedule: CoachSchedule = db.query(CoachSchedule).get(self.schedule_id)
-        return db.query(Coach).filter_by(id=schedule.coach_id).first()
+    coach = relationship("Coach", foreign_keys="StudentLesson.coach_id", viewonly=True)
 
     def __repr__(self):
         return f"<StudentLesson {self.id}>"
