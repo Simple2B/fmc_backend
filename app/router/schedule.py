@@ -22,6 +22,25 @@ def get_current_coach_schedules(
     return s.ScheduleList(schedules=coach.schedules)
 
 
+@schedule_router.get(
+    "/schedules/{coach_uuid}",
+    status_code=status.HTTP_200_OK,
+    response_model=s.ScheduleList,
+)
+def get_coach_schedules_by_uuid(
+    coach_uuid: str,
+    db: Session = Depends(get_db),
+):
+    coach = db.query(m.Coach).filter_by(uuid=coach_uuid).first()
+    if not coach:
+        log(log.INFO, "Such coach not found - [%s]", coach_uuid)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Such coach not found",
+        )
+    return s.ScheduleList(schedules=coach.schedules)
+
+
 @schedule_router.post("/create", status_code=status.HTTP_201_CREATED)
 def create_coach_schedule(
     data: s.BaseSchedule,

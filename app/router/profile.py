@@ -61,7 +61,7 @@ def get_coach_profile(
 def get_coach_by_uuid(
     coach_uuid: str,
     db: Session = Depends(get_db),
-    student: m.Student = Depends(get_current_student),
+    # student: m.Student = Depends(get_current_student),
 ):
     coach = db.query(m.Coach).filter_by(uuid=coach_uuid).first()
     return coach
