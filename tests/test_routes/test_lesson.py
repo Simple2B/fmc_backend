@@ -43,7 +43,7 @@ def test_lesson(
         },
     )
     assert response
-    resp_obj = s.UpcomingLessonList.parse_obj(response.json())
+    resp_obj = s.StudentLessonList.parse_obj(response.json())
     assert resp_obj
     student = (
         db.query(m.Student)
@@ -60,7 +60,7 @@ def test_lesson(
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response
-    resp_obj = s.UpcomingLessonList.parse_obj(response.json())
+    resp_obj = s.StudentLessonList.parse_obj(response.json())
     assert (
         resp_obj.lessons[0].schedule.coach.email
         == db.query(m.Coach)

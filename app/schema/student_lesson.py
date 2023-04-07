@@ -22,10 +22,9 @@ class StudentLesson(BaseModel):
         orm_mode = True
 
 
-class UpcomingLessonList(BaseModel):
+class StudentLessonList(BaseModel):
     lessons: list[StudentLesson]
 
 
-class UnreviewedLessonsList(BaseModel):
+class UnreviewedLessonsList(StudentLessonList):
     count: int
-    lessons: list[StudentLesson]

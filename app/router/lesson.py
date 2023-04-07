@@ -34,10 +34,9 @@ def get_lessons_for_student(
     return [s.StudentLesson.from_orm(lesson) for lesson in upcoming_lessons]
 
 
-# I'm not sure we need this route at all
 @lesson_router.get(
     "/lessons/student/upcoming",
-    response_model=s.UpcomingLessonList,
+    response_model=s.StudentLessonList,
     status_code=status.HTTP_200_OK,
 )
 def get_upcoming_lessons(
@@ -53,12 +52,12 @@ def get_upcoming_lessons(
         .all()
     )
     log(log.INFO, "Total lessons found: %d", len(upcoming_lessons))
-    return s.UpcomingLessonList(lessons=upcoming_lessons)
+    return s.StudentLessonList(lessons=upcoming_lessons)
 
 
 @lesson_router.get(
     "/lessons/coach/upcoming",
-    response_model=s.UpcomingLessonList,
+    response_model=s.StudentLessonList,
     status_code=status.HTTP_200_OK,
 )
 def get_upcoming_appointments(
@@ -75,9 +74,14 @@ def get_upcoming_appointments(
         .all()
     )
     log(log.INFO, "Total appointments found: %d", len(upcoming_lessons))
-    return s.UpcomingLessonList(lessons=upcoming_lessons)
+    return s.StudentLessonList(lessons=upcoming_lessons)
 
 
+@lesson_router.get(
+    "/lessons/student/upcoming",
+    response_model=s.StudentLessonList,
+    status_code=status.HTTP_200_OK,
+)
 @lesson_router.get(
     "/{lesson_uuid}",
     response_model=s.StudentLesson,
