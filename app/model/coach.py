@@ -71,7 +71,7 @@ class Coach(Base):
         if not review_count:
             return 0
         rate = sum([review.rate for review in self.reviews]) / review_count
-        return rate
+        return round(rate, 2)
 
     def __repr__(self):
         return f"<{self.id}: {self.email}>"
