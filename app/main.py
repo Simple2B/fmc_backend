@@ -2,6 +2,7 @@
 
 import jinja2
 
+
 jinja2.contextfunction = jinja2.pass_context
 from starlette.responses import RedirectResponse
 from sqlalchemy.engine import Engine
@@ -13,9 +14,10 @@ from app.admin import authentication_backend
 from app.router import router
 from app import admin
 from app.database import Engine, get_engine
+from app.utils import custom_generate_unique_id
 
 
-app = FastAPI()
+app = FastAPI(generate_unique_id_function=custom_generate_unique_id)
 engine: Engine = get_engine()
 
 # admin

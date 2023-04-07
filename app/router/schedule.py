@@ -7,7 +7,7 @@ from app.logger import log
 import app.schema as s
 import app.model as m
 
-schedule_router = APIRouter(prefix="/schedule", tags=["Coach Schedule"])
+schedule_router = APIRouter(prefix="/schedule", tags=["Coach_Schedule"])
 
 
 @schedule_router.get(

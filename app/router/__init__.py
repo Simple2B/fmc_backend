@@ -18,7 +18,7 @@ from .like import like_router
 from .schedule import schedule_router
 from .package import package_router
 
-router = APIRouter(prefix="/api")
+router = APIRouter(prefix="/api", tags=["API"])
 router.include_router(student_auth_router)
 router.include_router(coach_auth_router)
 router.include_router(whoami_router)

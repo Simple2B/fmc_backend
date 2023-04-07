@@ -15,7 +15,7 @@ import app.schema as s
 from app.model import Coach
 
 
-coach_auth_router = APIRouter(prefix="/auth/coach", tags=["Coach Authentication"])
+coach_auth_router = APIRouter(prefix="/auth/coach", tags=["Coach_Authentication"])
 
 
 @coach_auth_router.post("/login", response_model=s.Token)
