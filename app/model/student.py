@@ -12,7 +12,9 @@ class Student(Base):
 
     id = Column(Integer, primary_key=True)
     uuid = Column(String(36), nullable=False, index=True, default=generate_uuid)
-
+    stripe_customer_id = Column(
+        String(32), nullable=True
+    )  # customer identifier in stripe system
     first_name = Column(String(64), nullable=False, default="")
     last_name = Column(String(64), nullable=False, default="")
     email = Column(String(128), nullable=False, unique=True)
