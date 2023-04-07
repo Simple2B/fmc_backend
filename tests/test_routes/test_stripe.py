@@ -27,11 +27,3 @@ def test_get_products(
     )
     assert product
     assert resp_obj.stripe_product_id == product.stripe_product_id
-
-
-def test_create_coach_sub(
-    client: TestClient,
-    test_data: TestData,
-    db: Session,
-):
-    ...

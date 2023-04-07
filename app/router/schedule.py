@@ -124,3 +124,32 @@ def delete_schedule_by_uuid(
         )
     log(log.INFO, "Schedule deleted successfully - [%s]", schedule_uuid)
     return status.HTTP_200_OK
+
+
+@schedule_router.put(
+    "/{schedule_uuid}",
+    status_code=status.HTTP_201_CREATED,
+)
+def edit_schedule(
+    data: s.BaseSchedule,
+    schedule_uuid: str,
+    db: Session = Depends(get_db),
+    coach: m.Coach = Depends(get_current_coach),
+):
+    schedule = db.query(m.CoachSchedule).filter_by(uuid=schedule_uuid).first()
+    if not schedule:
+        log(log.INFO, "Schedule was not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Schedule was not found"
+        )
+    schedule.lesson_id = data.lesson_id
+    schedule.start_datetime = data.start_datetime
+    schedule.end_datetime = data.end_datetime
+    try:
+        db.commit()
+    except SQLAlchemyError as e:
+        log(log.INFO, "Error while updating schedule - [%s]", e)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Schedule was not updated"
+        )
+    return status.HTTP_201_CREATED
