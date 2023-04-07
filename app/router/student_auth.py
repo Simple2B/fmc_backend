@@ -15,7 +15,7 @@ import app.schema as s
 from app.model import Student
 
 
-student_auth_router = APIRouter(prefix="/auth/student", tags=["Student Authentication"])
+student_auth_router = APIRouter(prefix="/auth/student", tags=["Student_Authentication"])
 
 
 @student_auth_router.post("/login", response_model=s.Token)
