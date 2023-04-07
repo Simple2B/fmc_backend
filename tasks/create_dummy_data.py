@@ -389,13 +389,13 @@ def create_sessions(_):
 
     # creating schedules
     coach_lesson_ids = [lesson.id for lesson in coach.lessons]
-    for _ in range(1, 10):
+    for _ in range(1, 15):
         schedule = m.CoachSchedule(
             lesson_id=random.choice(coach_lesson_ids),
             coach_id=coach.id,
             start_datetime=datetime.now()
             + timedelta(
-                days=random.randint(1, 3),
+                days=random.randint(1, 5),
                 hours=random.randint(0, 2),
             ),
         )

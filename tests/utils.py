@@ -156,7 +156,7 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
             db.flush()
         if not coach.locations:
             locations = db.query(m.Location).all()
-            for _ in range(0, 3):
+            for _ in range(1, 3):
                 coach_location = m.CoachLocation(
                     coach_id=coach.id, location_id=randint(1, len(locations))
                 )
@@ -168,6 +168,7 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
                 sport_type_id=choice([sport.id for sport in coach.sports]),
             )
             db.add(lesson)
+            db.flush()
         if not db.query(m.CoachSchedule).filter_by(coach_id=coach.id).first():
             for _ in range(1, 5):
                 schedule = m.CoachSchedule(
@@ -206,7 +207,7 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
             db.commit()
             if not coach.locations:
                 locations = db.query(m.Location).all()
-                for _ in range(0, 3):
+                for _ in range(1, 3):
                     coach_location = m.CoachLocation(
                         coach_id=coach.id, location_id=randint(1, len(locations))
                     )
@@ -219,6 +220,7 @@ def fill_db_by_test_data(db: Session, test_data: TestData):
                     sport_type_id=choice([sport.id for sport in coach.sports]),
                 )
                 db.add(lesson)
+                db.flush()
             db.commit()
             if not db.query(m.CoachSchedule).filter_by(coach_id=coach.id).first():
                 for _ in range(1, 5):

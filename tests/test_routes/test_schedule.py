@@ -42,6 +42,7 @@ def test_schedule(
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert not response.status_code == 200
+
     # getting list of coach schedules
     response = client.get(
         "/api/schedule/schedules",
@@ -50,6 +51,21 @@ def test_schedule(
     assert response.status_code == 200
     resp_obj = s.ScheduleList.parse_obj(response.json())
     assert db.query(m.CoachSchedule).filter_by(uuid=resp_obj.schedules[0].uuid).first()
+
+    # getting list of schedules for certain coach (bigger then current time)
+    # TODO
+    # coach = (
+    #     db.query(m.Coach)
+    #     .filter_by(email=test_data.test_authorized_coaches[0].email)
+    #     .first()
+    # )
+    # response = client.get(
+    #     f"/api/schedule/schedules/{coach.uuid}",
+    # )
+    # assert response.status_code == 200
+    # resp_obj = s.ScheduleList.parse_obj(response.json())
+    # for schedule in resp_obj.schedules:
+    #     assert schedule.start_datetime > datetime.now()
 
     # getting single schedule by uuid
     response = client.get(

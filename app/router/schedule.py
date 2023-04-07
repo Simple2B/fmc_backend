@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -29,6 +31,8 @@ def get_current_coach_schedules(
 )
 def get_coach_schedules_by_uuid(
     coach_uuid: str,
+    date_from: datetime = datetime.now(),
+    date_to: datetime | None = None,
     db: Session = Depends(get_db),
 ):
     coach = db.query(m.Coach).filter_by(uuid=coach_uuid).first()
@@ -38,7 +42,11 @@ def get_coach_schedules_by_uuid(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Such coach not found",
         )
-    return s.ScheduleList(schedules=coach.schedules)
+    query = db.query(m.CoachSchedule)
+    schedules = query.filter(m.CoachSchedule.start_datetime >= date_from)
+    if date_to:
+        schedules = schedules.filter(m.CoachSchedule.start_datetime <= date_to)
+    return s.ScheduleList(schedules=query.all())
 
 
 @schedule_router.post("/create", status_code=status.HTTP_201_CREATED)
