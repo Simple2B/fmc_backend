@@ -28,9 +28,9 @@ def get_coach_stripe_product(
     )
 
 
-@stripe_router.post("/student/reserve")
+@stripe_router.post("/student/reserve", status_code=status.HTTP_201_CREATED)
 def reserve_booking(
-    schedule_uuids: list[int] | None = Query(None),
+    schedule_uuids: list[str] | None = Query(None),
     db=Depends(get_db),
     student: m.Student = Depends(get_current_student),
     settings: Settings = Depends(get_settings),
@@ -40,9 +40,22 @@ def reserve_booking(
         db.query(m.CoachSchedule).filter(m.CoachSchedule.uuid.in_(schedule_uuids)).all()
     )
     if not schedules:
+        log(log.INFO, "No schedules with such uuid`s was found")
         raise HTTPException(
-            status=status.HTTP_409_CONFLICT, detail="Schedules was not found"
+            status_code=status.HTTP_409_CONFLICT, detail="Schedules was not found"
         )
+    # check if anyone has already purchased appointment for this schedules
+    for schedule in schedules:
+        if (
+            db.query(m.StudentLesson)
+            .filter_by(schedule_id=schedule.id, student_id=student.id)
+            .first()
+        ):
+            log(log.INFO, "This schedule has been booked")
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Cannot book this appointment",
+            )
     if not student.stripe_customer_id:
         try:
             customer = stripe.Customer.create(
@@ -58,25 +71,34 @@ def reserve_booking(
         log(log.INFO, "Student [%s] created as a stripe customer", student.email)
         db.commit()
 
-    # pass list of uuids to metadata in order to handle multiple schedule
+    total_price = sum([schedule.lesson.price for schedule in schedules])
+
     checkout = stripe.checkout.Session.create(
         success_url="https://example.com/success",
+        customer=student.stripe_customer_id,
         line_items=[
             {
-                "name": "Test appointment",
-                "images": [
-                    settings.DEFAULT_AVATAR_URL,
-                ],
-                "amount": 19999,
-                "currency": "usd",
+                "price_data": {
+                    "currency": "usd",
+                    "unit_amount": total_price,
+                    "product_data": {
+                        "name": "Test appointment",
+                    },
+                },
                 "quantity": 1,
-            }
+            },
         ],
         payment_intent_data={
-            "metadata": {"test_data": "some really test data"},
+            "metadata": {
+                "schedules": ",".join(
+                    map(str, [schedule.uuid for schedule in schedules])
+                ),
+                "student_uuid": student.uuid,
+            },
         },
         mode="payment",
     )
+    log(log.INFO, "Checkout url generated - [%s]", checkout.url)
     return checkout.url
 
 
@@ -123,6 +145,28 @@ async def stripe_webhook(
         db.commit()
         log(log.INFO, "Coach subscription created")
         return status.HTTP_200_OK
-    if event.type == "checkout.session.completed":
+
+    if event.type == "payment_intent.succeeded":
+        # Processing the successful purchase of appointments
         data = event["data"]["object"]
-        print(data)
+        schedule_uuids = data.metadata["schedules"].split(",")
+        schedules = (
+            db.query(m.CoachSchedule)
+            .filter(m.CoachSchedule.uuid.in_(schedule_uuids))
+            .all()
+        )
+        student = (
+            db.query(m.Student).filter_by(uuid=data.metadata["student_uuid"]).first()
+        )
+
+        for schedule in schedules:
+            student_lesson = m.StudentLesson(
+                student_id=student.id,
+                schedule_id=schedule.id,
+                coach_id=schedule.coach.id,
+                appointment_time=schedule.start_datetime,
+            )
+            db.add(student_lesson)
+            db.commit()
+        log(log.INFO, "Created [%d] appointments", len(schedules))
+        return status.HTTP_200_OK
