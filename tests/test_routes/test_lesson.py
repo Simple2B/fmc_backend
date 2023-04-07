@@ -68,3 +68,50 @@ def test_lesson(
         .first()
         .email
     )
+
+
+# write me a test for route /lessons/student
+
+
+def test_all_lessons_for_student(
+    client: TestClient,
+    test_data: TestData,
+    db: Session,
+    authorized_student_tokens,
+    authorized_coach_tokens,
+):
+    # creatong appointment
+    student = (
+        db.query(m.Student)
+        .filter_by(email=test_data.test_authorized_students[0].email)
+        .first()
+    )
+    assert student
+    coach = (
+        db.query(m.Coach)
+        .filter_by(email=test_data.test_authorized_coaches[0].email)
+        .first()
+    )
+    assert coach
+    schedule = db.query(m.CoachSchedule).filter_by(coach_id=coach.id).first()
+    assert schedule
+    create_upcoming_student_lesson(
+        db=db,
+        student_id=student.id,
+        schedule_id=schedule.id,
+        coach_id=coach.id,
+    )
+    response = client.get(
+        "api/lesson/lessons/student",
+        headers={
+            "Authorization": f"Bearer {authorized_student_tokens[0].access_token}"
+        },
+    )
+    assert response
+    res_data = response.json()
+    assert res_data
+    assert len(res_data) == 1
+    student_lesson = s.StudentLesson.parse_obj(res_data[0])
+
+    assert student_lesson.student.email == student.email
+    assert student_lesson.coach.email == coach.email

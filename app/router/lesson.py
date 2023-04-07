@@ -15,6 +15,27 @@ lesson_router = APIRouter(prefix="/lesson", tags=["Lesson"])
 
 
 @lesson_router.get(
+    "/lessons/student",
+    response_model=list[s.StudentLesson],
+    status_code=status.HTTP_200_OK,
+)
+def get_lessons_for_student(
+    db: Session = Depends(get_db),
+    student: m.Student = Depends(get_current_student),
+):
+    upcoming_lessons = (
+        db.query(m.StudentLesson)
+        .filter(
+            m.StudentLesson.student_id == student.id,
+        )
+        .all()
+    )
+    log(log.INFO, "Total lessons found: %d", len(upcoming_lessons))
+    return [s.StudentLesson.from_orm(lesson) for lesson in upcoming_lessons]
+
+
+# I'm not sure we need this route at all
+@lesson_router.get(
     "/lessons/student/upcoming",
     response_model=s.UpcomingLessonList,
     status_code=status.HTTP_200_OK,
