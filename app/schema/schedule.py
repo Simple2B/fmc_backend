@@ -8,7 +8,6 @@ from .lesson import Lesson
 
 class BaseSchedule(BaseModel):
     lesson_id: int
-    coach_id: int
     start_datetime: datetime | str
     end_datetime: datetime | str
 

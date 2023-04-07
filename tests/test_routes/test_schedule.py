@@ -24,7 +24,6 @@ def test_schedule(
     lesson = db.query(m.Lesson).filter_by(coach_id=coach.id).first()
     request_data = s.BaseSchedule(
         lesson_id=lesson.id,
-        coach_id=coach.id,
         start_datetime=datetime.now() + timedelta(days=1),
         end_datetime=datetime.now() + timedelta(days=1, hours=2),
     )
