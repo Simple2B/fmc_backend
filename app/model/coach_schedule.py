@@ -30,9 +30,9 @@ class CoachSchedule(Base):
         Integer, nullable=False, default=ReccurencyType.NO_REPEAT.value
     )  # TODO switch to enum
     start_datetime = Column(
-        DateTime, nullable=False, default=datetime.now
+        DateTime(timezone=True), nullable=False, default=datetime.now
     )  # maybe we should make it unique ????
-    end_datetime = Column(DateTime, nullable=False, default=get_default_end_dateime)
+    end_datetime = Column(DateTime(timezone=True), nullable=False, default=get_default_end_dateime)
 
     created_at = Column(DateTime(), default=datetime.now)
 
