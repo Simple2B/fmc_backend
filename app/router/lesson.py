@@ -78,11 +78,6 @@ def get_upcoming_appointments(
 
 
 @lesson_router.get(
-    "/lessons/student/upcoming",
-    response_model=s.StudentLessonList,
-    status_code=status.HTTP_200_OK,
-)
-@lesson_router.get(
     "/{lesson_uuid}",
     response_model=s.StudentLesson,
     status_code=status.HTTP_200_OK,

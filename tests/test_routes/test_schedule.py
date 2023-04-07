@@ -63,6 +63,24 @@ def test_schedule(
         == db.query(m.CoachSchedule).filter_by(uuid=resp_obj.uuid).first().uuid
     )
 
+    # editing schedule
+    coach_schedule = (
+        db.query(m.CoachSchedule)
+        .join(m.Coach)
+        .filter(m.Coach.email == test_data.test_authorized_coaches[0].email)
+        .first()
+    )
+    request_data = s.BaseSchedule(
+        lesson_id=coach_schedule.lesson.id,
+        start_datetime=datetime.now() + timedelta(days=2),
+        end_datetime=datetime.now() + timedelta(days=2, hours=1),
+    )
+    response = client.put(
+        f"/api/schedule/{coach_schedule.uuid}",
+        json=jsonable_encoder(request_data),
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response.status_code == 201
     # deleting schedule
     response = client.delete(
         f"/api/schedule/{resp_obj.uuid}",
