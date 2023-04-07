@@ -12,13 +12,12 @@ class BaseSchedule(BaseModel):
     end_datetime: datetime | str
 
 
-class Schedule(BaseModel):
+class Schedule(BaseSchedule):
     uuid: str
-    lesson_id: int
     lesson: Lesson
     coach_id: int
     coach: Coach
-    reccurence: int
+    reccurence: int | None
 
     class Config:
         orm_mode = True
