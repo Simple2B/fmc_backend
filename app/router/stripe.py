@@ -79,7 +79,7 @@ def reserve_booking(
         line_items=[
             {
                 "price_data": {
-                    "currency": "usd",
+                    "currency": "gbp",
                     "unit_amount": total_price,
                     "product_data": {
                         "name": "Test appointment",
