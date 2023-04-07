@@ -1,9 +1,20 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 
 
-class Review(BaseModel):
+class BaseReview(BaseModel):
     text: str
     rate: int
+
+    class Config:
+        orm_mode = True
+
+
+class Review(BaseReview):
+    id: int
+    uuid: str
+    created_at: datetime
 
     class Config:
         orm_mode = True

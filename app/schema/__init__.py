@@ -35,5 +35,5 @@ from .newsletter import NewsletterSubscription
 
 from .stripe import Price, Product, CheckoutSession
 from .certificate import Certificate, CertificateList
-from .review import Review, ReviewList
+from .review import Review, ReviewList, BaseReview
 from .subscription import Subscription

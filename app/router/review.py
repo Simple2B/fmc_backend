@@ -15,7 +15,7 @@ review_router = APIRouter(prefix="/review", tags=["Reviews"])
 
 @review_router.post("/{lesson_uuid}", status_code=status.HTTP_201_CREATED)
 def create_review(
-    data: s.Review,
+    data: s.BaseReview,
     db: Session = Depends(get_db),
     student: m.Student = Depends(get_current_student),
     lesson=Depends(get_lesson_by_uuid),
@@ -43,7 +43,7 @@ def create_review(
 
 
 @review_router.get(
-    "/reviews", status_code=status.HTTP_201_CREATED, response_model=s.ReviewList
+    "/reviews", status_code=status.HTTP_200_OK, response_model=s.ReviewList
 )
 def coach_reviews_list(
     db: Session = Depends(get_db),

@@ -54,7 +54,7 @@ def test_leave_review(
     assert db.query(m.StudentLesson).filter_by(uuid=lesson_uuid).first()
 
     # getting info about this lesson
-    request_data = s.Review(text="This coach is super", rate=5).dict()
+    request_data = s.BaseReview(text="This coach is super", rate=5).dict()
     response = client.post(
         f"api/review/{lesson_uuid}",
         json=request_data,
