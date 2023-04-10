@@ -97,9 +97,9 @@ def test_schedule(
     )
     assert response.status_code == 201
     # deleting schedule
-    # response = client.delete(
-    #     f"/api/schedule/{resp_obj.uuid}",
-    #     headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
-    # )
-    # assert response.status_code == 200
-    # assert not db.query(m.CoachSchedule).filter_by(uuid=resp_obj.uuid).first()
+    response = client.delete(
+        f"/api/schedule/{resp_obj.uuid}",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response.status_code == 200
+    assert not db.query(m.CoachSchedule).filter_by(uuid=resp_obj.uuid).first()
