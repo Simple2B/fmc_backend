@@ -43,7 +43,14 @@ def test_schedule(
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert not response.status_code == 200
-
+    # list of schedules for authorized coach
+    response = client.get(
+        "/api/schedule/schedules",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response.status_code == 200
+    resp_obj = s.ScheduleList.parse_obj(response.json())
+    assert db.query(m.CoachSchedule).filter_by(uuid=resp_obj.schedules[0].uuid).first()
     # getting list of schedules
     response = client.get(f"api/schedule/schedules/{coach_uuid}")
     assert response.status_code == 200
