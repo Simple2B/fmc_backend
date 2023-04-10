@@ -11,18 +11,6 @@ schedule_router = APIRouter(prefix="/schedule", tags=["Coach_Schedule"])
 
 
 @schedule_router.get(
-    "/schedules",
-    status_code=status.HTTP_200_OK,
-    response_model=s.ScheduleList,
-)
-def get_current_coach_schedules(
-    db: Session = Depends(get_db),
-    coach: m.Coach = Depends(get_current_coach),
-):
-    return s.ScheduleList(schedules=coach.schedules)
-
-
-@schedule_router.get(
     "/schedules/{coach_uuid}",
     status_code=status.HTTP_200_OK,
     response_model=s.ScheduleList,
@@ -38,7 +26,21 @@ def get_coach_schedules_by_uuid(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Such coach not found",
         )
-    return s.ScheduleList(schedules=coach.schedules)
+    # existing lessons for coach
+    coach_lesson_ids = [
+        lesson.id
+        for lesson in db.query(m.StudentLesson).filter_by(coach_id=coach.id).all()
+    ]
+    # taking schedules that haven't been booked
+    schedules = (
+        db.query(m.CoachSchedule)
+        .filter(
+            m.CoachSchedule.coach_id == coach.id,
+            m.CoachSchedule.lesson_id.not_in(coach_lesson_ids),
+        )
+        .all()
+    )
+    return s.ScheduleList(schedules=schedules)
 
 
 @schedule_router.post("/create", status_code=status.HTTP_201_CREATED)

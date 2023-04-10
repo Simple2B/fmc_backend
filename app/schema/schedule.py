@@ -13,6 +13,7 @@ class BaseSchedule(BaseModel):
 
 
 class Schedule(BaseSchedule):
+    id: int
     uuid: str
     lesson: Lesson
     coach_id: int

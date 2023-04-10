@@ -21,6 +21,7 @@ def test_schedule(
         .filter_by(email=test_data.test_authorized_coaches[0].email)
         .first()
     )
+    coach_uuid = coach.uuid
     lesson = db.query(m.Lesson).filter_by(coach_id=coach.id).first()
     request_data = s.BaseSchedule(
         lesson_id=lesson.id,
@@ -42,14 +43,14 @@ def test_schedule(
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert not response.status_code == 200
-    # getting list of coach schedules
-    response = client.get(
-        "/api/schedule/schedules",
-        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
-    )
+    # getting list of schedules
+    response = client.get(f"api/schedule/schedules/{coach_uuid}")
     assert response.status_code == 200
     resp_obj = s.ScheduleList.parse_obj(response.json())
-    assert db.query(m.CoachSchedule).filter_by(uuid=resp_obj.schedules[0].uuid).first()
+    schedules = [schedule.id for schedule in resp_obj.schedules]
+    assert db.query(m.StudentLesson).filter(
+        m.StudentLesson.schedule_id.not_in(schedules)
+    )
 
     # getting single schedule by uuid
     response = client.get(
