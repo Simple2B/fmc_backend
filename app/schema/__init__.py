@@ -19,8 +19,6 @@ from .schedule import (
     Schedule,
     ScheduleList,
     BaseSchedule,
-    CoachSchedule,
-    CoachScheduleList,
 )
 
 from .message import (

@@ -1,5 +1,4 @@
-import enum
-from datetime import datetime, timedelta
+from datetime import datetime
 from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -18,9 +17,7 @@ class CoachSchedule(Base):
 
     is_booked = Column(Boolean, default=False)
 
-    start_datetime = Column(
-        DateTime(timezone=True), nullable=False
-    )
+    start_datetime = Column(DateTime(timezone=True), nullable=False)
     end_datetime = Column(DateTime(timezone=True), nullable=False)
 
     created_at = Column(DateTime(), default=datetime.now)

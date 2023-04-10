@@ -160,6 +160,8 @@ async def stripe_webhook(
         )
 
         for schedule in schedules:
+            schedule = db.query(m.CoachSchedule).get(schedule.id)
+            schedule.is_booked = True
             student_lesson = m.StudentLesson(
                 student_id=student.id,
                 schedule_id=schedule.id,

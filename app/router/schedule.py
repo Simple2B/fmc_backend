@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta
-import itertools
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
@@ -16,11 +15,11 @@ schedule_router = APIRouter(prefix="/schedule", tags=["Coach_Schedule"])
 @schedule_router.get(
     "/schedules/{coach_uuid}",
     status_code=status.HTTP_200_OK,
-    response_model=s.CoachScheduleList,
+    response_model=s.ScheduleList,
 )
 def get_coach_schedules_by_uuid(
     coach_uuid: str,
-    date: str | None,
+    schedule_date: str | None = datetime.now().date(),
     db: Session = Depends(get_db),
 ):
     coach = db.query(m.Coach).filter_by(uuid=coach_uuid).first()
@@ -30,43 +29,17 @@ def get_coach_schedules_by_uuid(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Such coach not found",
         )
-
-    all_schedules = (
+    schedules = (
         db.query(m.CoachSchedule)
         .filter(
             m.CoachSchedule.coach_id == coach.id,
-            m.CoachSchedule.start_datetime >= datetime.now(),
-            m.CoachSchedule.is_booked == False,
+            m.CoachSchedule.is_booked == False,  # noqa:flake8 E712
+            m.CoachSchedule.start_datetime == schedule_date,
         )
         .order_by(m.CoachSchedule.start_datetime.asc())
     ).all()
 
-    def key(schedule): return schedule.start_datetime.strftime("%Y-%m-%d")
-    result = {k: list(v) for k, v in itertools.groupby(sorted(all_schedules, key=key), key)}
-
-    # return s.CoachScheduleList(data=result)
-
-    # query = (
-    #     db.query(m.CoachSchedule)
-    #     .filter(
-    #         m.CoachSchedule.coach_id == coach.id,
-    #         m.CoachSchedule.start_datetime >= datetime.now(),
-    #         m.CoachSchedule.lesson_id.not_in(coach_lesson_ids),
-    #     )
-    #     .order_by(m.CoachSchedule.start_datetime.asc())
-    # )
-    # schedules_count = query.count()
-    # result = []
-    # for i in range(1, schedules_count):
-    #     date = datetime.now() + timedelta(days=i - 1)
-    #     query = query.filter(
-    #         m.CoachSchedule.start_datetime <= datetime.now() + timedelta(days=i)
-    #     )
-    #     result.append(
-    #         s.CoachSchedule(date=date.strftime("%Y-%m-%d"), schedules=query.all())
-    #     )
-
-    # return s.CoachScheduleList(data=result)
+    return s.ScheduleList(schedules=schedules)
 
 
 @schedule_router.post("/create", status_code=status.HTTP_201_CREATED)

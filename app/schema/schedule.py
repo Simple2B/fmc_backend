@@ -19,6 +19,7 @@ class Schedule(BaseSchedule):
     coach_id: int
     coach: Coach
     reccurence: int | None
+    is_booked: bool
 
     class Config:
         orm_mode = True
@@ -26,13 +27,3 @@ class Schedule(BaseSchedule):
 
 class ScheduleList(BaseModel):
     schedules: list[Schedule]
-
-
-# TODO rename
-class CoachSchedule(BaseModel):
-    date: str
-    schedules: list[Schedule]
-
-
-class CoachScheduleList(BaseModel):
-    data: list[Schedule]
