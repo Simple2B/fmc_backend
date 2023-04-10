@@ -26,3 +26,13 @@ class Schedule(BaseSchedule):
 
 class ScheduleList(BaseModel):
     schedules: list[Schedule]
+
+
+# TODO rename
+class CoachSchedule(BaseModel):
+    date: str
+    schedules: list[Schedule]
+
+
+class CoachScheduleList(BaseModel):
+    data: list[CoachSchedule]

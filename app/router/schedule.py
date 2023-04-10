@@ -1,7 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.database import get_db, Session
@@ -16,7 +15,7 @@ schedule_router = APIRouter(prefix="/schedule", tags=["Coach_Schedule"])
 @schedule_router.get(
     "/schedules/{coach_uuid}",
     status_code=status.HTTP_200_OK,
-    response_model=s.ScheduleList,
+    response_model=s.CoachScheduleList,
 )
 def get_coach_schedules_by_uuid(
     coach_uuid: str,
@@ -29,13 +28,12 @@ def get_coach_schedules_by_uuid(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Such coach not found",
         )
-    # existing lessons for coach
     coach_lesson_ids = [
         lesson.id
         for lesson in db.query(m.StudentLesson).filter_by(coach_id=coach.id).all()
     ]
-    # taking schedules that haven't been booked
-    schedules = (
+
+    query = (
         db.query(m.CoachSchedule)
         .filter(
             m.CoachSchedule.coach_id == coach.id,
@@ -43,9 +41,19 @@ def get_coach_schedules_by_uuid(
             m.CoachSchedule.lesson_id.not_in(coach_lesson_ids),
         )
         .order_by(m.CoachSchedule.start_datetime.asc())
-        .all()
     )
-    return s.ScheduleList(schedules=schedules)
+    schedules_count = query.count()
+    result = []
+    for i in range(1, schedules_count):
+        date = datetime.now() + timedelta(days=i - 1)
+        query = query.filter(
+            m.CoachSchedule.start_datetime <= datetime.now() + timedelta(days=i)
+        )
+        result.append(
+            s.CoachSchedule(date=date.strftime("%Y-%m-%d"), schedules=query.all())
+        )
+
+    return s.CoachScheduleList(data=result)
 
 
 @schedule_router.post("/create", status_code=status.HTTP_201_CREATED)

@@ -43,18 +43,17 @@ def test_schedule(
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert not response.status_code == 200
+
     # getting list of schedules
     response = client.get(f"api/schedule/schedules/{coach_uuid}")
     assert response.status_code == 200
-    resp_obj = s.ScheduleList.parse_obj(response.json())
-    schedules = [schedule.id for schedule in resp_obj.schedules]
-    assert db.query(m.StudentLesson).filter(
-        m.StudentLesson.schedule_id.not_in(schedules)
-    )
-
+    resp_obj = s.CoachScheduleList.parse_obj(response.json())
+    assert coach_uuid in [
+        schedule.coach.uuid for data in resp_obj.data for schedule in data.schedules
+    ]
     # getting single schedule by uuid
     response = client.get(
-        f"/api/schedule/{resp_obj.schedules[0].uuid}",
+        f"/api/schedule/{resp_obj.data[0].schedules[0].uuid}",
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response.status_code == 200
