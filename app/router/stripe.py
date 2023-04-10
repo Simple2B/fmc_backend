@@ -162,6 +162,7 @@ async def stripe_webhook(
         for schedule in schedules:
             schedule = db.query(m.CoachSchedule).get(schedule.id)
             schedule.is_booked = True
+
             student_lesson = m.StudentLesson(
                 student_id=student.id,
                 schedule_id=schedule.id,
@@ -171,4 +172,5 @@ async def stripe_webhook(
             db.add(student_lesson)
             db.commit()
         log(log.INFO, "Created [%d] appointments", len(schedules))
+        log(log.INFO, "Schedule - [%s] is now booked", schedule.uuid)
         return status.HTTP_200_OK

@@ -9,7 +9,6 @@ from .message import Message, MessageType
 from .coach_schedule import CoachSchedule
 from .coach_sport import CoachSport
 from .student_lesson import StudentLesson
-from .student_lesson_payment import StudentLessonPayment
 from .coach_certificate import Certificate
 from .contact import Contact
 from .superuser import SuperUser

@@ -44,23 +44,39 @@ def test_schedule(
     )
     assert not response.status_code == 200
 
-    # # getting list of schedules
-    # response = client.get(f"api/schedule/schedules/{coach_uuid}")
-    # assert response.status_code == 200
-    # resp_obj = s.ScheduleList.parse_obj(response.json())
-    # assert resp_obj.schedules[0].uuid
+    # getting list of schedules
+    response = client.get(f"api/schedule/schedules/{coach_uuid}")
+    assert response.status_code == 200
+    resp_obj = s.ScheduleList.parse_obj(response.json())
+    assert not resp_obj.schedules
 
-    # # getting single schedule by uuid
-    # response = client.get(
-    #     f"/api/schedule/{resp_obj.schedules[0].uuid}",
-    #     headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
-    # )
-    # assert response.status_code == 200
-    # resp_obj = s.Schedule.parse_obj(response.json())
-    # assert (
-    #     resp_obj.uuid
-    #     == db.query(m.CoachSchedule).filter_by(uuid=resp_obj.uuid).first().uuid
-    # )
+    # getting list of schedules for tomorrow
+    response = client.get(
+        f"api/schedule/schedules/{coach_uuid}?schedule_date={(datetime.now() + timedelta(days=1)).date().isoformat()}"
+    )
+    assert response.status_code == 200
+    resp_obj = s.ScheduleList.parse_obj(response.json())
+    coach = (
+        db.query(m.Coach)
+        .filter_by(email=test_data.test_authorized_coaches[0].email)
+        .first()
+    )
+    assert (
+        resp_obj.schedules[0].uuid
+        == db.query(m.CoachSchedule).filter_by(coach_id=coach.id).first().uuid
+    )
+
+    # getting single schedule by uuid
+    response = client.get(
+        f"/api/schedule/{resp_obj.schedules[0].uuid}",
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert response.status_code == 200
+    resp_obj = s.Schedule.parse_obj(response.json())
+    assert (
+        resp_obj.uuid
+        == db.query(m.CoachSchedule).filter_by(uuid=resp_obj.uuid).first().uuid
+    )
 
     # editing schedule
     coach_schedule = (
