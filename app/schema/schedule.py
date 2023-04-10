@@ -35,4 +35,4 @@ class CoachSchedule(BaseModel):
 
 
 class CoachScheduleList(BaseModel):
-    data: list[CoachSchedule]
+    data: list[Schedule]

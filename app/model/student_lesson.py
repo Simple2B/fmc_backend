@@ -19,18 +19,11 @@ class StudentLesson(Base):  # booking
     schedule_id = Column(Integer, ForeignKey("coach_schedules.id"), nullable=False)
     coach_id = Column(Integer, ForeignKey("coaches.id"), nullable=False)
 
-    student_lesson_payment_id = Column(
-        Integer,
-        ForeignKey("student_lesson_payments.id"),
-        nullable=True,
-    )
-
     appointment_time = Column(
         DateTime(timezone=True), nullable=False
     )  # This field shouldnt be nullable , since we get it from the frontend
 
     created_at = Column(DateTime, nullable=False, default=datetime.now)
-    review_id = Column(Integer, nullable=True)  # fake FK on review
 
     # relationships
     student = relationship(
