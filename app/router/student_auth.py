@@ -124,6 +124,7 @@ async def forgot_password_student(
             "Reset password",
             "forgot_password_mail.html",
             {
+                "user_first_name": student.first_name,
                 "user_name": student.username,
                 "user_email": student.email,
                 "verification_link": f"{settings.BASE_URL}{settings.RESET_PASSWORD_URL_STUDENT}?token={student.verification_token}",  # noqa E501
