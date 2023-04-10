@@ -38,13 +38,11 @@ def get_coach_schedules_by_uuid(
     schedules = (
         db.query(m.CoachSchedule)
         .filter(
-            m.CoachSchedule.start_datetime >= datetime.now(),
             m.CoachSchedule.coach_id == coach.id,
+            m.CoachSchedule.start_datetime >= datetime.now(),
             m.CoachSchedule.lesson_id.not_in(coach_lesson_ids),
         )
-        .group_by(
-            func.date_trunc("day", m.CoachSchedule.start_datetime), m.CoachSchedule.id
-        )
+        .order_by(m.CoachSchedule.start_datetime.asc())
         .all()
     )
     return s.ScheduleList(schedules=schedules)
