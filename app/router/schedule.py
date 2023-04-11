@@ -42,22 +42,39 @@ def get_coach_schedules_by_uuid(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Such coach not found",
         )
-    query = (
+
+    schedules = (
         db.query(m.CoachSchedule)
         .filter(
             m.CoachSchedule.coach_id == coach.id,
             m.CoachSchedule.is_booked == False,  # noqa:flake8 E712
         )
         .order_by(m.CoachSchedule.start_datetime.asc())
-    )
-    if schedule_date:
-        query = query.filter(
-            func.date(m.CoachSchedule.start_datetime)
-            == datetime.strptime(schedule_date, "%Y-%m-%d").date()
-        )
-    else:
-        query = query.filter(m.CoachSchedule.start_datetime == datetime.now().date())
-    return s.ScheduleList(schedules=query.all())
+    ).all()
+
+    schedules_with_same_date = []
+    for schedule in schedules:
+        schedules_start_date = schedule.start_datetime.date()
+        filter_date = datetime.strptime(schedule_date, "%Y-%m-%d").date()
+        if schedules_start_date == filter_date:
+            schedules_with_same_date.append(schedule)
+
+    # query = (
+    #     db.query(m.CoachSchedule)
+    #     .filter(
+    #         m.CoachSchedule.coach_id == coach.id,
+    #         m.CoachSchedule.is_booked == False,  # noqa:flake8 E712
+    #     )
+    #     .order_by(m.CoachSchedule.start_datetime.asc())
+    # )
+    # if schedule_date:
+    #     query = query.filter(
+    #         func.date(m.CoachSchedule.start_datetime)
+    #         == datetime.strptime(schedule_date, "%Y-%m-%d").date()
+    #     )
+    # else:
+    #     query = query.filter(m.CoachSchedule.start_datetime == datetime.now().date())
+    return s.ScheduleList(schedules=schedules_with_same_date)
 
 
 @schedule_router.post("/create", status_code=status.HTTP_201_CREATED)
