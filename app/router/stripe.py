@@ -156,9 +156,27 @@ async def stripe_webhook(
             .filter(m.CoachSchedule.uuid.in_(schedule_uuids))
             .all()
         )
+        if not schedules:
+            log(
+                log.INFO,
+                "Error while booking schedules - [%s](Not found)",
+                schedule_uuids,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="Schedules was not found"
+            )
         student = (
             db.query(m.Student).filter_by(uuid=data.metadata["student_uuid"]).first()
         )
+        if not student:
+            log(
+                log.INFO,
+                "Error while booking schedules for student - [%s]",
+                data.metadata["student_uuid"],
+            )
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="Student was not found"
+            )
 
         for schedule in schedules:
             schedule = db.query(m.CoachSchedule).get(schedule.id)

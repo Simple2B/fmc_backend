@@ -82,6 +82,10 @@ def create_coach_schedule(
             status_code=status.HTTP_409_CONFLICT,
             detail="Schedule already exists on this date",
         )
+    if not data.lesson_id:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT, detail="Missing package"
+        )
     schedule = m.CoachSchedule(
         lesson_id=data.lesson_id,
         coach_id=coach.id,

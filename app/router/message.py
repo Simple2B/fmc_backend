@@ -59,7 +59,7 @@ def get_coach_list_of_contacts(
         student = db.query(m.Student).filter_by(uuid=message.receiver_id).first()
         if student not in contacts:
             contacts.append(student)
-    # messages where student is a recepeint
+    # messages where student is a recipient
     messages = db.query(m.Message).filter_by(receiver_id=coach.uuid).all()
     for message in messages:
         student = db.query(m.Student).filter_by(uuid=message.author_id).first()
@@ -86,7 +86,7 @@ def get_coach_student_messages(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    messages: list[m.Message] = m.Message.get_diaogue_messages(
+    messages: list[m.Message] = m.Message.get_dialogue_messages(
         db=db, coach_id=coach.uuid, student_id=student.uuid
     )
     log(log.INFO, "found [%d] messages", len(messages))
@@ -102,7 +102,7 @@ def read_coach_student_messages(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    messages: list[m.Message] = m.Message.get_diaogue_messages(
+    messages: list[m.Message] = m.Message.get_dialogue_messages(
         db=db, coach_id=coach.uuid, student_id=student.uuid
     )
 
@@ -189,7 +189,7 @@ def get_student_coach_messages(
     db: Session = Depends(get_db),
     student: m.Coach = Depends(get_current_student),
 ):
-    messages: list[m.Message] = m.Message.get_diaogue_messages(
+    messages: list[m.Message] = m.Message.get_dialogue_messages(
         db=db, coach_id=coach.uuid, student_id=student.uuid
     )
     log(log.INFO, "found [%d] messages", len(messages))
@@ -205,7 +205,7 @@ def read_student_coach_messages(
     db: Session = Depends(get_db),
     student: m.Coach = Depends(get_current_student),
 ):
-    messages: list[m.Message] = m.Message.get_diaogue_messages(
+    messages: list[m.Message] = m.Message.get_dialogue_messages(
         db=db, coach_id=coach.uuid, student_id=student.uuid
     )
     for message in messages:

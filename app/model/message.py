@@ -85,7 +85,7 @@ class Message(Base):
         )
 
     @classmethod
-    def get_diaogue_messages(
+    def get_dialogue_messages(
         cls,
         db: Session,
         coach_id: str,
