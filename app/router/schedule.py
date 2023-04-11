@@ -1,5 +1,8 @@
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
+
 
 from app.database import get_db, Session
 from app.dependency import get_current_coach
@@ -11,12 +14,25 @@ schedule_router = APIRouter(prefix="/schedule", tags=["Coach_Schedule"])
 
 
 @schedule_router.get(
+    "/schedules",
+    status_code=status.HTTP_200_OK,
+    response_model=s.ScheduleList,
+)
+def get_current_coach_schedules(
+    db: Session = Depends(get_db),
+    coach: m.Coach = Depends(get_current_coach),
+):
+    return s.ScheduleList(schedules=coach.schedules)
+
+
+@schedule_router.get(
     "/schedules/{coach_uuid}",
     status_code=status.HTTP_200_OK,
     response_model=s.ScheduleList,
 )
 def get_coach_schedules_by_uuid(
     coach_uuid: str,
+    schedule_date: str | None = datetime.now().date().isoformat(),
     db: Session = Depends(get_db),
 ):
     coach = db.query(m.Coach).filter_by(uuid=coach_uuid).first()
@@ -26,21 +42,23 @@ def get_coach_schedules_by_uuid(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Such coach not found",
         )
-    # existing lessons for coach
-    coach_lesson_ids = [
-        lesson.id
-        for lesson in db.query(m.StudentLesson).filter_by(coach_id=coach.id).all()
-    ]
-    # taking schedules that haven't been booked
+
     schedules = (
         db.query(m.CoachSchedule)
         .filter(
             m.CoachSchedule.coach_id == coach.id,
-            m.CoachSchedule.lesson_id.not_in(coach_lesson_ids),
+            m.CoachSchedule.is_booked == False,  # noqa:flake8 E712
         )
-        .all()
-    )
-    return s.ScheduleList(schedules=schedules)
+        .order_by(m.CoachSchedule.start_datetime.asc())
+    ).all()
+
+    result = []
+    for schedule in schedules:
+        start_date = schedule.start_datetime.date()
+        filter_date = datetime.strptime(schedule_date, "%Y-%m-%d").date()
+        if start_date == filter_date:
+            result.append(schedule)
+    return s.ScheduleList(schedules=result)
 
 
 @schedule_router.post("/create", status_code=status.HTTP_201_CREATED)

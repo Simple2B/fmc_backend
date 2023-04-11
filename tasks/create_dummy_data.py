@@ -212,7 +212,7 @@ def create_dummy_schedules():
         location_ids = [location.id for location in coach.locations]
         package_ids = [package.id for coach in coaches for package in coach.lessons]
         if location_ids:
-            for _ in range(0, 5):
+            for _ in range(0, 10):
                 coach_schedule = m.CoachSchedule(
                     lesson_id=random.choice(package_ids),
                     coach_id=coach.id,
@@ -236,7 +236,7 @@ def create_lessons():
         coach_schedule_ids = [
             schedule.id for coach in coaches for schedule in coach.schedules
         ]
-        for _ in range(1, 5):
+        for _ in range(1, 7):
             upcoming_lesson = m.StudentLesson(
                 student_id=student.id,
                 coach_id=coach.id,
@@ -246,12 +246,12 @@ def create_lessons():
             db.add(upcoming_lesson)
             db.flush()
         # creating past sessions
-        for _ in range(1, 3):
+        for _ in range(1, 7):
             past_lesson = m.StudentLesson(
                 student_id=student.id,
                 coach_id=coach.id,
                 schedule_id=random.choice(coach_schedule_ids),
-                appointment_time=datetime.now() - timedelta(days=random.randint(1, 3)),
+                appointment_time=datetime.now() - timedelta(days=random.randint(1, 5)),
             )
             db.add(past_lesson)
             db.flush()

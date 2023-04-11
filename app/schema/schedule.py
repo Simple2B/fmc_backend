@@ -19,6 +19,7 @@ class Schedule(BaseSchedule):
     coach_id: int
     coach: Coach
     reccurence: int | None
+    is_booked: bool
 
     class Config:
         orm_mode = True
