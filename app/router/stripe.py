@@ -74,8 +74,8 @@ def reserve_booking(
     total_price = sum([schedule.lesson.price for schedule in schedules])
 
     checkout = stripe.checkout.Session.create(
-        success_url=f"{settings.BASE_URL}/coach_search/{coach_uuid}#success",
-        cancel_url=f"{settings.BASE_URL}/coach_search/{coach_uuid}#cancel",
+        success_url=f"{settings.BASE_URL}/coach_search/{coach_uuid}?success",
+        cancel_url=f"{settings.BASE_URL}/coach_search/{coach_uuid}?cancel",
         customer=student.stripe_customer_id,
         line_items=[
             {
