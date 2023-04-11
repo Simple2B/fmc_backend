@@ -68,9 +68,8 @@ def reserve_booking(
                 detail="Error while creating student - customer",
             )
         student.stripe_customer_id = customer.id
-        log(log.INFO, "Student [%s] created as a stripe customer", student.email)
         db.commit()
-
+    log(log.INFO, "Student [%s] created as a stripe customer", student.email)
     total_price = sum([schedule.lesson.price for schedule in schedules])
 
     checkout = stripe.checkout.Session.create(

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy import func
+
 
 from app.database import get_db, Session
 from app.dependency import get_current_coach
@@ -32,7 +32,7 @@ def get_current_coach_schedules(
 )
 def get_coach_schedules_by_uuid(
     coach_uuid: str,
-    schedule_date: str | None = None,
+    schedule_date: str | None = datetime.now().date().isoformat(),
     db: Session = Depends(get_db),
 ):
     coach = db.query(m.Coach).filter_by(uuid=coach_uuid).first()
@@ -52,29 +52,13 @@ def get_coach_schedules_by_uuid(
         .order_by(m.CoachSchedule.start_datetime.asc())
     ).all()
 
-    schedules_with_same_date = []
+    result = []
     for schedule in schedules:
-        schedules_start_date = schedule.start_datetime.date()
+        start_date = schedule.start_datetime.date()
         filter_date = datetime.strptime(schedule_date, "%Y-%m-%d").date()
-        if schedules_start_date == filter_date:
-            schedules_with_same_date.append(schedule)
-
-    # query = (
-    #     db.query(m.CoachSchedule)
-    #     .filter(
-    #         m.CoachSchedule.coach_id == coach.id,
-    #         m.CoachSchedule.is_booked == False,  # noqa:flake8 E712
-    #     )
-    #     .order_by(m.CoachSchedule.start_datetime.asc())
-    # )
-    # if schedule_date:
-    #     query = query.filter(
-    #         func.date(m.CoachSchedule.start_datetime)
-    #         == datetime.strptime(schedule_date, "%Y-%m-%d").date()
-    #     )
-    # else:
-    #     query = query.filter(m.CoachSchedule.start_datetime == datetime.now().date())
-    return s.ScheduleList(schedules=schedules_with_same_date)
+        if start_date == filter_date:
+            result.append(schedule)
+    return s.ScheduleList(schedules=result)
 
 
 @schedule_router.post("/create", status_code=status.HTTP_201_CREATED)
