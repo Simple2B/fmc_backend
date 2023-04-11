@@ -45,6 +45,7 @@ def reserve_booking(
             status_code=status.HTTP_409_CONFLICT, detail="Schedules was not found"
         )
     # check if anyone has already purchased appointment for this schedules
+    coach_uuid = schedules[0].coach.uuid
     for schedule in schedules:
         if (
             db.query(m.StudentLesson)
@@ -73,7 +74,8 @@ def reserve_booking(
     total_price = sum([schedule.lesson.price for schedule in schedules])
 
     checkout = stripe.checkout.Session.create(
-        success_url="https://example.com/success",
+        success_url=f"{settings.BASE_URL}/coach_search/{coach_uuid}#success",
+        cancel_url=f"{settings.BASE_URL}/coach_search/{coach_uuid}#cancel",
         customer=student.stripe_customer_id,
         line_items=[
             {

@@ -53,8 +53,8 @@ class Settings(BaseSettings):
     COACH_SUBSCRIPTION_PRODUCT_ID: str
 
     STRIPE_WEBHOOK_SECRET: str = ""
-    STRIPE_SUCCESS_URL: str = ""
-    STRIPE_CANCEL_URL: str = ""
+    STRIPE_COACH_SUBSCRIPTION_SUCCESS_URL: str = ""
+    STRIPE_COACH_SUBSCRIPTION_CANCEL_URL: str = ""
     # Redis
     REDIS_URL: str = ""
 
