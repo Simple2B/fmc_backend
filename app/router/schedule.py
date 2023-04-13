@@ -71,7 +71,7 @@ def create_coach_schedule(
 ):
     try:
         account = stripe.Account.retrieve(coach.stripe_account_id)
-        if not account.payouts_enabled and not account.charges_enabled:
+        if not account["payouts_enabled"] and not account["charges_enabled"]:
             log(log.INFO, "Account is not ready for getting/sending payments")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

@@ -33,6 +33,7 @@ passlib = "^1.7.4"
 bcrypt = "^4.0.1"
 celery = {extras = ["redis"], version = "^5.2.7"}
 faker = "^18.3.2"
+pytest-mock = "^3.10.0"
 
 
 [tool.poetry.group.dev.dependencies]
