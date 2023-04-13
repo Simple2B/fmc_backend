@@ -265,7 +265,7 @@ def create_dummy_messages():
         author = db.query(m.Coach).filter_by(id=lesson.coach_id).first()
         receiver = db.query(m.Student).filter_by(id=lesson.student_id).first()
         message = m.Message(
-            text=fake.sentence()[0:10],
+            text=fake.sentence()[0:2],
             author_id=author.uuid,
             receiver_id=receiver.uuid,
         )
@@ -275,7 +275,7 @@ def create_dummy_messages():
         author = db.query(m.Student).filter_by(id=lesson.student_id).first()
         receiver = db.query(m.Coach).filter_by(id=lesson.coach_id).first()
         message = m.Message(
-            text=fake.sentence()[0:10],
+            text=fake.sentence()[0:2],
             author_id=author.uuid,
             receiver_id=receiver.uuid,
         )

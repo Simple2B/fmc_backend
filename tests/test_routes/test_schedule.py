@@ -14,8 +14,16 @@ def test_schedule(
     test_data: TestData,
     db: Session,
     authorized_coach_tokens,
+    mocker,
 ):
     # creating a new schedule for coach
+    mocker.patch(
+        "stripe.Account.retrieve",
+        return_value={
+            "payouts_enabled": True,
+            "charges_enabled": True,
+        },
+    )
     coach = (
         db.query(m.Coach)
         .filter_by(email=test_data.test_authorized_coaches[0].email)

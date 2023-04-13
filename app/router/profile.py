@@ -40,7 +40,7 @@ def get_info_coach_profile(
 
 @profile_router.get(
     "/coach",
-    response_model=s.User,
+    response_model=s.Coach,
 )
 def get_coach_profile(
     db: Session = Depends(get_db),

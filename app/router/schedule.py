@@ -2,10 +2,11 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
-
+from stripe.error import InvalidRequestError
 
 from app.database import get_db, Session
 from app.dependency import get_current_coach
+from app.dependency.controller.stripe import get_stripe
 from app.logger import log
 import app.schema as s
 import app.model as m
@@ -66,39 +67,48 @@ def create_coach_schedule(
     data: s.BaseSchedule,
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
+    stripe=Depends(get_stripe),
 ):
-    # check if account is ready for payments
-    # TODO
-    # https://stackoverflow.com/questions/66036019/how-can-i-tell-through-the-stripe-api-if-a-connected-account-is-complete
-
-    if (
-        db.query(m.CoachSchedule)
-        .filter_by(
+    try:
+        account = stripe.Account.retrieve(coach.stripe_account_id)
+        if not account["payouts_enabled"] and not account["charges_enabled"]:
+            log(log.INFO, "Account is not ready for getting/sending payments")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="You are not allowed to process payments.Please visit your stripe dashboard",
+            )
+        if (
+            db.query(m.CoachSchedule)
+            .filter_by(
+                lesson_id=data.lesson_id,
+                coach_id=coach.id,
+                start_datetime=data.start_datetime,
+                end_datetime=data.end_datetime,
+            )
+            .first()
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Schedule already exists on this date",
+            )
+        if not data.lesson_id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="Missing package"
+            )
+        schedule = m.CoachSchedule(
             lesson_id=data.lesson_id,
             coach_id=coach.id,
             start_datetime=data.start_datetime,
             end_datetime=data.end_datetime,
         )
-        .first()
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Schedule already exists on this date",
-        )
-    if not data.lesson_id:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT, detail="Missing package"
-        )
-    schedule = m.CoachSchedule(
-        lesson_id=data.lesson_id,
-        coach_id=coach.id,
-        start_datetime=data.start_datetime,
-        end_datetime=data.end_datetime,
-    )
 
-    db.add(schedule)
-    try:
+        db.add(schedule)
         db.commit()
+    except InvalidRequestError as e:
+        log(log.INFO, "Error while getting account data - [%s]", e)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Error creating schedule"
+        )
     except SQLAlchemyError as e:
         log(log.INFO, "Error creating schedule for coach [%s]", e)
         raise HTTPException(
