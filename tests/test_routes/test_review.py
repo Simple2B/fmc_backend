@@ -78,3 +78,17 @@ def test_leave_review(
     assert response
     resp_obj = s.ReviewList.parse_obj(response.json())
     assert resp_obj.reviews
+
+    # getting list of reviews for coach
+    coach = (
+        db.query(m.Coach)
+        .filter_by(email=test_data.test_authorized_coaches[0].email)
+        .first()
+    )
+    assert coach
+    response = client.get(
+        f"api/review/reviews/{coach.uuid}",
+    )
+    assert response
+    resp_obj = s.ReviewList.parse_obj(response.json())
+    assert resp_obj.reviews

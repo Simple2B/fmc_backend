@@ -50,3 +50,22 @@ def coach_reviews_list(
     coach: m.Coach = Depends(get_current_coach),
 ):
     return s.ReviewList(reviews=coach.reviews)
+
+
+@review_router.get(
+    "/reviews/{coach_uuid}",
+    status_code=status.HTTP_200_OK,
+    response_model=s.ReviewList,
+)
+def get_reviews_by_coach_uuid(
+    coach_uuid: str,
+    db: Session = Depends(get_db),
+):
+    coach = db.query(m.Coach).filter_by(uuid=coach_uuid).first()
+    if not coach:
+        log(log.INFO, "Coach was not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Coach was not found"
+        )
+
+    return s.ReviewList(reviews=coach.reviews)
