@@ -75,6 +75,8 @@ def check_coach_stripe_onboard(
     settings: Settings = Depends(get_settings),
     stripe=Depends(get_stripe),
 ):
+    if not coach.stripe_account_id:
+        return False
     try:
         account_data = stripe.Account.retrieve(coach.stripe_account_id)
     except InvalidRequestError as e:
