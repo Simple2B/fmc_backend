@@ -34,6 +34,7 @@ class Coach(Base):
     stripe_customer_id = Column(
         String(32), nullable=True
     )  # customer identifier in stripe system
+    stripe_account_id = Column(String(32), nullable=True)
     created_at = Column(DateTime, default=datetime.now)
 
     # relationship

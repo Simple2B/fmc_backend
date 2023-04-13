@@ -67,7 +67,10 @@ def create_coach_schedule(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    # check if such schedule already exists
+    # check if account is ready for payments
+    # TODO
+    # https://stackoverflow.com/questions/66036019/how-can-i-tell-through-the-stripe-api-if-a-connected-account-is-complete
+
     if (
         db.query(m.CoachSchedule)
         .filter_by(
@@ -102,6 +105,9 @@ def create_coach_schedule(
             status_code=status.HTTP_200_OK, detail="Error creating schedule"
         )
     return status.HTTP_201_CREATED
+
+
+# TODO create route that creates link to express dashboard !
 
 
 @schedule_router.get(

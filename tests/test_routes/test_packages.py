@@ -42,6 +42,14 @@ def test_packages(
     assert coach
     assert db.query(m.Lesson).filter_by(coach_id=coach.id).first()
 
+    # creating package with same name
+    response = client.post(
+        "/api/package/create",
+        json=request_data,
+        headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
+    )
+    assert not response.status_code == 201
+
     response = client.get(
         "/api/package/packages",
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},

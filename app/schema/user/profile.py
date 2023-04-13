@@ -26,6 +26,7 @@ class UserList(BaseModel):
 
 
 class Coach(User):
+    stripe_account_id: str | None
     total_rate: float
     about: str = ""
     is_for_adults: bool

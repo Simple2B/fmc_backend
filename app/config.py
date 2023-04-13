@@ -55,6 +55,7 @@ class Settings(BaseSettings):
     STRIPE_WEBHOOK_SECRET: str = ""
     STRIPE_COACH_SUBSCRIPTION_SUCCESS_URL: str = ""
     STRIPE_COACH_SUBSCRIPTION_CANCEL_URL: str = ""
+    STRIPE_CONNECT_COACH_RETURN_URL: str = ""
     # Redis
     REDIS_URL: str = ""
 
