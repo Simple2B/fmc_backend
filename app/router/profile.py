@@ -46,7 +46,7 @@ def get_coach_profile(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    return s.User(
+    return s.Coach(
         uuid=coach.uuid,
         email=coach.email,
         username=coach.username,
@@ -54,6 +54,7 @@ def get_coach_profile(
         last_name=coach.last_name,
         profile_picture=coach.profile_picture,
         is_verified=coach.is_verified,
+        stripe_account_id=coach.stripe_account_id,
     )
 
 
