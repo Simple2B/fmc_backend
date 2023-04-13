@@ -33,54 +33,97 @@ def get_coach_stripe_product(
 def coach_stripe_oauth(
     coach: m.Coach = Depends(get_current_coach),
     db=Depends(get_db),
+    stripe=Depends(get_stripe),
+):
+    if not coach.stripe_account_id:
+        try:
+            account = stripe.Account.create(
+                type="express",
+                country="GB",
+                email=coach.email,
+                business_type="individual",
+                individual={
+                    "email": coach.email,
+                },
+                capabilities={
+                    "card_payments": {"requested": True},
+                    "transfers": {"requested": True},
+                },
+            )
+            coach.stripe_account_id = account.id
+            db.commit()
+        except SQLAlchemyError as e:
+            db.rollback()
+            log(log.INFO, "Error while saving Account ID - [%s]", e)
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Error while connecting Stripe Account",
+            )
+        except InvalidRequestError as e:
+            db.rollback()
+            log(log.INFO, "Error while creating Account - [%s]", e)
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Error while connecting Stripe Account",
+            )
+    return status.HTTP_201_CREATED
+
+
+@stripe_router.get("/coach/is_boarded")
+def check_coach_stripe_onboard(
+    coach: m.Coach = Depends(get_current_coach),
     settings: Settings = Depends(get_settings),
     stripe=Depends(get_stripe),
 ):
-    if coach.stripe_account_id:
-        log(log.INFO, "[%s] already connected to stripe")
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Coach is already connected to stripe",
-        )
     try:
-        account = stripe.Account.create(
-            type="express",
-            country="GB",
-            email=coach.email,
-            business_type="individual",
-            individual={
-                "email": coach.email,
-            },
-            capabilities={
-                "card_payments": {"requested": True},
-                "transfers": {"requested": True},
-            },
-        )
-        coach.stripe_account_id = account.id
-        db.commit()
+        account_data = stripe.Account.retrieve(coach.stripe_account_id)
+    except InvalidRequestError as e:
+        log(log.INFO, "Error while retrieving account data - [%s]", e)
+    if account_data.requirements.eventually_due:
+        log(log.INFO, "Account [%s] is not boarded", coach.email)
+        return False
+    return True
+
+
+@stripe_router.get("/coach/onboard")
+def coach_stripe_onboard(
+    coach: m.Coach = Depends(get_current_coach),
+    settings: Settings = Depends(get_settings),
+    stripe=Depends(get_stripe),
+):
+    try:
         link = stripe.AccountLink.create(
-            account=f"{account.id}",
+            account=f"{coach.stripe_account_id}",
             refresh_url=settings.STRIPE_CONNECT_COACH_RETURN_URL,
             return_url=settings.STRIPE_CONNECT_COACH_RETURN_URL,
             type="account_onboarding",
             collect="eventually_due",
         )
-    except SQLAlchemyError as e:
-        db.rollback()
-        log(log.INFO, "Error while saving Account ID - [%s]", e)
+    except InvalidRequestError as e:
+        log(log.INFO, "Error while onboarding Account - [%s]", e)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Error while connecting Stripe Account",
+            detail="Error while onboarding Stripe Account",
+        )
+    return link.url
+
+
+@stripe_router.get("/coach/dashboard")
+def coach_stripe_dashboard(
+    coach: m.Coach = Depends(get_current_coach),
+    stripe=Depends(get_stripe),
+):
+    try:
+        login_link = stripe.Account.create_login_link(
+            coach.stripe_account_id,
         )
     except InvalidRequestError as e:
-        db.rollback()
-        log(log.INFO, "Error while creating Account - [%s]", e)
+        log(log.INFO, "Error while creating dashboard for coach - [%s]", e)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Error while connecting Stripe Account",
+            detail="Error while generating dashboard",
         )
-    log(log.INFO, "Stripe Connect onboard url created - [%s]", link.url)
-    return link.url
+    return login_link.url
 
 
 @stripe_router.post("/student/reserve", status_code=status.HTTP_201_CREATED)
@@ -145,7 +188,9 @@ def reserve_booking(
             },
         ],
         payment_intent_data={
-            "application_fee_amount": int((total_price / 100) * 2.5),
+            "application_fee_amount": int(
+                (total_price / 100) * 2.5  # TODO percentage as .env value
+            ),
             "transfer_data": {
                 "destination": schedules[0].coach.stripe_account_id,
             },
