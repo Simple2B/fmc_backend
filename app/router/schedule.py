@@ -67,6 +67,7 @@ def create_coach_schedule(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
+    # check if account is ready for payments # TODO
     # check if such schedule already exists
     if (
         db.query(m.CoachSchedule)

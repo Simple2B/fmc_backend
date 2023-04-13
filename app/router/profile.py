@@ -55,6 +55,13 @@ def get_coach_profile(
         profile_picture=coach.profile_picture,
         is_verified=coach.is_verified,
         stripe_account_id=coach.stripe_account_id,
+        total_rate=coach.total_rate,
+        is_for_adults=coach.is_for_adults,
+        is_for_children=coach.is_for_children,
+        locations=coach.locations,
+        certificates=coach.certificates,
+        sports=coach.sports,
+        reviews=coach.reviews,
     )
 
 
