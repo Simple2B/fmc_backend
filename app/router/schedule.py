@@ -70,6 +70,12 @@ def create_coach_schedule(
     stripe=Depends(get_stripe),
 ):
     try:
+        if not coach.stripe_account_id:
+            log(log.INFO, "Coach [%s] does not have stripe account id", coach.email)
+            raise HTTPException(
+                status_code=status.HTTP_412_PRECONDITION_FAILED,
+                detail="You didn`t connect to Stripe Connect",
+            )
         account = stripe.Account.retrieve(coach.stripe_account_id)
         if not account["payouts_enabled"] and not account["charges_enabled"]:
             log(log.INFO, "Account is not ready for getting/sending payments")
@@ -115,9 +121,6 @@ def create_coach_schedule(
             status_code=status.HTTP_200_OK, detail="Error creating schedule"
         )
     return status.HTTP_201_CREATED
-
-
-# TODO create route that creates link to express dashboard !
 
 
 @schedule_router.get(
