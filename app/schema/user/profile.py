@@ -29,6 +29,8 @@ class Coach(User):
     stripe_account_id: str | None
     total_rate: float
     about: str = ""
+    experience: str = ""
+    credentials: str = ""
     is_for_adults: bool
     is_for_children: bool
     about: str | None
