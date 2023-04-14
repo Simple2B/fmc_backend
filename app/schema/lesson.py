@@ -15,6 +15,8 @@ class BaseLesson(BaseModel):
     price: int | float
     max_people: int | None
     about: str | None
+    additional_information_title: str | None
+    additional_information_description: str | None
 
     @validator("about")
     def validate_about(cls, value):

@@ -30,6 +30,8 @@ def create_package(
         location_id=data.location.id,
         sport_type_id=data.sport.id,
         about=data.about,
+        additional_information_title=data.additional_information_title,
+        additional_information_description=data.additional_information_description,
         max_people=data.max_people,
         price=data.price,
     )

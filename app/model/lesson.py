@@ -24,6 +24,10 @@ class Lesson(Base):  # Package
     sport_type_id = Column(Integer, ForeignKey("sport_types.id"))
 
     about = Column(String(512), default="")
+
+    additional_information_title = Column(String(512), nullable=True, default="")
+    additional_information_description = Column(String(1024), nullable=True, default="")
+
     max_people = Column(Integer, default=1)
     price = Column(Integer, default=999)
 
