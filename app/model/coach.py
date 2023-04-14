@@ -21,6 +21,10 @@ class Coach(Base):
     google_open_id = Column(String(128), nullable=True)
 
     about = Column(String(1024), nullable=False, default="")
+
+    experience = Column(String(1024), nullable=True, default="")
+    credentials = Column(String(1024), nullable=True, default="")
+
     certificate_url = Column(String(256), nullable=True)
 
     verification_token = Column(

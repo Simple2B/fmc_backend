@@ -197,6 +197,8 @@ def update_student_personal_info(
 def update_coach_profile(
     sport_category: str = Form(None),
     about: str | None = Form(None),
+    experience: str | None = Form(None),
+    credentials: str | None = Form(None),
     certificates: list[UploadFile] = Form(None),
     deleted_certificates: str = Form(None),
     is_for_adult: bool | None = Form(None),
@@ -209,6 +211,10 @@ def update_coach_profile(
 ):
     if about:
         coach.about = about
+    if experience:
+        coach.experience = experience
+    if credentials:
+        coach.credentials = credentials
     coach.is_for_adults = is_for_adult
     coach.is_for_children = is_for_children
     if sport_category:
