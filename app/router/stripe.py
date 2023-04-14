@@ -172,7 +172,8 @@ def reserve_booking(
         db.commit()
     log(log.INFO, "Student [%s] created as a stripe customer", student.email)
     total_price = sum([schedule.lesson.price for schedule in schedules])
-
+    stripe_fee = 20 + int((total_price / 100) * 1.4)
+    application_fee = int((total_price / 100) * 2.5)
     checkout = stripe.checkout.Session.create(
         success_url=f"{settings.BASE_URL}/coach_search/{coach_uuid}?success",
         cancel_url=f"{settings.BASE_URL}/coach_search/{coach_uuid}?cancel",
@@ -181,18 +182,17 @@ def reserve_booking(
             {
                 "price_data": {
                     "currency": "gbp",
-                    "unit_amount": total_price,
+                    "unit_amount": total_price + application_fee + stripe_fee,
                     "product_data": {
-                        "name": "Test appointment",
+                        "name": "Appointment ",
+                        "description": f"Total fees - \xA3{(application_fee + stripe_fee)/100} ",
                     },
                 },
                 "quantity": 1,
             },
         ],
         payment_intent_data={
-            "application_fee_amount": int(
-                (total_price / 100) * 2.5  # TODO percentage as .env value
-            ),
+            "application_fee_amount": application_fee,
             "transfer_data": {
                 "destination": schedules[0].coach.stripe_account_id,
             },
