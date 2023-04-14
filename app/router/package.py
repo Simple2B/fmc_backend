@@ -18,12 +18,12 @@ def create_package(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    if db.query(m.Lesson).filter_by(title=data.title, coach_id=coach.id).first():
-        log(log.INFO, "Package with such title already exists")
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Package with such title already exists",
-        )
+    # if db.query(m.Lesson).filter_by(title=data.title, coach_id=coach.id).first():
+    #     log(log.INFO, "Package with such title already exists")
+    #     raise HTTPException(
+    #         status_code=status.HTTP_409_CONFLICT,
+    #         detail="Package with such title already exists",
+    #     )
     package = m.Lesson(
         title=data.title,
         coach_id=coach.id,
