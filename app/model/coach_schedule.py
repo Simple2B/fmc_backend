@@ -21,6 +21,7 @@ class CoachSchedule(Base):
     end_datetime = Column(DateTime(timezone=True), nullable=False)
 
     created_at = Column(DateTime(), default=datetime.now)
+    is_deleted = Column(Boolean, nullable=False, default=False)
 
     lesson = relationship("Lesson", viewonly=True)
     coach = relationship("Coach", viewonly=True)

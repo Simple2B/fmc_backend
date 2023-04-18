@@ -23,7 +23,10 @@ def get_current_coach_schedules(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    return s.ScheduleList(schedules=coach.schedules)
+    schedules = (
+        db.query(m.CoachSchedule).filter_by(coach_id=coach.id, is_deleted=False).all()
+    )
+    return s.ScheduleList(schedules=schedules)
 
 
 @schedule_router.get(
@@ -47,6 +50,7 @@ def get_coach_schedules_by_uuid(
     query = db.query(m.CoachSchedule).filter(
         m.CoachSchedule.coach_id == coach.id,
         m.CoachSchedule.is_booked == False,  # noqa:flake8 E712
+        m.CoachSchedule.is_deleted == False,  # noqa:flake8 E712
     )
     if location_id:
         query = query.join(m.Lesson).filter(m.Lesson.location_id == location_id)
@@ -132,10 +136,11 @@ def get_schedule_by_uuid(
     coach: m.Coach = Depends(get_current_coach),
 ):
     schedule = db.query(m.CoachSchedule).filter_by(uuid=schedule_uuid).first()
-    if not schedule:
-        log(log.INFO, "Schedule was not found")
+    if not schedule or schedule.is_deleted:
+        log(log.INFO, "Schedule was not found or was deleted")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Schedule was not found"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Schedule was not found or was deleted",
         )
     return schedule
 
@@ -155,7 +160,7 @@ def delete_schedule_by_uuid(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Schedule was not found"
         )
-    db.delete(schedule)
+    schedule.is_deleted = True
     try:
         db.commit()
     except SQLAlchemyError as e:
@@ -177,7 +182,11 @@ def edit_schedule(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    schedule = db.query(m.CoachSchedule).filter_by(uuid=schedule_uuid).first()
+    schedule = (
+        db.query(m.CoachSchedule)
+        .filter_by(uuid=schedule_uuid, is_deleted=False)
+        .first()
+    )
     if not schedule:
         log(log.INFO, "Schedule was not found")
         raise HTTPException(

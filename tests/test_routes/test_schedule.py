@@ -117,4 +117,4 @@ def test_schedule(
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response.status_code == 200
-    assert not db.query(m.CoachSchedule).filter_by(uuid=resp_obj.uuid).first()
+    assert db.query(m.CoachSchedule).filter_by(uuid=resp_obj.uuid).first().is_deleted
