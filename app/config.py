@@ -47,7 +47,7 @@ class Settings(BaseSettings):
 
     GOOGLE_CLIENT_ID: str = "test_google_client_id"
     GOOGLE_CLIENT_SECRET: str = "test_google_client_secret"
-
+    STRIPE_FMC_APPLICATION_FEE: float = 2.5
     NEWSLETTER_REPORT_EMAIL: str = "info@findmycoach.co.uk"
 
     COACH_SUBSCRIPTION_PRODUCT_ID: str

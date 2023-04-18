@@ -173,7 +173,7 @@ def reserve_booking(
     log(log.INFO, "Student [%s] created as a stripe customer", student.email)
     total_price = sum([schedule.lesson.price for schedule in schedules])
     stripe_fee = 20 + int((total_price / 100) * 1.4)
-    application_fee = int((total_price / 100) * 2.5)
+    application_fee = int((total_price / 100) * settings.STRIPE_FMC_APPLICATION_FEE)
     checkout = stripe.checkout.Session.create(
         success_url=f"{settings.BASE_URL}/coach_search/{coach_uuid}?success",
         cancel_url=f"{settings.BASE_URL}/coach_search/{coach_uuid}?cancel",
