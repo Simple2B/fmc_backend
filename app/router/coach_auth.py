@@ -47,7 +47,6 @@ async def coach_sign_up(
     coach: Coach | None = Coach(**coach_data.dict(), is_verified=False)
     db.add(coach)
     try:
-        log(log.INFO, "New Coach is created: [%s]", coach.email)
         db.commit()
     except SQLAlchemyError as e:
         log(log.ERROR, "Failed to create a new coach: [%s]\n[%s]", coach.email, e)
@@ -71,7 +70,7 @@ async def coach_sign_up(
         db.rollback()
         log(log.ERROR, "Error while sending message - [%s]", e)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
-
+    log(log.INFO, "New Coach is created: [%s]", coach.email)
     return status.HTTP_200_OK
 
 
