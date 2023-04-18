@@ -83,7 +83,7 @@ def test_schedule(
 
     # getting single schedule by uuid
     response = client.get(
-        f"/api/schedule/{resp_obj.schedules[0].uuid}",
+        f"/api/schedule/{resp_obj.schedules[0].uuid}?location_id={1}",
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response.status_code == 200

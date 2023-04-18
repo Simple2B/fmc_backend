@@ -33,6 +33,7 @@ def get_current_coach_schedules(
 )
 def get_coach_schedules_by_uuid(
     coach_uuid: str,
+    location_id: int = None,
     schedule_date: str | None = datetime.now().date().isoformat(),
     db: Session = Depends(get_db),
 ):
@@ -43,16 +44,13 @@ def get_coach_schedules_by_uuid(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Such coach not found",
         )
-
-    schedules = (
-        db.query(m.CoachSchedule)
-        .filter(
-            m.CoachSchedule.coach_id == coach.id,
-            m.CoachSchedule.is_booked == False,  # noqa:flake8 E712
-        )
-        .order_by(m.CoachSchedule.start_datetime.asc())
-    ).all()
-
+    query = db.query(m.CoachSchedule).filter(
+        m.CoachSchedule.coach_id == coach.id,
+        m.CoachSchedule.is_booked == False,  # noqa:flake8 E712
+    )
+    if location_id:
+        query = query.join(m.Lesson).filter(m.Lesson.location_id == location_id)
+    schedules = query.order_by(m.CoachSchedule.start_datetime.asc()).all()
     result = []
     for schedule in schedules:
         start_date = schedule.start_datetime.date()
