@@ -44,6 +44,13 @@ async def student_sign_up(
     db: Session = Depends(get_db),
     mail_client: MailClient = Depends(get_mail_client),
 ):
+    student = db.query(Student).filter_by(email=student_data.email).first()
+    if student and student.google_open_id:
+        log(log.INFO, "Student - [%s] already signed up via google", student.email)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="You are already signed up via GOOGLE",
+        )
     student: Student | None = Student(**student_data.dict(), is_verified=False)
     db.add(student)
     try:
@@ -197,9 +204,11 @@ def student_google_auth(
             "Student [%s] has been created (via Google account))",
             student.email,
         )
+    student.is_verified = True
     if student_data.picture:
         student.picture = student_data.picture
         db.commit()
+
     student.authenticate(db, student.username, student.password)
     log(log.INFO, "Authenticating user - [%s]", student.email)
     access_token = create_access_token(data={"user_id": student.id})

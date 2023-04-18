@@ -44,6 +44,13 @@ async def coach_sign_up(
     db: Session = Depends(get_db),
     mail_client: MailClient = Depends(get_mail_client),
 ):
+    coach = db.query(Coach).filter_by(email=coach_data.email).first()
+    if coach and coach.google_open_id:
+        log(log.INFO, "Coach - [%s] already signed up via google", coach.email)
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="You are already signed up via GOOGLE",
+        )
     coach: Coach | None = Coach(**coach_data.dict(), is_verified=False)
     db.add(coach)
     try:
@@ -201,6 +208,7 @@ def coach_google_auth(
     if coach_data.picture:
         coach_data.picture = coach_data.picture
         db.commit()
+    coach.is_verified = True
     coach.authenticate(db, coach.username, coach.password)
     log(log.INFO, "Authenticating coach - [%s]", coach.email)
     access_token = create_access_token(data={"user_id": coach.id})
