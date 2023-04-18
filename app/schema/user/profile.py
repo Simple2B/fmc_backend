@@ -16,6 +16,7 @@ class User(BaseUser):
     last_name: str
     is_verified: bool
     profile_picture: str | None = ""
+    stripe_account_id: str | None
 
     class Config:
         orm_mode = True
@@ -26,7 +27,6 @@ class UserList(BaseModel):
 
 
 class Coach(User):
-    stripe_account_id: str | None
     total_rate: float
     about: str = ""
     experience: str | None
