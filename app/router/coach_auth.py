@@ -205,10 +205,10 @@ def coach_google_auth(
             "Coach [%s] has been created (via Google account))",
             coach.email,
         )
+    coach.is_verified = True
     if coach_data.picture:
         coach_data.picture = coach_data.picture
-        db.commit()
-    coach.is_verified = True
+    db.commit()
     coach.authenticate(db, coach.username, coach.password)
     log(log.INFO, "Authenticating coach - [%s]", coach.email)
     access_token = create_access_token(data={"user_id": coach.id})

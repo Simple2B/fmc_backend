@@ -207,8 +207,7 @@ def student_google_auth(
     student.is_verified = True
     if student_data.picture:
         student.picture = student_data.picture
-        db.commit()
-
+    db.commit()
     student.authenticate(db, student.username, student.password)
     log(log.INFO, "Authenticating user - [%s]", student.email)
     access_token = create_access_token(data={"user_id": student.id})
