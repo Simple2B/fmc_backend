@@ -128,6 +128,19 @@ def coach_stripe_dashboard(
     return login_link.url
 
 
+@stripe_router.get("coach/customer_portal")
+def coach_customer_portal(
+    coach: m.Coach = Depends(get_current_coach),
+    stripe=Depends(get_stripe),
+    settings: Settings = Depends(get_settings),
+):
+    portal = stripe.billing_portal.Session.create(
+        customer=coach.stripe_customer_id,
+        return_url=f"{settings.BASE_URL}/profiles/coach?my_appointments",
+    )
+    return portal.url
+
+
 @stripe_router.post("/student/reserve", status_code=status.HTTP_201_CREATED)
 def reserve_booking(
     schedule_uuids: list[str] | None = Query(None),
@@ -251,6 +264,21 @@ async def stripe_webhook(
         db.add(coach_subscription)
         db.commit()
         log(log.INFO, "Coach subscription created")
+        return status.HTTP_200_OK
+    if event["type"] == "customer.subscription.deleted":
+        subscription_data = event["data"]["object"]
+        subscription = (
+            db.query(m.CoachSubscription)
+            .filter_by(stripe_subscription_id=subscription_data.id)
+            .first()
+        )
+        subscription.is_active = False
+        db.commit()
+        log(
+            log.INFO,
+            "Subscription [%s] cancelled ",
+            subscription.stripe_subscription_id,
+        )
         return status.HTTP_200_OK
     if event.type == "payment_intent.succeeded":
         # Processing the successful purchase of appointments
