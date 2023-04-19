@@ -85,21 +85,25 @@ def create_coach_schedule(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="You are not allowed to process payments.Please visit your stripe dashboard",
             )
-        if (
-            db.query(m.CoachSchedule)
-            .filter_by(
-                lesson_id=data.lesson_id,
-                coach_id=coach.id,
-                start_datetime=data.start_datetime,
-                end_datetime=data.end_datetime,
-            )
-            .first()
-        ):
+        schedule = db.query(m.CoachSchedule).filter_by(
+            lesson_id=data.lesson_id,
+            coach_id=coach.id,
+            start_datetime=data.start_datetime,
+            end_datetime=data.end_datetime,
+        ).first()
+        if schedule and not schedule.is_deleted:
+            log(log.INFO, "Schedule already exists on this date - [%s]", schedule.uuid)
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Schedule already exists on this date",
             )
+        if schedule and schedule.is_deleted:
+            log(log.INFO, "Schedule has been recovered - [%s]", schedule.uuid)
+            schedule.is_deleted = False
+            db.commit()
+
         if not data.lesson_id:
+
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT, detail="Missing package"
             )
