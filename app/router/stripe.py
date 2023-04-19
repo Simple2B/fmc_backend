@@ -240,7 +240,16 @@ async def stripe_webhook(
     except Exception as e:
         log(log.ERROR, "Error - [%s]", e)
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"{e}")
-
+    if event["type"] == "customer.subscription.updated":
+        subscription_data = event["data"]["object"]
+        subscription = (
+            db.query(m.CoachSubscription)
+            .filter_by(stripe_subscription_id=subscription_data.id)
+            .first()
+        )
+        subscription.is_active = not subscription_data.cancel_at_period_end
+        db.commit()
+        return status.HTTP_200_OK
     if event["type"] == "customer.subscription.created":
         subscription = event["data"]["object"]
         coach: m.Coach = (
