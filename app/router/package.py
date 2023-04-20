@@ -18,24 +18,33 @@ def create_package(
     db: Session = Depends(get_db),
     coach: m.Coach = Depends(get_current_coach),
 ):
-    # if db.query(m.Lesson).filter_by(title=data.title, coach_id=coach.id).first():
-    #     log(log.INFO, "Package with such title already exists")
-    #     raise HTTPException(
-    #         status_code=status.HTTP_409_CONFLICT,
-    #         detail="Package with such title already exists",
-    #     )
-    package = m.Lesson(
-        title=data.title,
-        coach_id=coach.id,
-        location_id=data.location.id,
-        sport_type_id=data.sport.id,
-        about=data.about,
-        additional_information_title=data.additional_information_title,
-        additional_information_description=data.additional_information_description,
-        max_people=data.max_people,
-        price=data.price,
-    )
-    db.add(package)
+    package = db.query(m.Lesson).filter_by(title=data.title, coach_id=coach.id).first()
+    if package:
+        package.title = data.title
+        package.coach_id = coach.id
+        package.location_id = data.location.id
+        package.sport_type_id = data.sport.id
+        package.about = data.about
+        package.additional_information_title = data.additional_information_title
+        package.additional_information_description = (
+            data.additional_information_description
+        )
+
+        package.max_people = data.max_people
+        package.price = data.price
+    else:
+        package = m.Lesson(
+            title=data.title,
+            coach_id=coach.id,
+            location_id=data.location.id,
+            sport_type_id=data.sport.id,
+            about=data.about,
+            additional_information_title=data.additional_information_title,
+            additional_information_description=data.additional_information_description,
+            max_people=data.max_people,
+            price=data.price,
+        )
+        db.add(package)
     try:
         db.commit()
     except SQLAlchemyError as e:
