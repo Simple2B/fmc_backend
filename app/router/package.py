@@ -58,11 +58,22 @@ def create_package(
 
 
 @package_router.get(
-    "/packages/{coach_uuid}",
+    "/packages",
     status_code=status.HTTP_201_CREATED,
     response_model=s.LessonList,
 )
 def get_packages(
+    coach: m.Coach = Depends(get_current_coach),
+):
+    return s.LessonList(lessons=coach.lessons)
+
+
+@package_router.get(
+    "/packages/{coach_uuid}",
+    status_code=status.HTTP_201_CREATED,
+    response_model=s.LessonList,
+)
+def get_packages_for_coach(
     coach_uuid: str,
     db: Session = Depends(get_db),
 ):
