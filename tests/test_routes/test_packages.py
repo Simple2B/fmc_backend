@@ -43,7 +43,7 @@ def test_packages(
     assert db.query(m.Lesson).filter_by(coach_id=coach.id).first()
 
     response = client.get(
-        "/api/package/packages",
+        f"/api/package/packages/{coach.uuid}",
         headers={"Authorization": f"Bearer {authorized_coach_tokens[0].access_token}"},
     )
     assert response.status_code == 201

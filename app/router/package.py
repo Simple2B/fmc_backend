@@ -58,12 +58,17 @@ def create_package(
 
 
 @package_router.get(
-    "/packages", status_code=status.HTTP_201_CREATED, response_model=s.LessonList
+    "/packages/{coach_uuid}",
+    status_code=status.HTTP_201_CREATED,
+    response_model=s.LessonList,
 )
 def get_packages(
+    coach_uuid: str,
     db: Session = Depends(get_db),
-    coach: m.Coach = Depends(get_current_coach),
 ):
+    coach = db.query(m.Coach).filter_by(uuid=coach_uuid).first()
+    if not coach:
+        log(log.INFO, "Coach not found [%s]", coach_uuid)
     return s.LessonList(lessons=coach.lessons)
 
 
