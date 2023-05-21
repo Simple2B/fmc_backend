@@ -4,6 +4,7 @@ from starlette.responses import JSONResponse
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 
 from app.config import Settings
+from app.logger import log
 
 
 class MailClient:
@@ -54,6 +55,7 @@ class MailClient:
             message,
             template_name=template,
         )
+        log(log.INFO, "Sending message to %s", email)
         return JSONResponse(
             status_code=200,
             content={
