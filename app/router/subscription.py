@@ -1,5 +1,3 @@
-from datetime import datetime, timedelta
-
 from fastapi import APIRouter, Depends, status, HTTPException
 from stripe.error import InvalidRequestError
 
