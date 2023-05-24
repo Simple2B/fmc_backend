@@ -67,9 +67,9 @@ def create_coach_subscription(
                 },
             ],
             mode="subscription",
-            subscription_data={
-                "trial_end": int((datetime.now() + timedelta(days=31)).timestamp()),
-            },
+            # subscription_data={
+            #     "trial_end": int((datetime.now() + timedelta(days=31)).timestamp()),
+            # },
         )
     except InvalidRequestError as e:
         log(log.ERROR, "Error while creating a checkout session - [%s]", e)
